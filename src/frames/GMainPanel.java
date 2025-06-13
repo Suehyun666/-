@@ -181,7 +181,6 @@ public class GMainPanel extends JPanel {
     private void finishTransform(int x, int y) {
     	this.transformer.finish((Graphics2D) getGraphics(), x, y);
     	this.selectShape(this.toolshape);
-    	
     	if(this.eShapeTool==EShapeTool.eSelect) {
     		this.shapes.removeLast();
     		for(GShape shape:this.shapes) {

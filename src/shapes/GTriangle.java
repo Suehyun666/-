@@ -19,19 +19,17 @@ public class GTriangle extends GShape{
 		this.startX = x;
 		this.startY = y;
 
-		this.triangle.reset();
-		this.triangle.moveTo(x, y);
-		this.triangle.lineTo(x, y);
-		this.triangle.lineTo(x, y);
-		this.triangle.closePath();
-
 		this.xPoints[0] = x;
 		this.yPoints[0] = y;
 		this.xPoints[1] = x;
 		this.yPoints[1] = y;
 		this.xPoints[2] = x;
 		this.yPoints[2] = y;
+
+		updateTrianglePath();
+		this.transform = new java.awt.geom.AffineTransform();
 	}
+
 
 	@Override
 	public void dragPoint(int x, int y) {
@@ -46,11 +44,12 @@ public class GTriangle extends GShape{
 		updateTrianglePath();
 	}
 	private void updateTrianglePath() {
-		triangle.reset();
+		Path2D.Float triangle = new Path2D.Float();
 		triangle.moveTo(xPoints[0], yPoints[0]);
 		triangle.lineTo(xPoints[1], yPoints[1]);
 		triangle.lineTo(xPoints[2], yPoints[2]);
 		triangle.closePath();
+		this.shape = triangle;
 	}
 
 	@Override

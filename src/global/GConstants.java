@@ -50,7 +50,6 @@ public class GConstants {
 		eRectangle("rectangle", EPoints.e2P,GRectangle.class),
 		eTriangle("triangle", EPoints.e2P, GTriangle.class),
 		eEllipse("ellipse", EPoints.e2P, GEllipse.class),
-		eOval("oval", EPoints.e2P, GOval.class),
 		eLine("line", EPoints.e2P,GLine.class),
 		ePolygon("polygon",EPoints.enP,GPolygon.class);
 

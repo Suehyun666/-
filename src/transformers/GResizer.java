@@ -47,16 +47,15 @@ public class GResizer extends GTransFormer {
 	@Override
 	public void drag(Graphics2D graphics, int x, int y) {
 		double dx = 0, dy=0;
-		//old width, height / new width, height 
+
 		int newX = Math.min(x, cx);
 		int newY = Math.min(y, cy);
 		int newWidth = Math.abs(x - cx);
 		int newHeight = Math.abs(y - cy);
-		//0pixel제한
+
 		if (newWidth < 5) newWidth = 5;
 		if (newHeight < 5) newHeight = 5;
 
-		//어떤 앵커인지 알아야함.
 		switch(eRisizeAnchor) {
 			case NW: dx=(x-px); 	dy=(y-py); 		break;
 			case WW: dx=(x-px); 	dy=0; 			break;
@@ -76,9 +75,9 @@ public class GResizer extends GTransFormer {
 		double xScale = w2/w1;
 		double yScale = h2/h1;
 
-		this.shape.getAffineTransform().translate(cx, cy);// 왜 이렇게 했는지 생각 -찌그러짐
+		this.shape.getAffineTransform().translate(cx, cy);
 		this.shape.getAffineTransform().scale(xScale, yScale);
-		this.shape.getAffineTransform().translate(-cx, -cy);//문제있는 코드다.
+		this.shape.getAffineTransform().translate(-cx, -cy);
 
 		this.px=x;
 		this.py=y;

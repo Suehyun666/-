@@ -7,7 +7,6 @@ import shapes.GShape;
 
 public class GMover extends GTransFormer {
 	private Vector<GShape> selectedShapes;
-	private int px, py; 
 	
 	public GMover(Vector<GShape> selectedShapes) {
 		super(selectedShapes.getFirst());
@@ -16,17 +15,16 @@ public class GMover extends GTransFormer {
 	
 	@Override
 	public void start(Graphics2D graphics, int x, int y) {
-		this.px=x;
-		this.py=y;
+		for (GShape shape : selectedShapes) {
+			shape.setMovePoint(x, y);
+		}
 	}
 	
 	@Override
 	public void drag(Graphics2D graphics, int x, int y) {
-		int tx=x-px;
-		int ty=y-py;
-		this.shape.getAffineTransform().translate(tx, ty);		
-		this.px=x;
-		this.py=y;
+		for(GShape shape : selectedShapes) {
+			shape.movePoint(x, y);
+		}
 	}
 	@Override
 	public void addpoint(Graphics2D graphics, int x, int y) {
