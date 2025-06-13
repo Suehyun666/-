@@ -1,0 +1,248 @@
+Adobe Photoshop Version: 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00) x64
+Operating System: Windows NT
+Version: 6.2
+System architecture: Intel CPU Family:6, Model:10, Stepping:4 with MMX, SSE Integer, SSE FP, SSE2, SSE3, SSE4.1, SSE4.2, HyperThreading
+Physical processor count: 10
+Logical processor count: 12
+Processor speed: 2496 MHz
+Built-in memory: 32469 MB
+Free memory: 19052 MB
+Memory available to Photoshop: 25653 MB
+Memory used by Photoshop: 60 %
+Image tile size: 128K
+Image cache levels: 4
+OpenGL Drawing: Enabled.
+OpenGL Drawing Mode: Advanced
+OpenGL Allow Normal Mode: True.
+OpenGL Allow Advanced Mode: True.
+OpenGL Allow Old GPUs: Not Detected.
+Video Card Vendor: Intel
+Video Card Renderer: Intel(R) Iris(R) Xe Graphics
+Display: 1
+Display Bounds:=  top: 0, left: 0, bottom: 1080, right: 1920
+Video Card Number: 1
+Video Card: Intel(R) Iris(R) Xe Graphics
+OpenCL Version:
+Driver Version: 30.0.101.2079
+Driver Date: 20220526000000.000000-000
+Video Card Driver: <>,C:\WINDOWS\System32\DriverStore\FileRepository\iigd_dch.inf_amd64_b3623ea7c47ec411\igd10iumd64.dll,C:\WINDOWS\System32\DriverStore\FileRepository\iigd_dch.inf_amd64_b3623ea7c47ec411\igd10iumd64.dll,C:\WINDOWS\System32\DriverStore\FileRepository\iigd_dch.inf_amd64_b3623ea7c47ec411\igd12umd64.dll
+Video Mode: 1920 x 1080 x 4294967296\xc0c9
+Video Card Caption: Intel(R) Iris(R) Xe Graphics
+Video Card Memory: 1024 MB
+Video Rect Texture Size: 16384
+Serial number: 92628701192123445467
+Application folder: C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\
+Temporary file path: C:\Users\psj03\AppData\Local\Temp\
+Photoshop scratch has async I/O enabled
+Scratch volume(s):
+  Startup, 930.7G, 811.8G free
+Required Plug-ins folder: C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\Required\
+Primary Plug-ins folder: C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\Plug-ins\
+Additional Plug-ins folder: not set
+
+Installed components:
+   A3DLIBS.dll   A3DLIB Dynamic Link Library   9.2.0.112
+   ACE.dll   ACE 2012/01/18-15:07:40   66.492997   66.492997
+   adbeape.dll   Adobe APE 2012/01/25-10:04:55   66.1025012   66.1025012
+   AdobeLinguistic.dll   Adobe Linguisitc Library   6.0.0
+   AdobeOwl.dll   Adobe Owl 2012/02/09-16:00:02   4.0.93   66.496052
+   AdobePDFL.dll   PDFL 2011/12/12-16:12:37   66.419471   66.419471
+   AdobePIP.dll   Adobe Product Improvement Program   6.0.0.1654
+   AdobeXMP.dll   Adobe XMP Core 2012/02/06-14:56:27   66.145661   66.145661
+   AdobeXMPFiles.dll   Adobe XMP Files 2012/02/06-14:56:27   66.145661   66.145661
+   AdobeXMPScript.dll   Adobe XMP Script 2012/02/06-14:56:27   66.145661   66.145661
+   adobe_caps.dll   Adobe CAPS   6,0,29,0
+   AGM.dll   AGM 2012/01/18-15:07:40   66.492997   66.492997
+   ahclient.dll    AdobeHelp Dynamic Link Library   1,7,0,56
+   aif_core.dll   AIF   3.0   62.490293
+   aif_ocl.dll   AIF   3.0   62.490293
+   aif_ogl.dll   AIF   3.0   62.490293
+   amtlib.dll   AMTLib (64 Bit)   6.0.0.75 (BuildVersion: 6.0; BuildDate: Mon Jan 16 2012 18:00:00)   1.000000
+   ARE.dll   ARE 2012/01/18-15:07:40   66.492997   66.492997
+   AXE8SharedExpat.dll   AXE8SharedExpat 2011/12/16-15:10:49   66.26830   66.26830
+   AXEDOMCore.dll   AXEDOMCore 2011/12/16-15:10:49   66.26830   66.26830
+   Bib.dll   BIB 2012/01/18-15:07:40   66.492997   66.492997
+   BIBUtils.dll   BIBUtils 2012/01/18-15:07:40   66.492997   66.492997
+   boost_date_time.dll   DVA Product   6.0.0
+   boost_signals.dll   DVA Product   6.0.0
+   boost_system.dll   DVA Product   6.0.0
+   boost_threads.dll   DVA Product   6.0.0
+   cg.dll   NVIDIA Cg Runtime   3.0.00007
+   cgGL.dll   NVIDIA Cg Runtime   3.0.00007
+   CIT.dll   Adobe CIT   2.0.5.19287   2.0.5.19287
+   CoolType.dll   CoolType 2012/01/18-15:07:40   66.492997   66.492997
+   data_flow.dll   AIF   3.0   62.490293
+   dvaaudiodevice.dll   DVA Product   6.0.0
+   dvacore.dll   DVA Product   6.0.0
+   dvamarshal.dll   DVA Product   6.0.0
+   dvamediatypes.dll   DVA Product   6.0.0
+   dvaplayer.dll   DVA Product   6.0.0
+   dvatransport.dll   DVA Product   6.0.0
+   dvaunittesting.dll   DVA Product   6.0.0
+   dynamiclink.dll   DVA Product   6.0.0
+   ExtendScript.dll   ExtendScript 2011/12/14-15:08:46   66.490082   66.490082
+   FileInfo.dll   Adobe XMP FileInfo 2012/01/17-15:11:19   66.145433   66.145433
+   filter_graph.dll   AIF   3.0   62.490293
+   hydra_filters.dll   AIF   3.0   62.490293
+   icucnv40.dll   International Components for Unicode 2011/11/15-16:30:22    Build gtlib_3.0.16615
+   icudt40.dll   International Components for Unicode 2011/11/15-16:30:22    Build gtlib_3.0.16615
+   image_compiler.dll   AIF   3.0   62.490293
+   image_flow.dll   AIF   3.0   62.490293
+   image_runtime.dll   AIF   3.0   62.490293
+   JP2KLib.dll   JP2KLib 2011/12/12-16:12:37   66.236923   66.236923
+   libifcoremd.dll   Intel(r) Visual Fortran Compiler   10.0 (Update A)
+   libmmd.dll   Intel(r) C Compiler, Intel(r) C++ Compiler, Intel(r) Fortran Compiler   10.0
+   LogSession.dll   LogSession   2.1.2.1640
+   mediacoreif.dll   DVA Product   6.0.0
+   MPS.dll   MPS 2012/02/03-10:33:13   66.495174   66.495174
+   msvcm80.dll   Microsoft® Visual Studio® 2005   8.00.50727.9680
+   msvcm90.dll   Microsoft® Visual Studio® 2008   9.00.30729.1
+   msvcp100.dll   Microsoft® Visual Studio® 2010   10.00.40219.1
+   msvcp80.dll   Microsoft® Visual Studio® 2005   8.00.50727.9680
+   msvcp90.dll   Microsoft® Visual Studio® 2008   9.00.30729.1
+   msvcr100.dll   Microsoft® Visual Studio® 2010   10.00.40219.1
+   msvcr80.dll   Microsoft® Visual Studio® 2005   8.00.50727.9680
+   msvcr90.dll   Microsoft® Visual Studio® 2008   9.00.30729.1
+   pdfsettings.dll   Adobe PDFSettings   1.04
+   Photoshop.dll   Adobe Photoshop CS6   CS6
+   Plugin.dll   Adobe Photoshop CS6   CS6
+   PlugPlug.dll   Adobe(R) CSXS PlugPlug Standard Dll (64 bit)   3.0.0.383
+   PSArt.dll   Adobe Photoshop CS6   CS6
+   PSViews.dll   Adobe Photoshop CS6   CS6
+   SCCore.dll   ScCore 2011/12/14-15:08:46   66.490082   66.490082
+   ScriptUIFlex.dll   ScriptUIFlex 2011/12/14-15:08:46   66.490082   66.490082
+   tbb.dll   Intel(R) Threading Building Blocks for Windows   3, 0, 2010, 0406
+   tbbmalloc.dll   Intel(R) Threading Building Blocks for Windows   3, 0, 2010, 0406
+   TfFontMgr.dll   FontMgr   9.3.0.113
+   TfKernel.dll   Kernel   9.3.0.113
+   TFKGEOM.dll   Kernel Geom   9.3.0.113
+   TFUGEOM.dll   Adobe, UGeom©   9.3.0.113
+   updaternotifications.dll   Adobe Updater Notifications Library   6.0.0.24 (BuildVersion: 1.0; BuildDate: BUILDDATETIME)   6.0.0.24
+   WRServices.dll   WRServices Friday January 27 2012 13:22:12   Build 0.17112   0.17112
+   wu3d.dll   U3D Writer   9.3.0.113
+
+
+Required plug-ins:
+
+   Accented Edges 13.0
+   Adaptive Wide Angle 13.0
+   ADM 3.11x01
+   Angled Strokes 13.0
+   Average 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Bas Relief 13.0
+   BMP 13.0
+   Camera Raw 7.0
+   Chalk & Charcoal 13.0
+   Charcoal 13.0
+   Chrome 13.0
+   Cineon 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Clouds 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Collada 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Color Halftone 13.0
+   Colored Pencil 13.0
+   CompuServe GIF 13.0
+   Conté Crayon 13.0
+   Craquelure 13.0
+   Crop and Straighten Photos 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Crop and Straighten Photos Filter 13.0
+   Crosshatch 13.0
+   Crystallize 13.0
+   Cutout 13.0
+   Dark Strokes 13.0
+   De-Interlace 13.0
+   Difference Clouds 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Diffuse Glow 13.0
+   Displace 13.0
+   Dry Brush 13.0
+   Eazel Acquire 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Embed Watermark 4.0
+   Extrude 13.0
+   FastCore Routines 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Fibers 13.0
+   Film Grain 13.0
+   Filter Gallery 13.0
+   Fresco 13.0
+   Glass 13.0
+   Glowing Edges 13.0
+   Grain 13.0
+   Graphic Pen 13.0
+   Halftone Pattern 13.0
+   HDRMergeUI 13.0
+   IFF Format 13.0
+   Ink Outlines 13.0
+   JPEG 2000 13.0
+   Lens Blur 13.0
+   Lens Correction 13.0
+   Lens Flare 13.0
+   Liquify 13.0
+   Matlab Operation 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Measurement Core 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Mezzotint 13.0
+   MMXCore Routines 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Mosaic Tiles 13.0
+   Multiprocessor Support 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Neon Glow 13.0
+   Note Paper 13.0
+   NTSC Colors 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Ocean Ripple 13.0
+   Oil Paint 13.0
+   OpenEXR 13.0
+   Paint Daubs 13.0
+   Palette Knife 13.0
+   Patchwork 13.0
+   Paths to Illustrator 13.0
+   PCX 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Photocopy 13.0
+   Photoshop 3D Engine 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Picture Package Filter 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Pinch 13.0
+   Pixar 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Plaster 13.0
+   Plastic Wrap 13.0
+   PNG 13.0
+   Pointillize 13.0
+   Polar Coordinates 13.0
+   Portable Bit Map 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Poster Edges 13.0
+   Radial Blur 13.0
+   Radiance 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Read Watermark 4.0
+   Reticulation 13.0
+   Ripple 13.0
+   Rough Pastels 13.0
+   Save for Web 13.0
+   ScriptingSupport 13.0
+   Shear 13.0
+   Smart Blur 13.0
+   Smudge Stick 13.0
+   Solarize 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Spatter 13.0
+   Spherize 13.0
+   Sponge 13.0
+   Sprayed Strokes 13.0
+   Stained Glass 13.0
+   Stamp 13.0
+   Sumi-e 13.0
+   Targa 13.0
+   Texturizer 13.0
+   Tiles 13.0
+   Torn Edges 13.0
+   Twirl 13.0
+   Underpainting 13.0
+   Vanishing Point 13.0
+   Variations 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Water Paper 13.0
+   Watercolor 13.0
+   Wave 13.0
+   WIA Support 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   Wind 13.0
+   Wireless Bitmap 13.0 (13.0 20120315.r.428 2012/03/15:21:00:00)
+   ZigZag 13.0
+
+Optional and third party plug-ins: NONE
+
+Plug-ins that failed to load: NONE
+Flash:
+   Mini Bridge
+   Kuler
+Installed TWAIN devices: NONE
