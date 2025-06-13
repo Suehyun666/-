@@ -9,7 +9,7 @@ import shapes.GShape;
 
 public class GResizer extends GTransFormer {
 	private GShape shape;
-	private int px, py; 
+	private int px, py;
 	private int cx,cy;
 	private EAnchor eRisizeAnchor;
 	private Rectangle originalBounds;
@@ -17,56 +17,56 @@ public class GResizer extends GTransFormer {
 		super(gshape);
 		this.shape=gshape;
 	}
-	
+
 	@Override
 	public void start(Graphics2D graphics, int x, int y) {
 		this.px=x;
 		this.py=y;
 		this.originalBounds = this.shape.getBounds();
 		Rectangle r = new Rectangle(originalBounds);;
-		
+
 		EAnchor eSelectedAnchor =this.shape.getSelectedAnchor();
 		eRisizeAnchor = null;
 		switch(eSelectedAnchor) {
-		case NW: eRisizeAnchor=EAnchor.SE; cx = r.x+r.width; 	cy = r.y+r.height; break;
-		case WW: eRisizeAnchor=EAnchor.EE; cx = r.x+r.width; 	cy = r.y+r.height/2; break;
-		case SW: eRisizeAnchor=EAnchor.NE; cx = r.x+r.width; 	cy = r.y; break;
-		case SS: eRisizeAnchor=EAnchor.NN; cx = r.x+r.width/2; 	cy = r.y; break;
-		case SE: eRisizeAnchor=EAnchor.NW; cx = r.x; 			cy = r.y; break;
-		case EE: eRisizeAnchor=EAnchor.WW; cx = r.x; 			cy = r.y+r.height/2; break;
-		case NE: eRisizeAnchor=EAnchor.SW; cx = r.x; 			cy = r.y+r.height; break;
-		case NN: eRisizeAnchor=EAnchor.SS; cx = r.x+r.width/2; 	cy = r.y+r.height; break;
-		default: break;}
-		
+			case NW: eRisizeAnchor=EAnchor.SE; cx = r.x+r.width; 	cy = r.y+r.height; break;
+			case WW: eRisizeAnchor=EAnchor.EE; cx = r.x+r.width; 	cy = r.y+r.height/2; break;
+			case SW: eRisizeAnchor=EAnchor.NE; cx = r.x+r.width; 	cy = r.y; break;
+			case SS: eRisizeAnchor=EAnchor.NN; cx = r.x+r.width/2; 	cy = r.y; break;
+			case SE: eRisizeAnchor=EAnchor.NW; cx = r.x; 			cy = r.y; break;
+			case EE: eRisizeAnchor=EAnchor.WW; cx = r.x; 			cy = r.y+r.height/2; break;
+			case NE: eRisizeAnchor=EAnchor.SW; cx = r.x; 			cy = r.y+r.height; break;
+			case NN: eRisizeAnchor=EAnchor.SS; cx = r.x+r.width/2; 	cy = r.y+r.height; break;
+			default: break;}
+
 		this.shape.getAffineTransform().scale(1, 1);
 		this.px=x;
 		this.py=y;
-		
+
 	}
-	
+
 	@Override
 	public void drag(Graphics2D graphics, int x, int y) {
 		double dx = 0, dy=0;
 		//old width, height / new width, height 
 		int newX = Math.min(x, cx);
-        int newY = Math.min(y, cy);
-        int newWidth = Math.abs(x - cx);
-        int newHeight = Math.abs(y - cy);
-        //0pixel¡¶«— 
-        if (newWidth < 5) newWidth = 5;
-        if (newHeight < 5) newHeight = 5;
-        
-		//æÓ∂≤ æﬁƒø¿Œ¡ˆ æÀæ∆æﬂ«‘.
+		int newY = Math.min(y, cy);
+		int newWidth = Math.abs(x - cx);
+		int newHeight = Math.abs(y - cy);
+		//0pixelÏ†úÌïú
+		if (newWidth < 5) newWidth = 5;
+		if (newHeight < 5) newHeight = 5;
+
+		//Ïñ¥Îñ§ ÏïµÏª§Ïù∏ÏßÄ ÏïåÏïÑÏïºÌï®.
 		switch(eRisizeAnchor) {
-		case NW: dx=(x-px); 	dy=(y-py); 		break;
-		case WW: dx=(x-px); 	dy=0; 			break;
-		case SW: dx=(x-px); 	dy=-(y-py); 	break;
-		case SS: dx=0; 			dy=-(y-py);		break;
-		case SE: dx=-(x-px);	dy=-(y-py); 	break;
-		case EE: dx=-(x-px); 	dy=0; 			break;
-		case NE: dx=-(x-px); 	dy=(y-py);		break;
-		case NN: dx=0; 			dy=(y-py);		break;
-		default: break;
+			case NW: dx=(x-px); 	dy=(y-py); 		break;
+			case WW: dx=(x-px); 	dy=0; 			break;
+			case SW: dx=(x-px); 	dy=-(y-py); 	break;
+			case SS: dx=0; 			dy=-(y-py);		break;
+			case SE: dx=-(x-px);	dy=-(y-py); 	break;
+			case EE: dx=-(x-px); 	dy=0; 			break;
+			case NE: dx=-(x-px); 	dy=(y-py);		break;
+			case NN: dx=0; 			dy=(y-py);		break;
+			default: break;
 		}
 		Shape transformedShape= this.shape.getTransformedShape();
 		double w1=transformedShape.getBounds().width;
@@ -75,11 +75,11 @@ public class GResizer extends GTransFormer {
 		double h2=dy+h1;
 		double xScale = w2/w1;
 		double yScale = h2/h1;
-		
-		this.shape.getAffineTransform().translate(cx, cy);// ø÷ ¿Ã∑∏∞‘ «ﬂ¥¬¡ˆ ª˝∞¢ -¬Ó±◊∑Ø¡¸
-		this.shape.getAffineTransform().scale(xScale, yScale); 
-		this.shape.getAffineTransform().translate(-cx, -cy);//πÆ¡¶¿÷¥¬ ƒ⁄µÂ¥Ÿ.
-		
+
+		this.shape.getAffineTransform().translate(cx, cy);// Ïôú Ïù¥Î†áÍ≤å ÌñàÎäîÏßÄ ÏÉùÍ∞Å -Ï∞åÍ∑∏Îü¨Ïßê
+		this.shape.getAffineTransform().scale(xScale, yScale);
+		this.shape.getAffineTransform().translate(-cx, -cy);//Î¨∏Ï†úÏûàÎäî ÏΩîÎìúÎã§.
+
 		this.px=x;
 		this.py=y;
 	}

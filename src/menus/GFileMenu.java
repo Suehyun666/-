@@ -19,19 +19,18 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import constants.GMenuConstants.EFileMenuItem;
+import global.GMenuConstants.EFileMenuItem;
 import frames.GMainPanel;
 import shapes.GShape;
 
 public class GFileMenu extends JMenu {
     private static final long serialVersionUID = 1L;
-    
-  //components
+
+    //components
     private GMainPanel mainpanel;
     private JFileChooser fileChooser;
-    private File currentFile; 
-    private File dir;
-    
+    private File currentFile;
+
     //constructor
     public GFileMenu(String text) {
         super(text);
@@ -52,52 +51,50 @@ public class GFileMenu extends JMenu {
         fileChooser.setAcceptAllFileFilterUsed(false);
     }
     //methods
-    
+
     //initialize
     public void initialize() {
-    	initializeFileChooser();
+        initializeFileChooser();
         currentFile = null;
     }
     public void create() {
         System.out.println("create");
         currentFile = null;
-        checkSave();
         if (mainpanel != null) {
-            mainpanel.clearShapes(); 
+            mainpanel.setUpdate(true);
+            mainpanel.clearShapes();
             mainpanel.repaint();
             mainpanel.revalidate();
         }
     }
-    
     public void open() {
         System.out.println("open");
-        
+
         int result = fileChooser.showOpenDialog(this.getParent());
-        
+
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
                 FileInputStream file = new FileInputStream(selectedFile);
                 ObjectInputStream stream = new ObjectInputStream(new BufferedInputStream(file));
                 Vector<GShape> shapes = (Vector<GShape>) stream.readObject();
-                
+
                 if (this.mainpanel != null) {
                     this.mainpanel.setShapes(shapes);
                     this.mainpanel.repaint();
                     this.mainpanel.revalidate();
-                    currentFile = selectedFile; 
-                    System.out.println("ÆÄÀÏ ¿­±â ¼º°ø: " + selectedFile.getName());
+                    currentFile = selectedFile;
+                    System.out.println("íŒŒì¼ ì—´ê¸° ì„±ê³µ: " + selectedFile.getName());
                 }
                 stream.close();
             } catch(Exception e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this.getParent(), 
-                    "ÆÄÀÏÀ» ¿­ ¼ö ¾ø½À´Ï´Ù: " + e.getMessage(), 
-                    "¿À·ù", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this.getParent(),
+                        "íŒŒì¼ì„ ì—´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤: " + e.getMessage(),
+                        "ì˜¤ë¥˜", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-    
     public void print() {
         System.out.println("print");
     }
@@ -106,7 +103,7 @@ public class GFileMenu extends JMenu {
         if (currentFile != null) {
             saveToFile(currentFile);
         } else {
-            saveas(); 
+            saveas();
         }
     }
     public void saveas() {
@@ -119,80 +116,75 @@ public class GFileMenu extends JMenu {
             }
             if (selectedFile.exists()) {
                 int overwrite = JOptionPane.showConfirmDialog(this.getParent(),
-                    "ÆÄÀÏÀÌ ÀÌ¹Ì Á¸ÀçÇÕ´Ï´Ù. µ¤¾î¾²½Ã°Ú½À´Ï±î?",
-                    "ÆÄÀÏ µ¤¾î¾²±â", JOptionPane.YES_NO_OPTION);
-                
+                        "íŒŒì¼ì´ ì´ë¯¸ ì¡´ì¬í•©ë‹ˆë‹¤. ë®ì–´ì“°ì‹œê² ìŠµë‹ˆê¹Œ?",
+                        "íŒŒì¼ ë®ì–´ì“°ê¸°", JOptionPane.YES_NO_OPTION);
+
                 if (overwrite != JOptionPane.YES_OPTION) {
-                    return; 
+                    return;
                 }
             }
             saveToFile(selectedFile);
         }
     }
-    
+
     private void saveToFile(File file) {
         try {
             if (this.mainpanel != null) {
-            	BufferedImage image = new BufferedImage(this.mainpanel.getWidth(),this.mainpanel.getWidth(),BufferedImage.TYPE_INT_ARGB);
-            	Graphics2D g2d = image.createGraphics();
-            	paintComponent(g2d);
-            	ImageIO.write(image, "png", new File("drawing.png"));
-            	
+                BufferedImage image = new BufferedImage(this.mainpanel.getWidth(),this.mainpanel.getWidth(),BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2d = image.createGraphics();
+                paintComponent(g2d);
+                ImageIO.write(image, "png", new File("drawing.png"));
+
                 Vector<GShape> shapes = this.mainpanel.getshapes();
-                
+
                 FileOutputStream fileOut = new FileOutputStream(file);
                 ObjectOutputStream stream = new ObjectOutputStream(new BufferedOutputStream(fileOut));
                 stream.writeObject(shapes);
                 stream.close();
-                
-                currentFile = file; 
-                System.out.println("ÆÄÀÏ ÀúÀå ¼º°ø: " + file.getName());
+
+                currentFile = file;
+                System.out.println("íŒŒì¼ ì €ì¥ ì„±ê³µ: " + file.getName());
                 this.mainpanel.setUpdate(false);
-                JOptionPane.showMessageDialog(this.getParent(), 
-                    "ÆÄÀÏÀÌ ÀúÀåµÇ¾ú½À´Ï´Ù: " + file.getName(), 
-                    "ÀúÀå ¿Ï·á", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this.getParent(),
+                        "íŒŒì¼ì´ ì €ì¥ë˜ì—ˆìŠµë‹ˆë‹¤: " + file.getName(),
+                        "ì €ì¥ ì™„ë£Œ", JOptionPane.INFORMATION_MESSAGE);
             }
-            
+
         } catch(Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this.getParent(), 
-                "ÆÄÀÏÀ» ÀúÀåÇÒ ¼ö ¾ø½À´Ï´Ù: " + e.getMessage(), 
-                "¿À·ù", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.getParent(),
+                    "íŒŒì¼ì„ ì €ì¥í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤: " + e.getMessage(),
+                    "ì˜¤ë¥˜", JOptionPane.ERROR_MESSAGE);
         }
     }
     public void close() {
-    	checkSave();
-    	exit();
-    	//´İ´Â ¸Ş¼­µå
+        if(this.mainpanel.getUpdated()) {
+            int reply = JOptionPane.showConfirmDialog(
+                    this.mainpanel,
+                    "ë³€ê²½ë‚´ìš©ì„ ì €ì¥í• ê¹Œìš”?",
+                    "ì €ì¥ í™•ì¸",
+                    JOptionPane.YES_NO_CANCEL_OPTION
+            );
+            if(reply == JOptionPane.YES_OPTION) {
+                this.save();
+                exit();
+            } else if(reply == JOptionPane.NO_OPTION) {
+                exit();
+            }
+        } else {
+            exit();
+        }
     }
     public void exit() {
-    	this.mainpanel.exit();
+        this.mainpanel.exit();
     }
-    private boolean checkSave() {
-    	boolean bCancel =false;
-    	int reply =JOptionPane.NO_OPTION;
-    	if(this.mainpanel.getUpdated()) {
-    		reply= JOptionPane.showConfirmDialog(this.mainpanel,"º¯°æ³»¿ëÀ» ÀúÀåÇÒ±î¿ä?");
-    		if(reply ==JOptionPane.CANCEL_OPTION) {
-    			bCancel=true;
-    		}
-    	}
-    	if(!bCancel) {
-    		if(reply==JOptionPane.OK_OPTION) {
-    			this.save();
-    		}
-    	}	
-    	return bCancel;
-    }
-    
+
     public File getCurrentFile() {
         return currentFile;
     }
-    
     public String getCurrentFileName() {
-        return currentFile != null ? currentFile.getName() : "Á¦¸ñ ¾øÀ½";
+        return currentFile != null ? currentFile.getName() : "ì œëª© ì—†ìŒ";
     }
-    
     private void invokeMethod(String eMenuItem) {
         try {
             this.getClass().getMethod(eMenuItem).invoke(this);
@@ -201,7 +193,7 @@ public class GFileMenu extends JMenu {
             e.printStackTrace();
         }
     }
-    
+
     private class ActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -209,7 +201,7 @@ public class GFileMenu extends JMenu {
             invokeMethod(eMenuItem.getMethodName());
         }
     }
-    
+
     public void associate(GMainPanel mainpanel) {
         this.mainpanel = mainpanel;
     }

@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Stack;
 import java.util.Vector;
 
 import javax.swing.JPanel;
@@ -31,11 +32,15 @@ public class GMainPanel extends JPanel {
     	e2P,
     	enP
     }
-    private Vector<GShape> shapes;
-    private GTransFormer transformer;
-    private GShape currentShape;
-    private GShape selectedShape;
     private Graphics2D graphics2d;
+    private GTransFormer transformer;
+    private Vector<GShape> shapes;
+    private Vector<GShape> selectedShapes;
+    private GShape selectedShape;
+    private GShape toolshape;
+
+    private Stack<Vector<GShape>> undoStack;
+    private Stack<Vector<GShape>> redoStack;
     
     private EShapeTool eShapeTool;
     private EDrawingState eDrawingState;
@@ -48,13 +53,15 @@ public class GMainPanel extends JPanel {
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
         addMouseWheelListener(mouseHandler);
-        
-        this.currentShape=null;
+        this.toolshape=null;
         this.selectedShape=null;
         this.shapes = new Vector<GShape>();
+        this.selectedShapes = new Vector<GShape>();
         this.eShapeTool=EShapeTool.eSelect;
         this.eDrawingState = EDrawingState.eidle;
         this.bUpdated=false;
+        this.undoStack = new Stack<>();
+        this.redoStack = new Stack<>();
     }
     public void initialize() {
     	shapes.clear();
@@ -64,6 +71,7 @@ public class GMainPanel extends JPanel {
     public Vector<GShape> getshapes(){
     	return this.shapes;
     }
+    public GShape getSelectedShape() {return this.selectedShape;}
     public boolean getUpdated() {
     	return this.bUpdated;
     }
@@ -72,19 +80,34 @@ public class GMainPanel extends JPanel {
     }
     public void setEShapeTool(EShapeTool shapetool) {
     	this.eShapeTool=shapetool;
-    }
-    private void selectShape(GShape shape) {
-    	for(GShape eachshape : this.shapes) {
-    		eachshape.setSelected(false);
-    	}
-    	this.currentShape.setSelected(true);
+        if(shapetool != EShapeTool.eSelect) {
+            clearSelection();
+        }
     }
     public void setUpdate(boolean b) {
 		this.bUpdated=b;
 	}
-    
-    public void exit() {
-    	System.exit(0);
+
+    private void selectShape(GShape shape) {
+        for(GShape eachshape : this.shapes) {
+            eachshape.setSelected(false);
+        }
+        this.selectedShape=null;
+        this.selectedShapes.clear();
+        if(shape != null) {
+            shape.setSelected(true);
+            this.selectedShape = shape;
+        }
+    }
+    public void deleteShape(GShape selectedShape) {
+        this.selectedShapes.remove(selectedShape);
+    }
+    private void clearSelection() {
+        for(GShape shape : this.shapes) {
+            shape.setSelected(false);
+        }
+        this.selectedShapes.clear();
+        this.selectedShape = null;
     }
     private void changeCursor(int x, int y) {
     	if(this.eShapeTool==EShapeTool.eSelect) {
@@ -101,6 +124,13 @@ public class GMainPanel extends JPanel {
     public void clearShapes() {
 		this.shapes.clear();
 	}
+    public void cutShape(GShape selectedShape) {}
+    public void exit() {
+        System.exit(0);
+    }
+    public void undo() {}
+    public void redo() {}
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -109,28 +139,27 @@ public class GMainPanel extends JPanel {
         }
     }
     private void startTransform(int x, int y) {
-    	//set shape
-    	this.currentShape = this.eShapeTool.newShape();
-    	this.shapes.add(this.currentShape);
+    	this.toolshape = this.eShapeTool.newShape();
+    	this.shapes.add(this.toolshape);
+        System.out.println(this.toolshape);
         if(this.eShapeTool==EShapeTool.eSelect){
         	this.selectedShape = onShape(x,y);
         	if(this.selectedShape == null) {
-        		this.transformer = new GDrawer(this.currentShape);
+        		this.transformer = new GDrawer(this.toolshape);
         	}else if(this.selectedShape.getSelectedAnchor()==EAnchor.MM) {
         		this.selectedShape.setSelected(true);
-        		this.transformer = new GMover(this.selectedShape);
+                this.selectedShapes.add(this.selectedShape);
+        		this.transformer = new GMover(this.selectedShapes);
         	}else if(this.selectedShape.getSelectedAnchor()==EAnchor.RR) {
-        		System.out.println("Rotate bt");
         		this.selectedShape.setSelected(true);
         		this.transformer = new GRotater(this.selectedShape);
-        	}
-        	else {
+        	}else {
         		this.selectedShape.setSelected(true);
         		this.transformer = new GResizer(this.selectedShape);
         	}
-        }else {
-        	this.transformer = new GDrawer(this.currentShape);
-        	
+        }
+        else {
+        	this.transformer = new GDrawer(this.toolshape);
         }
         this.transformer.start((Graphics2D)getGraphics(), x, y);
     }
@@ -151,17 +180,19 @@ public class GMainPanel extends JPanel {
     }
     private void finishTransform(int x, int y) {
     	this.transformer.finish((Graphics2D) getGraphics(), x, y);
-    	this.selectShape(this.currentShape);
+    	this.selectShape(this.toolshape);
     	
     	if(this.eShapeTool==EShapeTool.eSelect) {
-    		this.shapes.remove(this.shapes.size()-1);
+    		this.shapes.removeLast();
     		for(GShape shape:this.shapes) {
-    			if(this.currentShape.contains(shape)) {
-    				shape.setSelected(true);;
+    			if(this.selectedShape.contains(shape)) {
+    				shape.setSelected(true);
+                    this.selectedShapes.add(shape);
     			}else {
-    				shape.setSelected(false);;
+    				shape.setSelected(false);
+                    this.selectedShapes.remove(shape);
     			}
-    		}
+    		}System.out.println("선택된 도형: "+this.selectedShapes.size());
     	}
     	this.bUpdated=true;
     	this.repaint();

@@ -1,18 +1,17 @@
 package frames;
 
 import javax.swing.JMenuBar;
-import javax.swing.border.EmptyBorder;
 
-import menus.GEditMenu;
 import menus.GFileMenu;
-import menus.GFilterMenu;
-import menus.GGraphicMenu;
 import menus.GHelpMenu;
-import menus.GImageMenu;
 import menus.GLayerMenu;
 import menus.GSelectMenu;
 import menus.GTypeMenu;
 import menus.GWindowMenu;
+import menus.edit.GEditMenu;
+import menus.filter.GFilterMenu;
+import menus.graphic.GGraphicMenu;
+import menus.image.GImageMenu;
 
 import static java.awt.Color.GRAY;
 
@@ -91,5 +90,4 @@ public class GMenubar extends JMenuBar {
 	public GFileMenu getFileMenu() {
         return this.fileMenu;
     }
-	
 }

@@ -10,5 +10,4 @@ public class GMain {
     	//hierarchy traverse
     	mainframe.initialize();
     }
-
 }

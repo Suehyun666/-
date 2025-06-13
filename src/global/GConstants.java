@@ -11,16 +11,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import constants.GMenuConstants.EEditMenuItem;
-import constants.GMenuConstants.EFileMenuItem;
-import constants.GMenuConstants.EGraphicMenuItem;
-import constants.GMenuConstants.EHelpMenuItem;
-import constants.GMenuConstants.EImageMenuItem;
-import constants.GMenuConstants.ELayerMenuItem;
-import constants.GMenuConstants.ESelectMenuItem;
-import shapes.GPolygon;
-import shapes.GRectangle;
-import shapes.GShape;
+import shapes.*;
 import shapes.GShape.EPoints;
 
 public class GConstants {
@@ -31,7 +22,7 @@ public class GConstants {
 		public final static int HEIGHT=1200;
 	}
 
-	
+
 	public enum EMainFrame {
 		eX(0),
 		eY(0),
@@ -46,36 +37,33 @@ public class GConstants {
 		}
 		public static void setValue(Node node) {
 			for(EMainFrame eMainFrame :EMainFrame.values()) {
-				Node attribute = (Node) node.getChildNodes();	
+				Node attribute = (Node) node.getChildNodes();
 				eMainFrame.value =Integer.parseInt(attribute.getNodeValue());
 			}
-			
+
 		}
 	}
-	public final class GMainPanel{
-		
-	}
-	
+	public final class GMainPanel{}
+
 	public enum EShapeTool {
-    	eSelect("select", EPoints.e2P,GRectangle.class),
-    	eRectangle("rectangle", EPoints.e2P,GRectangle.class),
-    	eEllipse("ellipse", EPoints.e2P,GRectangle.class),
-    	eLine("line", EPoints.e2P,GRectangle.class),
-    	ePolygon("polygon",EPoints.enP,GPolygon.class);
-    	//ø©±‚¥Ÿ ªÛºˆ æ≤¥¬ ∞« æ» ¡¡¥Ÿ. ≥™¥≤º≠ ∏Æº“Ω∫ ∆ƒ¿œ∑Œ ¥Ÿ ª©æﬂ«—¥Ÿ. xml ¿Ã≥™ locale ∫∞∑Œ 
-    	//json¿Ã≥™ xml∑Œ ∂‚æÓ≥æ ∞Õ¿Ã¥Ÿ.
-    	//Ω«¡¶∑Œ æÓ¥¿ «¡∑Œ±◊∑•¿Ã≥™ ±◊∑∏∞‘ «—¥Ÿ. -reddundency
-    	
-    	private String name;
-    	private EPoints ePoints;
-    	private Class<?> classShape;
-    	
-		private EShapeTool(String name, EPoints eDrawingType, Class<?> classShape) {
+		eSelect("select", EPoints.e2P,GRectangle.class),
+		eRectangle("rectangle", EPoints.e2P,GRectangle.class),
+		eTriangle("triangle", EPoints.e2P, GTriangle.class),
+		eEllipse("ellipse", EPoints.e2P, GEllipse.class),
+		eOval("oval", EPoints.e2P, GOval.class),
+		eLine("line", EPoints.e2P,GLine.class),
+		ePolygon("polygon",EPoints.enP,GPolygon.class);
+
+		private String name;
+		private EPoints ePoints;
+		private Class<?> classShape;
+
+		EShapeTool(String name, EPoints eDrawingType, Class<?> classShape) {
 			this.name=name;
 			this.ePoints=eDrawingType;
 			this.classShape=classShape;
 		}
-		
+
 		public String getName() {
 			return this.name;
 		}
@@ -84,17 +72,19 @@ public class GConstants {
 		}
 		public GShape newShape(){
 			try {
-				GShape shape = (GShape) classShape.getConstructor().newInstance();
-				return shape;
+				System.out.println("ÏÉùÏÑ± ÏãúÎèÑ");
+                return (GShape) classShape.getConstructor().newInstance();
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+					 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 				// TODO Auto-generated catch block
+				System.out.println("ÏÉùÏÑ± Ïã§Ìå®");
+				System.out.println(this.name);
 				e.printStackTrace();
 			}
 			return null;
 		}
-    }
-	
+	}
+
 	public enum EAnchor{
 		NN(new Cursor(Cursor.N_RESIZE_CURSOR)),
 		NE(new Cursor(Cursor.NE_RESIZE_CURSOR)),
@@ -106,7 +96,7 @@ public class GConstants {
 		WW(new Cursor(Cursor.W_RESIZE_CURSOR)),
 		RR(new Cursor(Cursor.HAND_CURSOR)),
 		MM(new Cursor(Cursor.MOVE_CURSOR));
-		
+
 		private Cursor cursor;
 		private EAnchor(Cursor cursor) {
 			this.cursor=cursor;
@@ -115,9 +105,9 @@ public class GConstants {
 			return this.cursor;
 		}
 	}
-	
-	
-	
+
+
+
 	public void readFromFile(String fileName) {
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -125,7 +115,7 @@ public class GConstants {
 			File file = new File(fileName);
 			Document document =builder.parse(file);
 			NodeList nodeList=document.getDocumentElement().getChildNodes();
-			
+
 		}catch (Exception e){
 			e.printStackTrace();
 		}

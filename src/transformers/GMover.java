@@ -1,15 +1,17 @@
 package transformers;
 
 import java.awt.Graphics2D;
+import java.util.Vector;
+
 import shapes.GShape;
 
 public class GMover extends GTransFormer {
-	private GShape shape;
+	private Vector<GShape> selectedShapes;
 	private int px, py; 
 	
-	public GMover(GShape gshape) {
-		super(gshape);
-		this.shape=gshape;
+	public GMover(Vector<GShape> selectedShapes) {
+		super(selectedShapes.getFirst());
+		this.selectedShapes=selectedShapes;
 	}
 	
 	@Override

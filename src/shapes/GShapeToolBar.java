@@ -7,8 +7,6 @@ import java.awt.event.ActionListener;
 import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
 import javax.swing.JToolBar;
-
-import constants.ShapeType;
 import frames.GMainFrame;
 import frames.GMainPanel;
 import global.GConstants.EShapeTool;
@@ -16,47 +14,42 @@ import global.GConstants.EShapeTool;
 public class GShapeToolBar extends JToolBar {
     // attributes
     private static final long serialVersionUID = 1L;
-    
+
     //components
-    private JRadioButton rectangleButton;
-    private JRadioButton triangleButton;
-    private JRadioButton ovalButton;
-    private JRadioButton polygonButton;
-    private JRadioButton textBoxButton;
-    private ButtonGroup toolButtonGroup;
-    private ShapeType selectedShape;
+    private EShapeTool selectedShape;
     private GMainFrame mainFrame;
-    
+
     //associate
     private GMainPanel mainPanel;
-    
+
     // constructor
     public GShapeToolBar(GMainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.selectedShape = null;
-        
+
         setOrientation(JToolBar.VERTICAL);
         setFloatable(false);
         setBorderPainted(false);
         setBackground(Color.GRAY);
-        ButtonGroup buttongroup =new ButtonGroup();
+        ButtonGroup buttongroup = new ButtonGroup();
+        ActionHandler actionhandler = new ActionHandler();
+
         for (EShapeTool eshapeType : EShapeTool.values()) {
-        	JRadioButton radiobutton = new JRadioButton(eshapeType.getName());
-        	ActionHandler actionhandler = new ActionHandler();
-        	radiobutton.addActionListener(actionhandler);
-        	radiobutton.setActionCommand(eshapeType.toString());
-        	
-        	buttongroup.add(radiobutton); 
-        	this.add(radiobutton);
-        	//¿©±â´Ù ºÙÀÎ ÀÌÀ¯ ÀÚ±â°¡ ´­·ÁÀÖ´ÂÁö ¾Ë ¼ö ¾ø´Ù. ºÎ¸ğ°¡ ¾È´Ù.
-        	//´­¸° ¾Ö°¡ º¸ÀÌ´Â À§Ä¡¿¡¼­ °¨ÁöÇÑ´Ù.
-        	//¼­·Î »óÈ£ÀÛ¿ëÇÏ·Á¸é ±× µéÀÇ ºÎ¸ğ¿¡´Ù °®´Ù³õ¾Æ¾ßÇÑ´Ù. (ÀüÁ¦ : »óÈ£ÀÛ¿ëÀº °°Àº ·¹º§¿¡¼­ )
-        	//jpanel¿¡ ¿µÇâÀ» ÁØ´Ù¸é handler´Â frame¿¡ ÀÖ¾î¾ßÇÑ´Ù. jpanel¿¡ ¸í·ÉÀ» ³»·Á¾ßÇÔ
+            JRadioButton radiobutton = createToolButton(eshapeType.getName(), eshapeType.getName());
+            radiobutton.addActionListener(actionhandler);
+            radiobutton.setActionCommand(eshapeType.toString());
+
+            buttongroup.add(radiobutton);
+            this.add(radiobutton);
+            //ì—¬ê¸°ë‹¤ ë¶™ì¸ ì´ìœ  ìê¸°ê°€ ëˆŒë ¤ìˆëŠ”ì§€ ì•Œ ìˆ˜ ì—†ë‹¤. ë¶€ëª¨ê°€ ì•ˆë‹¤.
+            //ëˆŒë¦° ì• ê°€ ë³´ì´ëŠ” ìœ„ì¹˜ì—ì„œ ê°ì§€í•œë‹¤.
+            //ì„œë¡œ ìƒí˜¸ì‘ìš©í•˜ë ¤ë©´ ê·¸ ë“¤ì˜ ë¶€ëª¨ì—ë‹¤ ê°–ë‹¤ë†“ì•„ì•¼í•œë‹¤. (ì „ì œ : ìƒí˜¸ì‘ìš©ì€ ê°™ì€ ë ˆë²¨ì—ì„œ )
+            //jpanelì— ì˜í–¥ì„ ì¤€ë‹¤ë©´ handlerëŠ” frameì— ìˆì–´ì•¼í•œë‹¤. jpanelì— ëª…ë ¹ì„ ë‚´ë ¤ì•¼í•¨
         }
     }
 
     private JRadioButton createToolButton(String text, String tooltip) {
-    	JRadioButton button = new JRadioButton(text);
+        JRadioButton button = new JRadioButton(text);
         button.setToolTipText(tooltip);
         button.setFocusPainted(false);
         add(button);
@@ -64,27 +57,27 @@ public class GShapeToolBar extends JToolBar {
     }
 
     // methods
-    public ShapeType getSelectedShape() {
+    public EShapeTool getSelectedShape() {
         return selectedShape;
     }
 
     // initialize
     public void initialize() {
-    	JRadioButton button =(JRadioButton) this.getComponent(EShapeTool.eSelect.ordinal());
-    	button.doClick();
+        JRadioButton button =(JRadioButton) this.getComponent(EShapeTool.eSelect.ordinal());
+        button.doClick();
     }
 
-	public void associate(GMainPanel mainPanel) {
-		this.mainPanel=mainPanel;
-	}
-	
-	private class ActionHandler implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			String sShapeType = e.getActionCommand();
-			EShapeTool eshapeType=EShapeTool.valueOf(sShapeType);
-			mainPanel.setEShapeTool(eshapeType);
-		}//ÀÌ ¼Ò½ºÄÚµå¸¦ mainframe¿¡ µÎ¸é panelÀÌ¶û associate¾ÈÇØµµµÈ´Ù. 
-		
-	}
+    public void associate(GMainPanel mainPanel) {
+        this.mainPanel=mainPanel;
+    }
+
+    private class ActionHandler implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String sShapeType = e.getActionCommand();
+            EShapeTool eshapeType=EShapeTool.valueOf(sShapeType);
+            mainPanel.setEShapeTool(eshapeType);
+        }//ì´ ì†ŒìŠ¤ì½”ë“œë¥¼ mainframeì— ë‘ë©´ panelì´ë‘ associateì•ˆí•´ë„ëœë‹¤.
+
+    }
 }

@@ -1,16 +1,10 @@
 package frames;
 
 import static java.awt.Color.DARK_GRAY;
-
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import javax.swing.JFrame;
-
-import org.w3c.dom.Node;
-
-import constants.ShapeType;
 import global.GConstants;
 import shapes.GShapeToolBar;
 
@@ -36,7 +30,6 @@ public class GMainFrame extends JFrame {
                 handleWindowClosing();
             }
         });
-        
         
         //components
         this.menuBar = new GMenubar();
@@ -68,15 +61,10 @@ public class GMainFrame extends JFrame {
     public GMainPanel getMainPanel() {
         return mainPanel;
     }
-
     public GShapeToolBar getToolBar() {
         return shapetoolBar;
     }
-
-    public void updateDrawingState() {
-        ShapeType selectedShape = shapetoolBar.getSelectedShape();
-    }
-    public void setValue(Node node) {
-    	//this.node=node;
-    }
+    public void setModified(boolean bool) {
+        this.mainPanel.setUpdate(bool);
+    }// 여기에 있어야할까 뭔가 있던거같은데
 }
