@@ -1,89 +1,75 @@
 package transformers;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 import global.GConstants.EAnchor;
 import shapes.GShape;
 
 public class GResizer extends GTransFormer {
 	private GShape shape;
-	private int px, py;
-	private int cx,cy;
-	private EAnchor eRisizeAnchor;
 	private Rectangle originalBounds;
+	private int fixedX, fixedY;
+	private EAnchor anchor;
+
 	public GResizer(GShape gshape) {
 		super(gshape);
-		this.shape=gshape;
+		this.shape = gshape;
 	}
 
 	@Override
 	public void start(Graphics2D graphics, int x, int y) {
-		this.px=x;
-		this.py=y;
-		this.originalBounds = this.shape.getBounds();
-		Rectangle r = new Rectangle(originalBounds);;
+		this.startX = x;
+		this.startY = y;
+		Rectangle currentBounds = shape.getTransformedShape().getBounds();
+		if (shape.getShape() instanceof Rectangle2D) {
+			Rectangle2D rect = (Rectangle2D) shape.getShape();
+			rect.setFrame(currentBounds);
+		}
+		shape.getAffineTransform().setToIdentity();
+		this.originalBounds = currentBounds;
+		this.anchor = shape.getSelectedAnchor();
 
-		EAnchor eSelectedAnchor =this.shape.getSelectedAnchor();
-		eRisizeAnchor = null;
-		switch(eSelectedAnchor) {
-			case NW: eRisizeAnchor=EAnchor.SE; cx = r.x+r.width; 	cy = r.y+r.height; break;
-			case WW: eRisizeAnchor=EAnchor.EE; cx = r.x+r.width; 	cy = r.y+r.height/2; break;
-			case SW: eRisizeAnchor=EAnchor.NE; cx = r.x+r.width; 	cy = r.y; break;
-			case SS: eRisizeAnchor=EAnchor.NN; cx = r.x+r.width/2; 	cy = r.y; break;
-			case SE: eRisizeAnchor=EAnchor.NW; cx = r.x; 			cy = r.y; break;
-			case EE: eRisizeAnchor=EAnchor.WW; cx = r.x; 			cy = r.y+r.height/2; break;
-			case NE: eRisizeAnchor=EAnchor.SW; cx = r.x; 			cy = r.y+r.height; break;
-			case NN: eRisizeAnchor=EAnchor.SS; cx = r.x+r.width/2; 	cy = r.y+r.height; break;
-			default: break;}
-
-		this.shape.getAffineTransform().scale(1, 1);
-		this.px=x;
-		this.py=y;
-
+		switch (anchor) {
+			case SE: // 우하단 - 좌상단 고정
+				fixedX = originalBounds.x;
+				fixedY = originalBounds.y;
+				break;
+			case NE: // 우상단 - 좌하단 고정
+				fixedX = originalBounds.x;
+				fixedY = originalBounds.y + originalBounds.height;
+				break;
+			case SW: // 좌하단 - 우상단 고정
+				fixedX = originalBounds.x + originalBounds.width;
+				fixedY = originalBounds.y;
+				break;
+			case NW: // 좌상단 - 우하단 고정
+				fixedX = originalBounds.x + originalBounds.width;
+				fixedY = originalBounds.y + originalBounds.height;
+				break;
+		}
 	}
 
 	@Override
 	public void drag(Graphics2D graphics, int x, int y) {
-		double dx = 0, dy=0;
-
-		int newX = Math.min(x, cx);
-		int newY = Math.min(y, cy);
-		int newWidth = Math.abs(x - cx);
-		int newHeight = Math.abs(y - cy);
+		int newX = Math.min(fixedX, x);
+		int newY = Math.min(fixedY, y);
+		int newWidth = Math.abs(x - fixedX);
+		int newHeight = Math.abs(y - fixedY);
 
 		if (newWidth < 5) newWidth = 5;
 		if (newHeight < 5) newHeight = 5;
 
-		switch(eRisizeAnchor) {
-			case NW: dx=(x-px); 	dy=(y-py); 		break;
-			case WW: dx=(x-px); 	dy=0; 			break;
-			case SW: dx=(x-px); 	dy=-(y-py); 	break;
-			case SS: dx=0; 			dy=-(y-py);		break;
-			case SE: dx=-(x-px);	dy=-(y-py); 	break;
-			case EE: dx=-(x-px); 	dy=0; 			break;
-			case NE: dx=-(x-px); 	dy=(y-py);		break;
-			case NN: dx=0; 			dy=(y-py);		break;
-			default: break;
+		if (shape.getShape() instanceof Rectangle2D) {
+			Rectangle2D rect = (Rectangle2D) shape.getShape();
+			rect.setFrame(newX, newY, newWidth, newHeight);
 		}
-		Shape transformedShape= this.shape.getTransformedShape();
-		double w1=transformedShape.getBounds().width;
-		double w2=dx+w1;
-		double h1=transformedShape.getBounds().height;
-		double h2=dy+h1;
-		double xScale = w2/w1;
-		double yScale = h2/h1;
-
-		this.shape.getAffineTransform().translate(cx, cy);
-		this.shape.getAffineTransform().scale(xScale, yScale);
-		this.shape.getAffineTransform().translate(-cx, -cy);
-
-		this.px=x;
-		this.py=y;
 	}
-	@Override
-	public void addpoint(Graphics2D graphics, int x, int y) {}
+
 	@Override
 	public void finish(Graphics2D graphics, int x, int y) {}
+
+	@Override
+	public void addpoint(Graphics2D graphics, int x, int y) {}
 }

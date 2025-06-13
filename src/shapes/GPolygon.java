@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
 public class GPolygon extends GShape{
+	private static final long serialVersionUID = 1L;
 	private Polygon polygon;
 	
 	public GPolygon() {
@@ -30,5 +31,14 @@ public class GPolygon extends GShape{
 	public void addPoint(int x, int y) {
 		this.shape = new Line2D.Float(x, y, x, y);
 		this.transform = new AffineTransform();
+	}
+	@Override
+	public void resize(double sx, double sy, int anchorX, int anchorY) {
+
+	}
+
+	@Override
+	public void moveBy(int dx, int dy) {
+
 	}
 }

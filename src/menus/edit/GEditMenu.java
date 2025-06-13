@@ -69,7 +69,7 @@ public class GEditMenu extends JMenu {
     // associate
     public void associate(GMainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        this.mainPanel = mainFrame.getMainPanel();
+        this.mainPanel = mainFrame.getCurrentPanel();
     }
 
     // method

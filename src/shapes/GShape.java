@@ -21,8 +21,8 @@ public abstract class GShape implements Serializable{
 	protected AffineTransform transform;
 	private Ellipse2D[] anchors;
 	protected EAnchor eSelectedAnchor;
-	private Shape transformedShape;
-	private boolean isSelected;
+	protected Shape transformedShape;
+	protected boolean isSelected;
 	private boolean visible = true;
 	private Color color = null;
 
@@ -142,4 +142,6 @@ public abstract class GShape implements Serializable{
 	public abstract void setPoint(int x, int y);
 	public abstract void addPoint(int x, int y);
 	public abstract void dragPoint(int x, int y);
+	public abstract void resize(double sx, double sy, int anchorX, int anchorY);
+	public abstract void moveBy(int dx, int dy);
 }

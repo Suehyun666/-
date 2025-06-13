@@ -2,6 +2,7 @@ package shapes;
 import java.awt.geom.Path2D;
 
 public class GTriangle extends GShape{
+	private static final long serialVersionUID = 1L;
 	private Path2D.Float triangle;
 	private int startX, startY;
 	private int[] xPoints;
@@ -54,4 +55,12 @@ public class GTriangle extends GShape{
 
 	@Override
 	public void addPoint(int x, int y) {}
+	@Override
+	public void resize(double sx, double sy, int anchorX, int anchorY) {
+
+	}
+	@Override
+	public void moveBy(int dx, int dy) {
+
+	}
 }

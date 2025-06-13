@@ -41,10 +41,6 @@ public class GShapeToolBar extends JToolBar {
 
             buttongroup.add(radiobutton);
             this.add(radiobutton);
-            //여기다 붙인 이유 자기가 눌려있는지 알 수 없다. 부모가 안다.
-            //눌린 애가 보이는 위치에서 감지한다.
-            //서로 상호작용하려면 그 들의 부모에다 갖다놓아야한다. (전제 : 상호작용은 같은 레벨에서 )
-            //jpanel에 영향을 준다면 handler는 frame에 있어야한다. jpanel에 명령을 내려야함
         }
     }
 
@@ -76,8 +72,11 @@ public class GShapeToolBar extends JToolBar {
         public void actionPerformed(ActionEvent e) {
             String sShapeType = e.getActionCommand();
             EShapeTool eshapeType=EShapeTool.valueOf(sShapeType);
-            mainPanel.setEShapeTool(eshapeType);
-        }//이 소스코드를 mainframe에 두면 panel이랑 associate안해도된다.
+            GMainPanel currentPanel = mainFrame.getCurrentPanel();
+            if (currentPanel != null) {
+                currentPanel.setEShapeTool(eshapeType);
+            }
+        }
 
     }
 }

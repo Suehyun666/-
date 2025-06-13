@@ -1,5 +1,6 @@
 package menus.image;
 
+import frames.GMainPanel;
 import global.GMenuConstants.EImageMenuItem;
 
 import javax.swing.*;
@@ -9,7 +10,8 @@ import java.awt.event.KeyEvent;
 
 public class GImageMenu extends JMenu {
 	private static final long serialVersionUID = 1L;
-	
+	private GMainPanel mainPanel;
+
 	public GImageMenu(String text) {
 		super(text);
 		ActionHandler actionHandler = new ActionHandler();
@@ -28,10 +30,10 @@ public class GImageMenu extends JMenu {
 					menuItem.setAccelerator(KeyStroke.getKeyStroke(
 							KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK| KeyEvent.ALT_DOWN_MASK));
 					break;
-//				case eAutoTone:
-//					menuItem.setAccelerator(KeyStroke.getKeyStroke(
-//							KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
-//					break;
+				case eGenerateImage:
+					menuItem.setAccelerator(KeyStroke.getKeyStroke(
+							KeyEvent.VK_PLUS, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
+					break;
 				default:
 					break;
 			}
@@ -41,7 +43,9 @@ public class GImageMenu extends JMenu {
 
 	public void initialize() {}
 	public void getImageSize(){}
-	public void autotone(){}
+	public void generateImage(){
+
+	}
 	public void getCanvasSize(){}
 	public void mode(){}
 	public void rotate(){}
@@ -57,9 +61,9 @@ public class GImageMenu extends JMenu {
 				case eImageSize:
 					getImageSize();
 					break;
-//				case eAutoTone:
-//					autotone();
-//					break;
+				case eGenerateImage:
+					generateImage();
+					break;
 				case eCanvasSize:
 					getCanvasSize();
 					break;
@@ -82,5 +86,8 @@ public class GImageMenu extends JMenu {
 					break;
 			}
 		}
+	}
+	public void associate(GMainPanel mainPanel) {
+		this.mainPanel = mainPanel;
 	}
 }

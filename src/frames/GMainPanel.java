@@ -1,10 +1,6 @@
 package frames;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -41,7 +37,8 @@ public class GMainPanel extends JPanel {
 
     private Stack<Vector<GShape>> undoStack;
     private Stack<Vector<GShape>> redoStack;
-    
+
+    private double zoomLevel = 1.0;
     private EShapeTool eShapeTool;
     private EDrawingState eDrawingState;
     private boolean bUpdated;
@@ -87,7 +84,6 @@ public class GMainPanel extends JPanel {
     public void setUpdate(boolean b) {
 		this.bUpdated=b;
 	}
-
     private void selectShape(GShape shape) {
         for(GShape eachshape : this.shapes) {
             eachshape.setSelected(false);
@@ -98,6 +94,9 @@ public class GMainPanel extends JPanel {
             shape.setSelected(true);
             this.selectedShape = shape;
         }
+    }
+    public void addShape(GShape shape) {
+        this.shapes.add(shape);
     }
     public void deleteShape(GShape selectedShape) {
         this.selectedShapes.remove(selectedShape);
@@ -121,7 +120,7 @@ public class GMainPanel extends JPanel {
         	}
     	}
     }
-    public void clearShapes() {
+    public void clear() {
 		this.shapes.clear();
 	}
     public void cutShape(GShape selectedShape) {}
@@ -134,14 +133,16 @@ public class GMainPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.scale(zoomLevel, zoomLevel);
         for(GShape shape: shapes) {
-        	shape.draw((Graphics2D) g);
+        	shape.draw(g2d);
         }
     }
     private void startTransform(int x, int y) {
     	this.toolshape = this.eShapeTool.newShape();
     	this.shapes.add(this.toolshape);
-        System.out.println(this.toolshape);
+
         if(this.eShapeTool==EShapeTool.eSelect){
         	this.selectedShape = onShape(x,y);
         	if(this.selectedShape == null) {
@@ -191,11 +192,12 @@ public class GMainPanel extends JPanel {
     				shape.setSelected(false);
                     this.selectedShapes.remove(shape);
     			}
-    		}System.out.println("선택된 도형: "+this.selectedShapes.size());
+    		}
     	}
     	this.bUpdated=true;
     	this.repaint();
     }
+
     private class MouseEventHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -206,34 +208,40 @@ public class GMainPanel extends JPanel {
             }
         }
         private void mouse1Clicked(MouseEvent e) {
+            Point canvasPoint = toCanvasPoint(e.getPoint());
+            int x = canvasPoint.x;
+            int y = canvasPoint.y;
+
             if(eDrawingState == EDrawingState.eidle) {
             	//set transformer
                 if(eShapeTool.getEPoints() == EPoints.e2P) {
-                    startTransform(e.getX(), e.getY());
+                    startTransform(x,y);
                     eDrawingState = EDrawingState.e2P;
                 } else if(eShapeTool.getEPoints() == EPoints.enP) {
-                    startTransform(e.getX(), e.getY());
+                    startTransform(x,y);
                     eDrawingState = EDrawingState.enP;
                 }
             } else if(eDrawingState == EDrawingState.e2P) {
-                finishTransform(e.getX(), e.getY());
+                finishTransform(x,y);
                 eDrawingState = EDrawingState.eidle;
             } else if(eDrawingState == EDrawingState.enP) {
-                addPoint(e.getX(), e.getY());
+                addPoint(x,y);
             }
         }
         @Override
         public void mouseMoved(MouseEvent e) {
+            Point canvasPoint = toCanvasPoint(e.getPoint());
             if (eDrawingState == EDrawingState.e2P || eDrawingState == EDrawingState.enP) {
-                keepTransform(e.getX(), e.getY());
+                keepTransform(canvasPoint.x, canvasPoint.y);
             }
             if (eDrawingState==EDrawingState.eidle) {
-            	changeCursor(e.getX(),e.getY());
+            	changeCursor(canvasPoint.x,canvasPoint.y);
             }
         }
         private void mouse2Clicked(MouseEvent e) {
+            Point canvasPoint = toCanvasPoint(e.getPoint());
             if (eDrawingState == EDrawingState.enP) {
-                finishTransform(e.getX(), e.getY());
+                finishTransform(canvasPoint.x, canvasPoint.y);
                 eDrawingState = EDrawingState.eidle;
             }
         }
@@ -248,7 +256,31 @@ public class GMainPanel extends JPanel {
         @Override
         public void mouseExited(MouseEvent e) {}
         @Override
-        public void mouseWheelMoved(MouseWheelEvent e) {}
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            if (e.isControlDown()) {
+                int rotation;
+                rotation = e.getWheelRotation();
+                double scaleFactor = 1.1;
+                if (rotation < 0) {
+                    zoomLevel *= scaleFactor;
+                } else {
+                    zoomLevel /= scaleFactor;
+                }
+                zoomLevel = Math.max(0.1, Math.min(10.0, zoomLevel)); // 제한
+                repaint();
+            }
+        }
+    }
+    private Point toCanvasPoint(Point screenPoint) {
+        int x = (int)(screenPoint.x / zoomLevel);
+        int y = (int)(screenPoint.y / zoomLevel);
+        return new Point(x, y);
+    }
+
+    private Point toScreenPoint(Point canvasPoint) {
+        int x = (int)(canvasPoint.x * zoomLevel);
+        int y = (int)(canvasPoint.y * zoomLevel);
+        return new Point(x, y);
     }
 	
 }

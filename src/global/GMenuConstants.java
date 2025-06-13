@@ -7,11 +7,12 @@ public class GMenuConstants {
 		eSave("Save","save"),
 		eSaveAs("Save as","saveas"),
 		eClose("Close","close"),
+		closeCurrentTab("Close Tab", "closeCurrentTab"),
 		ePrint("Print","print"),
 		eImport("Import","import"),
 		eExport("Export","export"),
 		eExit("Exit","exit");
-		
+
 		private String menu;
 		private String toolTipText;
 		private String methodname;
@@ -28,148 +29,196 @@ public class GMenuConstants {
 	}
 
 	public enum EEditMenuItem {
-		eProperty("Property"),
-		eUndo("Undo"),
-		eForward("Forward"),
-		eBackward("Backward"),
-		eFade("Fade"),
-		eCut("Cut"),
-		eCopy("Copy"),
-		ePaste("Paste"),
-		eClear("Clear"),
-		eFill("Fill"),
-		eColorSetting("Color Setting");
+		eProperty("Property", "property"),
+		eUndo("Undo", "undo"),
+		eForward("Forward", "forward"),
+		eBackward("Backward", "backward"),
+		eFade("Fade", "fade"),
+		eCut("Cut", "cut"),
+		eCopy("Copy", "copy"),
+		ePaste("Paste", "paste"),
+		eClear("Clear", "clear"),
+		eFill("Fill", "fill"),
+		eColorSetting("ColorSetting", "colorSetting");
 
 		private String menu;
-		EEditMenuItem(String menu) {
+		private String methodname;
+		EEditMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
+		}
+		public String getMethodName() {
+			return this.methodname;
 		}
 	}
 
 	public enum EGraphicMenuItem {
-		eLineThickness("Line Thickness"),
-		eLineStyle("Line Style"),
-		eFontStyle("Font Style"),
-		eFontSize("Font Size");
+		eLineThickness("Line Thickness", "lineThickness"),
+		eLineStyle("Line Style", "lineStyle"),
+		eFontStyle("Font Style", "fontStyle"),
+		eFontSize("Font Size", "fontSize");
 
 		private String menu;
-		EGraphicMenuItem(String menu) {
+		private String methodname;
+		EGraphicMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
+		}
+		public String getMethodName() {
+			return this.methodname;
 		}
 	}
 
 	public enum EHelpMenuItem {
-		eSystemInfo("System Info"),
-		eAbout("about"),
-		eOnline("online");
+		eSystemInfo("System Info", "systemInfo"),
+		eAbout("about", "about"),
+		eOnline("online", "online");
 
 		private String menu;
-		EHelpMenuItem(String menu) {
+		private String methodname;
+		EHelpMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
+		}
+		public String getMethodName() {
+			return this.methodname;
 		}
 	}
 
 	public enum EImageMenuItem {
-		eMode("Mode"),
-		eImageSize("Image Size"),
-		eCanvasSize("Canvas Size"),
-		eRotate("Rotate Image"),
-		eCrop("Crop"),
-		eTrim("Trim"),
-		eDuplicate("Duplicate");
+		eMode("Mode", "mode"),
+		eImageSize("Image Size", "imageSize"),
+		eCanvasSize("Canvas Size", "canvasSize"),
+		eRotate("Rotate Image", "rotateImage"),
+		eCrop("Crop", "crop"),
+		eTrim("Trim", "trim"),
+		eDuplicate("Duplicate", "duplicate"),
+		eGenerateImage("GenerateImage", "generateImage");
+
 		private String menu;
-		EImageMenuItem(String menu) {
+		private String methodname;
+		EImageMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
+		}
+		public String getMethodName() {
+			return this.methodname;
 		}
 	}
 
 	public enum ELayerMenuItem {
-		eNewLayer("New Layer"),
-		eDuplicate("Duplicate"),
-		eDeleteLayer("Delete Layer"),
-		eRenameLayer("Rename Layer"),
-		eLock("Lock"),
-		eGroupLayer("Group Layer"),
-		eUnGroupLayer("UnGroup Layer"),
-		eMerge("Merge"),
-		eHide("Hide");
+		eNewLayer("New Layer", "newLayer"),
+		eDuplicate("Duplicate", "duplicate"),
+		eDeleteLayer("Delete Layer", "deleteLayer"),
+		eRenameLayer("Rename Layer", "renameLayer"),
+		eLock("Lock", "lock"),
+		eGroupLayer("Group Layer", "groupLayer"),
+		eUnGroupLayer("UnGroup Layer", "unGroupLayer"),
+		eMerge("Merge", "merge"),
+		eHide("Hide", "hide");
+
 		private String menu;
-		ELayerMenuItem(String menu) {
+		private String methodname;
+		ELayerMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
+		}
+		public String getMethodName() {
+			return this.methodname;
 		}
 	}
 
 	public enum ESelectMenuItem {
-		eAll("All"),
-		eDeselect("Deselect"),
-		eReselect("ReSelect"),
-		eAllLayer("All Layer");
+		eAll("All", "all"),
+		eDeselect("Deselect", "deselect"),
+		eReselect("ReSelect", "reselect"),
+		eAllLayer("All Layer", "allLayer");
 
 		private String menu;
-		ESelectMenuItem(String menu) {
+		private String methodname;
+		ESelectMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
+		}
+		public String getMethodName() {
+			return this.methodname;
 		}
 	}
 
 	public enum EFilterMenuItem {
-		eBlur("Blur"),
-		eNoise("Noise");
+		eBlur("Blur", "blur"),
+		eNoise("Noise", "noise");
 
 		private String menu;
-		EFilterMenuItem(String menu) {
+		private String methodname;
+		EFilterMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
+		}
+		public String getMethodName() {
+			return this.methodname;
 		}
 	}
 
 	public enum ETypeMenuItem {
-		ePanel("Panel"),
-		eLanguage("Language"),
-		eForward("Forward");
+		ePanel("Panel", "panel"),
+		eLanguage("Language", "language"),
+		eForward("Forward", "forward");
 
 		private String menu;
-		ETypeMenuItem(String menu) {
+		private String methodname;
+		ETypeMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
+		}
+		public String getMethodName() {
+			return this.methodname;
 		}
 	}
 
 	public enum EWindowMenuItem {
-		eProperty("Workspace"),
-		eExtension("Extension"),
-		eOption("Option"),
-		eTool("Tool"),
-		eHistory("History"),
-		ePreFerence("Preference"),;
+		eProperty("Workspace", "workspace"),
+		eExtension("Extension", "extension"),
+		eOption("Option", "option"),
+		eTool("Tool", "tool"),
+		eHistory("History", "history"),
+		ePreFerence("Preference", "preference");
+
 		private String menu;
-		EWindowMenuItem(String menu) {
+		private String methodname;
+		EWindowMenuItem(String menu, String methodname) {
 			this.menu = menu;
+			this.methodname = methodname;
 		}
 		public String getText() {
 			return this.menu;
 		}
+		public String getMethodName() {
+			return this.methodname;
+		}
 	}
-
 }

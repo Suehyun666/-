@@ -27,6 +27,16 @@ public class GLine extends GShape {
     }
 
     @Override
+    public void resize(double sx, double sy, int anchorX, int anchorY) {
+
+    }
+
+    @Override
+    public void moveBy(int dx, int dy) {
+
+    }
+
+    @Override
     public void addPoint(int x, int y) {}
 
     @Override

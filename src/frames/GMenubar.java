@@ -73,21 +73,26 @@ public class GMenubar extends JMenuBar {
         editMenu.initialize();
         graphicMenu.initialize();
         imagemenu.initialize();
+        graphicMenu.initialize();
         layermenu.initialize();
         typemenu.initialize();
         selectmenu.initialize();
         filtermenu.initialize();
         windowmenu.initialize();
         helpmenu.initialize();
-        
-        this.fileMenu.associate(mainPanel);
     }
 
-	public void associate(GMainPanel mainPanel) {
-		this.mainPanel=mainPanel;
-	}
-	//getter
-	public GFileMenu getFileMenu() {
+    public GFileMenu getFileMenu() {
         return this.fileMenu;
+    }
+
+    public void associate(GMainPanel mainPanel) {
+        this.mainPanel = mainPanel;
+        this.fileMenu.associate(mainPanel);
+        this.imagemenu.associate(mainPanel);
+    }
+
+    public void associateCurrentPanel(GMainPanel currentPanel) {
+        associate(currentPanel);
     }
 }

@@ -4,6 +4,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
 public class GEllipse extends GShape {
+    private static final long serialVersionUID = 1L;
     private Ellipse2D ellipse;
     public GEllipse() {
         super(new Ellipse2D.Float(0, 0, 0, 0));
@@ -34,4 +35,12 @@ public class GEllipse extends GShape {
 
     @Override
     public void addPoint(int x, int y) {}
+    @Override
+    public void resize(double sx, double sy, int anchorX, int anchorY) {
+
+    }
+    @Override
+    public void moveBy(int dx, int dy) {
+
+    }
 }
