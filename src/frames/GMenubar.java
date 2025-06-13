@@ -2,7 +2,7 @@ package frames;
 
 import javax.swing.JMenuBar;
 
-import menus.GFileMenu;
+import menus.file.GFileMenu;
 import menus.GHelpMenu;
 import menus.GLayerMenu;
 import menus.GSelectMenu;
@@ -85,11 +85,17 @@ public class GMenubar extends JMenuBar {
     public GFileMenu getFileMenu() {
         return this.fileMenu;
     }
+    public GEditMenu getEditMenu() {
+        return this.editMenu;
+    }
 
     public void associate(GMainPanel mainPanel) {
         this.mainPanel = mainPanel;
         this.fileMenu.associate(mainPanel);
         this.imagemenu.associate(mainPanel);
+        if(mainPanel!=null) {
+            this.editMenu.associate(mainPanel.getFrame());
+        }
     }
 
     public void associateCurrentPanel(GMainPanel currentPanel) {

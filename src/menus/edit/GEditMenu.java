@@ -1,5 +1,6 @@
 package menus.edit;
 
+import global.GClipboard;
 import global.GMenuConstants.EEditMenuItem;
 import frames.GMainFrame;
 import frames.GMainPanel;
@@ -70,22 +71,23 @@ public class GEditMenu extends JMenu {
     public void associate(GMainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.mainPanel = mainFrame.getCurrentPanel();
+        updateMenuState();
     }
 
     // method
     public void initialize() {
-        // Add initialization logic if needed
+        updateMenuState();
     }
 
     // Edit menu functions
     private void property() {
-        if (mainPanel != null) {
-            GShape selectedShape = mainPanel.getSelectedShape();
+        GMainPanel currentPanel = mainFrame.getCurrentPanel();
+        if (currentPanel != null) {
+            GShape selectedShape = currentPanel.getSelectedShape();
             if (selectedShape != null) {
                 GPropertyDialog dialog = new GPropertyDialog(mainFrame, selectedShape);
                 if (dialog.showDialog()) {
-                    // Apply changes to the shape
-                    mainPanel.repaint();
+                    currentPanel.repaint();
                     mainFrame.setModified(true);
                 }
             } else {
@@ -98,9 +100,10 @@ public class GEditMenu extends JMenu {
     }
 
     private void undo() {
-        if (mainPanel != null) {
-            mainPanel.undo();
-            mainFrame.setModified(true);
+        GMainPanel currentPanel = mainFrame.getCurrentPanel();
+        if (currentPanel != null) {
+            currentPanel.undo();
+            updateMenuState();
         }
     }
 
@@ -138,7 +141,6 @@ public class GEditMenu extends JMenu {
         if (mainPanel != null) {
             GShape selectedShape = mainPanel.getSelectedShape();
             if (selectedShape != null) {
-                // Apply fade effect (reduce opacity)
                 Color currentColor = selectedShape.getFillColor();
                 if (currentColor != null) {
                     int alpha = Math.max(0, currentColor.getAlpha() - 25);
@@ -162,73 +164,75 @@ public class GEditMenu extends JMenu {
     }
 
     private void cut() {
-        if (mainPanel != null) {
-            GShape selectedShape = mainPanel.getSelectedShape();
-            if (selectedShape != null) {
-                mainPanel.cutShape(selectedShape);
-                mainFrame.setModified(true);
-            } else {
-                JOptionPane.showMessageDialog(mainFrame,
-                        "Please select a shape first.",
-                        "No Selection",
-                        JOptionPane.INFORMATION_MESSAGE);
-            }
+        GMainPanel currentPanel = mainFrame.getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelectedShapes()) {
+            currentPanel.cutSelectedShapes();
+            updateMenuState();
+
+            showStatusMessage("Cut completed");
+        } else {
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Please select a shape first.",
+                    "No Selection",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     private void copy() {
-        if (mainPanel != null) {
-            GShape selectedShape = mainPanel.getSelectedShape();
-            if (selectedShape != null) {
-                //mainPanel.copyShape(selectedShape);
-            } else {
-                JOptionPane.showMessageDialog(mainFrame,
-                        "Please select a shape first.",
-                        "No Selection",
-                        JOptionPane.INFORMATION_MESSAGE);
-            }
+        GMainPanel currentPanel = mainFrame.getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelectedShapes()) {
+            currentPanel.copySelectedShapes();
+            updateMenuState();
+
+            showStatusMessage("Copied to clipboard");
+        } else {
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Please select a shape first.",
+                    "No Selection",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     private void paste() {
-        if (mainPanel != null) {
-//            if (mainPanel.hasCopiedShape()) {
-//                mainPanel.pasteShape();
-//                mainFrame.setModified(true);
-//            } else {
-//                JOptionPane.showMessageDialog(mainFrame,
-//                        "Nothing to paste. Please copy or cut a shape first.",
-//                        "No Content",
-//                        JOptionPane.INFORMATION_MESSAGE);
-//            }
+        GMainPanel currentPanel = mainFrame.getCurrentPanel();
+        GClipboard clipboard = GClipboard.getInstance();
+
+        if (currentPanel != null && !clipboard.isEmpty()) {
+            currentPanel.pasteShapes();
+            updateMenuState();
+            showStatusMessage("Pasted " + clipboard.getShapeCount() + " shape(s)");
+        } else if (clipboard.isEmpty()) {
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Clipboard is empty. Please copy or cut a shape first.",
+                    "No Content",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     private void clear() {
-        if (mainPanel != null) {
-            GShape selectedShape = mainPanel.getSelectedShape();
-            if (selectedShape != null) {
-                int response = JOptionPane.showConfirmDialog(mainFrame,
-                        "Are you sure you want to delete the selected shape?",
-                        "Confirm Delete",
-                        JOptionPane.YES_NO_OPTION);
+        GMainPanel currentPanel = mainFrame.getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelectedShapes()) {
+            int response = JOptionPane.showConfirmDialog(mainFrame,
+                    "Are you sure you want to delete the selected shape(s)?",
+                    "Confirm Delete",
+                    JOptionPane.YES_NO_OPTION);
 
-                if (response == JOptionPane.YES_OPTION) {
-                    mainPanel.deleteShape(selectedShape);
-                    mainFrame.setModified(true);
-                }
-            } else {
-                JOptionPane.showMessageDialog(mainFrame,
-                        "Please select a shape first.",
-                        "No Selection",
-                        JOptionPane.INFORMATION_MESSAGE);
+            if (response == JOptionPane.YES_OPTION) {
+                currentPanel.deleteSelectedShapes();
+                updateMenuState();
             }
+        } else {
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Please select a shape first.",
+                    "No Selection",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     private void fill() {
-        if (mainPanel != null) {
-            GShape selectedShape = mainPanel.getSelectedShape();
+        GMainPanel currentPanel = mainFrame.getCurrentPanel();
+        if (currentPanel != null) {
+            GShape selectedShape = currentPanel.getSelectedShape();
             if (selectedShape != null) {
                 Color newColor = JColorChooser.showDialog(
                         mainFrame,
@@ -238,7 +242,7 @@ public class GEditMenu extends JMenu {
 
                 if (newColor != null) {
                     selectedShape.setFillColor(newColor);
-                    mainPanel.repaint();
+                    currentPanel.repaint();
                     mainFrame.setModified(true);
                 }
             } else {
@@ -251,58 +255,96 @@ public class GEditMenu extends JMenu {
     }
 
     private void colorSetting() {
-
             GColorSettingsDialog dialog = new GColorSettingsDialog(mainFrame);
             if (dialog.showDialog()) {
-                // Apply color settings
                 Map<String, String> settings = dialog.getSettings();
                 System.out.println("Applied color settings: " + settings);
                 mainFrame.setModified(true);
             }
 
     }
-
+    private void showStatusMessage(String message) {
+        System.out.println("Status: " + message);
+    }
     // Inner class for handling actions
     private class ActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            EEditMenuItem eMenuItem = EEditMenuItem.valueOf(e.getActionCommand());
-            switch (eMenuItem) {
-                case eProperty:
-                    property();
-                    break;
-                case eUndo:
-                    undo();
-                    break;
-                case eForward:
-                    forward();
-                    break;
-                case eBackward:
-                    backward();
-                    break;
-                case eFade:
-                    fade();
-                    break;
-                case eCut:
-                    cut();
-                    break;
-                case eCopy:
-                    copy();
-                    break;
-                case ePaste:
-                    paste();
-                    break;
-                case eClear:
-                    clear();
-                    break;
-                case eFill:
-                    fill();
-                    break;
-                case eColorSetting:
-                    colorSetting();
-                    break;
-                default:
-                    break;
+            try {
+                EEditMenuItem eMenuItem = EEditMenuItem.valueOf(e.getActionCommand());
+                switch (eMenuItem) {
+                    case eProperty:
+                        property();
+                        break;
+                    case eUndo:
+                        undo();
+                        break;
+                    case eForward:
+                        forward();
+                        break;
+                    case eBackward:
+                        backward();
+                        break;
+                    case eFade:
+                        fade();
+                        break;
+                    case eCut:
+                        cut();
+                        break;
+                    case eCopy:
+                        copy();
+                        break;
+                    case ePaste:
+                        paste();
+                        break;
+                    case eClear:
+                        clear();
+                        break;
+                    case eFill:
+                        fill();
+                        break;
+                    case eColorSetting:
+                        colorSetting();
+                        break;
+                    default:
+                        break;
+                }
+                updateMenuState();
+            } catch (IllegalArgumentException ex) {
+                System.err.println("Unknown menu command: " + e.getActionCommand());
+            }
+        }
+    }
+
+    public void updateMenuState() {
+        GMainPanel currentPanel = mainFrame != null ? mainFrame.getCurrentPanel() : null;
+        GClipboard clipboard = GClipboard.getInstance();
+
+        for (int i = 0; i < getItemCount(); i++) {
+            JMenuItem item = getItem(i);
+            if (item != null) {
+                String command = item.getActionCommand();
+
+                if (command != null) {
+                    switch (EEditMenuItem.valueOf(command)) {
+                        case eCut:
+                        case eCopy:
+                        case eClear:
+                        case eFill:
+                        case eProperty:
+                            item.setEnabled(currentPanel != null && currentPanel.hasSelectedShapes());
+                            break;
+                        case ePaste:
+                            item.setEnabled(currentPanel != null && !clipboard.isEmpty());
+                            break;
+                        case eUndo:
+                            item.setEnabled(currentPanel != null);
+                            break;
+                        default:
+                            item.setEnabled(currentPanel != null);
+                            break;
+                    }
+                }
             }
         }
     }

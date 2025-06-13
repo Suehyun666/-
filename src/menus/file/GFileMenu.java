@@ -1,8 +1,12 @@
-package menus;
+package menus.file;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -32,14 +36,36 @@ public class GFileMenu extends JMenu {
     //constructor
     public GFileMenu(String text) {
         super(text);
-        initializeFileChooser();
         ActionHandler actionHandler = new ActionHandler();
+
         for (EFileMenuItem eFileMenuItem : EFileMenuItem.values()) {
             JMenuItem menuItem = new JMenuItem(eFileMenuItem.getText());
             menuItem.setActionCommand(eFileMenuItem.name());
             menuItem.addActionListener(actionHandler);
+            if (eFileMenuItem == EFileMenuItem.eNew) {
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                        KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));}
+            if (eFileMenuItem == EFileMenuItem.eSave) {
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                        KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));}
+            if (eFileMenuItem == EFileMenuItem.eSaveAs) {
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                        KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));}
+            if (eFileMenuItem == EFileMenuItem.eOpen) {
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                        KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));}
+            if (eFileMenuItem == EFileMenuItem.eExit) {
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                        KeyEvent.VK_Q, KeyEvent.CTRL_DOWN_MASK));}
+            if (eFileMenuItem == EFileMenuItem.ePrint) {
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                        KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK));}
+            if (eFileMenuItem == EFileMenuItem.eClose) {
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                        KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));}
             this.add(menuItem);
         }
+
     }
     private void initializeFileChooser() {
         fileChooser = new JFileChooser();
@@ -92,8 +118,37 @@ public class GFileMenu extends JMenu {
         }
     }
     public void print() {
-        this.mainpanel = getCurrentPanel();
-        System.out.println("print");
+        try {
+            PrinterJob printerJob = PrinterJob.getPrinterJob();
+
+            printerJob.setPrintable((graphics, pageFormat, pageIndex) -> {
+                if (pageIndex > 0) return Printable.NO_SUCH_PAGE;
+
+                Graphics2D g2d = (Graphics2D) graphics;
+                g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+
+                this.mainpanel = getCurrentPanel();
+                if (mainpanel == null) return Printable.NO_SUCH_PAGE;
+
+                double scaleX = pageFormat.getImageableWidth() / mainpanel.getWidth();
+                double scaleY = pageFormat.getImageableHeight() / mainpanel.getHeight();
+                double scale = Math.min(scaleX, scaleY);
+                g2d.scale(scale, scale);
+
+                mainpanel.paint(g2d);
+
+                return Printable.PAGE_EXISTS;
+            });
+            if (printerJob.printDialog()) {
+                printerJob.print();
+                JOptionPane.showMessageDialog(this, "인쇄가 완료되었습니다.");
+            }
+        } catch (PrinterException e) {
+            JOptionPane.showMessageDialog(this,
+                    "인쇄 오류: " + e.getMessage(),
+                    "오류",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
     public void save() {
         System.out.println("save");
@@ -170,8 +225,18 @@ public class GFileMenu extends JMenu {
 
     public void exit() {
         this.mainpanel = getCurrentPanel();
-        this.mainpanel.exit();
+        if(mainpanel == null) {
+            System.exit(0);
+        }
     }
+
+    public void importFile(){
+
+    }
+    public void exportFile(){
+
+    }
+
     //getters
     private GMainPanel getCurrentPanel() {
         GMainFrame mainFrame = (GMainFrame) SwingUtilities.getWindowAncestor(this);

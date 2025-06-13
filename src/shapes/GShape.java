@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 import global.GConstants.EAnchor;
 
-public abstract class GShape implements Serializable{
+public abstract class GShape implements Serializable, Cloneable{
 	private static final long serialVersionUID = 1L;
 	private final static int ANCHOR_W=10;
 	private final static int ANCHOR_H=10;
@@ -144,4 +144,20 @@ public abstract class GShape implements Serializable{
 	public abstract void dragPoint(int x, int y);
 	public abstract void resize(double sx, double sy, int anchorX, int anchorY);
 	public abstract void moveBy(int dx, int dy);
+	public GShape clone(){
+		try {
+			GShape cloned = (GShape) super.clone();
+			cloned.transform = new AffineTransform(this.transform);
+			cloned.anchors = new Ellipse2D.Double[this.anchors.length];
+			for (int i = 0; i < this.anchors.length; i++) {
+				cloned.anchors[i] = new Ellipse2D.Double();
+			}
+			cloned.isSelected = false;
+			cloned.eSelectedAnchor = null;
+			return cloned;
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException("Clone not supported", e);
+		}
+	}
+
 }

@@ -64,6 +64,14 @@ public class GMainFrame extends JFrame {
                 this.menuBar.associateCurrentPanel(currentPanel);
             }
         });
+        tabbedPane.addChangeListener(e -> {
+            GMainPanel currentPanel = getCurrentPanel();
+            if (currentPanel != null) {
+                this.shapetoolBar.associate(currentPanel);
+                this.menuBar.associateCurrentPanel(currentPanel);
+                this.menuBar.getEditMenu().updateMenuState();
+            }
+        });
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
     private void handleWindowClosing() {
@@ -71,16 +79,15 @@ public class GMainFrame extends JFrame {
     }
     // initialize
     public void initialize() {
-        this.menuBar.associate(null);
-        this.shapetoolBar.associate(null);
-
         this.menuBar.initialize();
         this.shapetoolBar.initialize();
         this.pictureToolBar.initialize();
+        this.menuBar.associate(null);
+        this.shapetoolBar.associate(null);
     }
 
     public void createNewTab(String title) {
-        GMainPanel newPanel = new GMainPanel();
+        GMainPanel newPanel = new GMainPanel(this);
         canvasPanels.add(newPanel);
 
         JScrollPane scrollPane = new JScrollPane(newPanel);
@@ -100,8 +107,6 @@ public class GMainFrame extends JFrame {
         }
         return null;
     }
-
-
     public GShapeToolBar getToolBar() {
         return shapetoolBar;
     }

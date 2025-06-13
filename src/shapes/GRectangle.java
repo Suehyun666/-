@@ -49,4 +49,16 @@ public class GRectangle extends GShape{
 
 		this.rectangle.setFrame(newX, newY, newWidth, newHeight);
 	}
+	@Override
+	public GRectangle clone() {
+		GRectangle cloned = (GRectangle) super.clone();
+		cloned.rectangle = new Rectangle2D.Float(
+				(float) this.rectangle.getX(),
+				(float) this.rectangle.getY(),
+				(float) this.rectangle.getWidth(),
+				(float) this.rectangle.getHeight()
+		);
+		cloned.shape = cloned.rectangle;
+		return cloned;
+	}
 }
