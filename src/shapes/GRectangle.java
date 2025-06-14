@@ -24,7 +24,7 @@ public class GRectangle extends GShape{
 		this.originalShape = this.rectangle;
 		this.updateTransformedShape();
 	}
-	
+
 	@Override
 	public void dragPoint(int x, int y) {
 		int drawX = Math.min(startX, x);
@@ -33,13 +33,11 @@ public class GRectangle extends GShape{
 		int height = Math.abs(y - startY);
 		this.rectangle.setFrame(drawX, drawY, width, height);
 		this.shape = this.rectangle;
-		this.originalShape = this.rectangle;
 		this.updateTransformedShape();
 	}
 	public void updateSize(double x, double y, double w, double h) {
 		this.rectangle.setFrame(x, y, w, h);
 		this.shape = this.rectangle;
-		this.originalShape = this.rectangle;
 		this.updateTransformedShape();
 	}
 
