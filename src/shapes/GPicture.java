@@ -17,8 +17,9 @@ public class GPicture extends GShape {
     public GPicture(File imageFile) {
         super(new Rectangle2D.Float(0, 0, 0, 0));
         this.rectangle = (Rectangle2D) this.getShape();
-        this.imagePath = imageFile.getAbsolutePath(); // File에서 경로 추출
-        loadImage(imageFile); // File 객체 직접 전달
+        this.imagePath = imageFile.getAbsolutePath();
+        loadImage(imageFile);
+        this.isFillEnabled=false;
     }
 
     private void loadImage(File imageFile) {
@@ -127,12 +128,22 @@ public class GPicture extends GShape {
         return new Dimension(imageWidth, imageHeight);
     }
     @Override
-    public void resize(double sx, double sy, int anchorX, int anchorY) {
-
-    }
-
-    @Override
-    public void moveBy(int dx, int dy) {
-
+    public GPicture clone() {
+        GPicture cloned = (GPicture) super.clone();
+        cloned.rectangle = new Rectangle2D.Float(
+                (float) this.rectangle.getX(),
+                (float) this.rectangle.getY(),
+                (float) this.rectangle.getWidth(),
+                (float) this.rectangle.getHeight()
+        );
+        cloned.shape = cloned.rectangle;
+        cloned.imagePath = this.imagePath;
+        cloned.imageWidth = this.imageWidth;
+        cloned.imageHeight = this.imageHeight;
+        // 이미지는 다시 로드해야 함 (transient)
+        if (this.imagePath != null) {
+            cloned.loadImage(new File(this.imagePath));
+        }
+        return cloned;
     }
 }

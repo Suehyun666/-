@@ -50,7 +50,7 @@ public class GClipboard {
         Vector<GShape> pastedShapes = new Vector<>();
         for (GShape shape : copiedShapes) {
             GShape clonedShape = shape.clone();
-            clonedShape.moveBy(20, 20);
+            clonedShape.getAffineTransform().translate(20, 20);
             pastedShapes.add(clonedShape);
         }
         return pastedShapes;

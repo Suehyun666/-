@@ -1,5 +1,6 @@
 package shapes;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
@@ -35,12 +36,34 @@ public class GEllipse extends GShape {
 
     @Override
     public void addPoint(int x, int y) {}
-    @Override
-    public void resize(double sx, double sy, int anchorX, int anchorY) {
 
+    @Override
+    public GEllipse clone() {
+        GEllipse cloned = (GEllipse) super.clone();
+        if (this.shape instanceof Ellipse2D.Float ellipse) {
+            cloned.shape = new Ellipse2D.Float(
+                    (float) ellipse.getX(),
+                    (float) ellipse.getY(),
+                    (float) ellipse.getWidth(),
+                    (float) ellipse.getHeight()
+            );
+        }
+        cloned.ellipse = (Ellipse2D) cloned.shape;
+        return cloned;
     }
     @Override
-    public void moveBy(int dx, int dy) {
+    public void drawSelectMode(Graphics2D g2d) {
+        Color originalColor = g2d.getColor();
+        Stroke originalStroke = g2d.getStroke();
 
+        g2d.setColor(new Color(0, 100, 255, 150));
+        g2d.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT,
+                BasicStroke.JOIN_MITER, 10, new float[]{5, 5}, 0));
+
+        Shape transformedShape = this.transform.createTransformedShape(this.shape);
+        g2d.draw(transformedShape);
+
+        g2d.setColor(originalColor);
+        g2d.setStroke(originalStroke);
     }
 }

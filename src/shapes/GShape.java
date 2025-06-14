@@ -1,9 +1,6 @@
 package shapes;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.io.Serializable;
@@ -15,35 +12,26 @@ public abstract class GShape implements Serializable, Cloneable{
 	private final static int ANCHOR_W=10;
 	private final static int ANCHOR_H=10;
 
+	private Ellipse2D[] anchors;
+
 	protected Shape shape;
 	protected int startX, startY;//위치
 	protected int px, py; // 이전 위치
 	protected AffineTransform transform;
-	private Ellipse2D[] anchors;
 	protected EAnchor eSelectedAnchor;
 	protected Shape transformedShape;
 	protected boolean isSelected;
-	private boolean visible = true;
-	private Color color = null;
-
-	public void setMovePoint(int x, int y) {
-		this.px = x;
-		this.py = y;
-	}
-
-	public void movePoint(int x, int y) {
-		int dx = x - px;
-		int dy = y - py;
-		transform.translate(dx, dy);
-		px = x;
-		py = y;
-	}
+	protected boolean isFillEnabled;
+	protected boolean isStrokeEnabled;
+	protected boolean isSelectMode;
+	protected boolean visible;
+	protected Color currentFillColor, currentStrokeColor;
+	protected int currentStrokeWidth;
 
 	public enum EPoints{
 		e2P,
 		enP
 	}
-
 	public GShape(Shape shape) {
 		this.shape=shape;
 		this.transform =new AffineTransform();
@@ -52,10 +40,25 @@ public abstract class GShape implements Serializable, Cloneable{
 			this.anchors[i]=new Ellipse2D.Double();
 		}
 		this.isSelected=false;
+		this.isSelectMode=false;
+		this.visible=true;
 		this.eSelectedAnchor=null;
+		this.transformedShape=null;
+
+		// default color
+		this.currentFillColor = Color.BLACK;
+		this.currentStrokeColor = Color.BLACK;
+		this.currentStrokeWidth = 1;
+		this.isFillEnabled = true;
+		this.isStrokeEnabled = true;
 	}
+	//method
+
 	//getters & setters
 	public Shape getShape() {return this.shape;}
+	public EAnchor getSelectedAnchor() {
+		return this.eSelectedAnchor;
+	}
 	public Rectangle getSize(){return this.getBounds();}
 	public AffineTransform getAffineTransform() {
 		return this.transform;
@@ -64,31 +67,62 @@ public abstract class GShape implements Serializable, Cloneable{
 		return this.transform.createTransformedShape(this.shape);
 	}
 	public boolean isVisible() {return visible;}
-	public Color getFillColor() {return color;}
+	public Color getFillColor() {return currentFillColor;}
+	public Color getStrokeColor() { return currentStrokeColor;}
+	public int getStrokeWidth(){return currentStrokeWidth;}
+	public boolean isFillEnabled(){return isFillEnabled;}
+	public boolean isStrokeEnabled(){return isStrokeEnabled;}
 
-	public void setVisible(boolean visible) {
-
-	}
+	public void setVisible(boolean visible) {this.visible = visible;}
 	public void setSelected(boolean input) {
 		this.isSelected=input;
-	}
-	public EAnchor getSelectedAnchor() {
-		return this.eSelectedAnchor;
 	}
 	public void setSelectedAnchor(EAnchor input) {
 		this.eSelectedAnchor=input;
 	}
-	public void setFillColor(Color fadedColor) {this.color = fadedColor;}
-
-	//method
-	public void draw(Graphics2D g2d) {
-		this.transformedShape = this.transform.createTransformedShape(this.shape);
-		g2d.draw(this.transformedShape);
-		if (this.isSelected) {
-			drawAnchors(g2d);
-		}
+	public void setSelectMode(boolean bool){this.isSelectMode = bool;}
+	public void setFillColor(Color fadedColor) {this.currentFillColor = fadedColor;}
+	public void setCurrentStrokeColor(Color savedColor) {this.currentStrokeColor=savedColor;}
+	public void setColorProperties(Color fillColor, Color strokeColor, int strokeWidth, boolean fillEnabled, boolean strokeEnabled) {
+		this.currentFillColor = fillColor;
+		this.currentStrokeColor = strokeColor;
+		this.currentStrokeWidth = strokeWidth;
+		this.isFillEnabled = fillEnabled;
+		this.isStrokeEnabled = strokeEnabled;
 	}
 
+	public void draw(Graphics2D g2d) {
+		//select
+		if (isSelectMode) {
+			drawSelectMode(g2d);
+			return;
+		}
+		this.transformedShape = this.transform.createTransformedShape(this.shape);
+		Color originalColor = g2d.getColor();
+		Stroke originalStroke = g2d.getStroke();
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		// fill color
+		if (isFillEnabled && currentFillColor != null) {
+			g2d.setColor(currentFillColor);
+			g2d.fill(transformedShape);
+		}
+		// stroke
+		if (isStrokeEnabled && currentStrokeColor != null) {
+			g2d.setColor(currentStrokeColor);
+			g2d.setStroke(new BasicStroke(currentStrokeWidth,
+					BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+			g2d.draw(transformedShape);
+		}
+		if (this.isSelected) {
+			g2d.setColor(originalColor);
+			g2d.setStroke(originalStroke);
+			drawAnchors(g2d);
+		}
+		// default setting
+		g2d.setColor(originalColor);
+		g2d.setStroke(originalStroke);
+	}
+	public void drawSelectMode(Graphics2D g2d) {}
 	protected void drawAnchors(Graphics2D g2d) {
 		for (EAnchor anchor : EAnchor.values()) {
 			if (anchor == EAnchor.MM) continue;
@@ -100,7 +134,6 @@ public abstract class GShape implements Serializable, Cloneable{
 			g2d.draw(shape);
 		}
 	}
-
 	public boolean contains(int x, int y) {
 		this.transformedShape = this.transform.createTransformedShape(this.shape);
 		if (isSelected) {
@@ -118,7 +151,7 @@ public abstract class GShape implements Serializable, Cloneable{
 		}
 		return false;
 	}
-
+	public boolean contains(GShape shape) {return getTransformedShape().contains(shape.getTransformedShape().getBounds2D());}
 	private Ellipse2D getAnchorShape(EAnchor anchor) {
 		Rectangle bounds = this.transformedShape.getBounds();
 		int cx = 0, cy = 0;
@@ -136,16 +169,23 @@ public abstract class GShape implements Serializable, Cloneable{
 		}
 		return new Ellipse2D.Double(cx - ANCHOR_W/2, cy - ANCHOR_H/2, ANCHOR_W, ANCHOR_H);
 	}
-
-	public boolean contains(GShape shape) {return getTransformedShape().contains(shape.getTransformedShape().getBounds2D());}
+	public void setMovePoint(int x, int y) {
+		this.px = x;
+		this.py = y;
+	}
+	public void movePoint(int x, int y) {
+		int dx = x - px;
+		int dy = y - py;
+		transform.translate(dx, dy);
+		px = x;
+		py = y;
+	}
 	public Rectangle getBounds() {
 		return getTransformedShape().getBounds();
 	}
 	public abstract void setPoint(int x, int y);
 	public abstract void addPoint(int x, int y);
 	public abstract void dragPoint(int x, int y);
-	public abstract void resize(double sx, double sy, int anchorX, int anchorY);
-	public abstract void moveBy(int dx, int dy);
 	public GShape clone(){
 		try {
 			GShape cloned = (GShape) super.clone();
@@ -161,5 +201,4 @@ public abstract class GShape implements Serializable, Cloneable{
 			throw new RuntimeException("Clone not supported", e);
 		}
 	}
-
 }

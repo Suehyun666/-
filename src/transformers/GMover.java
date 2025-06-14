@@ -27,8 +27,7 @@ public class GMover extends GTransFormer {
 		}
 	}
 	@Override
-	public void addpoint(Graphics2D graphics, int x, int y) {
-	}
+	public void addpoint(Graphics2D graphics, int x, int y) {}
 	@Override
 	public void finish(Graphics2D graphics, int x, int y) {}
 }

@@ -1,13 +1,11 @@
 package frames;
 
 import static java.awt.Color.DARK_GRAY;
-import static java.awt.Color.RED;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.Collection;
 import java.util.Vector;
 import javax.swing.*;
 
@@ -24,6 +22,7 @@ public class GMainFrame extends JFrame {
     private GMenubar menuBar;
     private Vector<GMainPanel> canvasPanels;
     private GPictureToolBar pictureToolBar;
+    private GColorPanel colorPanel;
 
     // constructor
     public GMainFrame() {
@@ -69,6 +68,9 @@ public class GMainFrame extends JFrame {
         this.shapetoolBar = new GShapeToolBar(this);
         add(shapetoolBar, BorderLayout.WEST);
 
+        this.colorPanel = new GColorPanel(this);
+        add(colorPanel, BorderLayout.EAST);
+
         this.pictureToolBar=new GPictureToolBar(this);
         add(pictureToolBar, BorderLayout.SOUTH);
         setVisible(true);
@@ -86,6 +88,12 @@ public class GMainFrame extends JFrame {
                 this.menuBar.associateCurrentPanel(currentPanel);
                 this.menuBar.getEditMenu().updateMenuState();
                 SwingUtilities.invokeLater(this::updateCurrentTabContext);
+                if (currentPanel.getSelectedShape() != null) {
+                    colorPanel.updateFromShape(currentPanel.getSelectedShape());
+                }
+            } else {
+                this.shapetoolBar.associate(null);
+                this.menuBar.associate(null);
             }
         });
     }
@@ -97,6 +105,7 @@ public class GMainFrame extends JFrame {
         this.menuBar.initialize();
         this.shapetoolBar.initialize();
         this.pictureToolBar.initialize();
+        this.colorPanel.initialize();
         this.menuBar.associate(null);
         this.shapetoolBar.associate(null);
         updateCurrentTabContext();
@@ -228,6 +237,7 @@ public class GMainFrame extends JFrame {
             return canvasPanels.get(selectedIndex);
         }return null;
     }
+    public GColorPanel getColorPanel() {return this.colorPanel;}
     public JTabbedPane getTabbedPane() {return tabbedPane;}
     public Vector<GMainPanel> getCanvasPanels() {return canvasPanels;}
     public GShapeToolBar getToolBar() {return shapetoolBar;}

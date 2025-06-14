@@ -146,7 +146,7 @@ public class GColorDialog extends JDialog {
     }
 
     public boolean showDialog() {
-        // Initialize with current settings
+//         Initialize with current settings
 //        if (mainPanel != null) {
 //            selectedFillColor = mainPanel.getDefaultFillColor();
 //            selectedStrokeColor = mainPanel.getDefaultStrokeColor();

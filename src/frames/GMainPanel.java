@@ -14,6 +14,7 @@ import javax.swing.*;
 import global.GClipboard;
 import global.GConstants.EAnchor;
 import global.GConstants.EShapeTool;
+import menus.edit.GColorDialog2;
 import shapes.GShape;
 import shapes.GShape.EPoints;
 import transformers.GDrawer;
@@ -45,7 +46,7 @@ public class GMainPanel extends JPanel {
     private EShapeTool eShapeTool;
     private EDrawingState eDrawingState;
     private boolean bUpdated;
-    
+    //constructor
     public GMainPanel(GMainFrame mainFrame) {
         setBackground(Color.WHITE);
         setLayout(new BorderLayout());
@@ -64,6 +65,7 @@ public class GMainPanel extends JPanel {
         this.undoStack = new Stack<>();
         this.redoStack = new Stack<>();
     }
+    //initialize
     public void initialize() {//associate을 불러야하나.
     	System.out.println("Initializing Panel");
         shapes.clear();
@@ -100,9 +102,13 @@ public class GMainPanel extends JPanel {
         if(shape != null) {
             shape.setSelected(true);
             this.selectedShape = shape;
+            if (mainFrame.getColorPanel() != null) {
+                mainFrame.getColorPanel().updateFromShape(shape);
+            }
         }
         updateMenuState();
     }
+
     //update
     private void updateMenuState() {
         if (mainFrame != null && mainFrame.getJMenuBar() instanceof GMenubar) {
@@ -112,6 +118,22 @@ public class GMainPanel extends JPanel {
                     menubar.getEditMenu().updateMenuState();
                 });
             }
+        }
+    }
+    public void updateSelectedShapeColors(Color fillColor, Color strokeColor, int strokeWidth, boolean fillEnabled, boolean strokeEnabled) {
+        if (selectedShape != null) {
+            selectedShape.setColorProperties(fillColor, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
+            repaint();
+            setUpdate(true);
+            mainFrame.setModified(true);
+        }
+        if (!selectedShapes.isEmpty()) {
+            for (GShape shape : selectedShapes) {
+                shape.setColorProperties(fillColor, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
+            }
+            repaint();
+            setUpdate(true);
+            mainFrame.setModified(true);
         }
     }
     //add & delete
@@ -129,6 +151,7 @@ public class GMainPanel extends JPanel {
         }
         updateMenuState();
     }
+    //select
     private void clearSelection() {
         System.out.println("clear selection");
         for(GShape shape : this.shapes) {
@@ -136,6 +159,9 @@ public class GMainPanel extends JPanel {
         }
         this.selectedShapes.clear();
         this.selectedShape = null;
+        if (mainFrame.getColorPanel() != null) {
+            mainFrame.getColorPanel().initialize();
+        }
     }
     private void changeCursor(int x, int y) {
     	if(this.eShapeTool==EShapeTool.eSelect) {
@@ -149,13 +175,16 @@ public class GMainPanel extends JPanel {
         	}
     	}
     }
+    //clear
     public void clear() {
         System.out.println("clear");
 		this.shapes.clear();
 	}
+    //cut
     public void cutShape(GShape selectedShape) {
         System.out.println("cut");
     }
+    //
     public void exit() {
         System.exit(0);
     }
@@ -314,13 +343,13 @@ public class GMainPanel extends JPanel {
         }
     }
     private void startTransform(int x, int y) {
-    	this.toolshape = this.eShapeTool.newShape();
+        this.toolshape = this.eShapeTool.newShape();
     	this.shapes.add(this.toolshape);
         if(this.eShapeTool==EShapeTool.eSelect){
         	this.selectedShape = onShape(x,y);
         	if(this.selectedShape == null) {
+                this.toolshape.setSelectMode(true);
         		this.transformer = new GDrawer(this.toolshape);
-                //this.shapes.add(this.toolshape);
         	}else if(this.selectedShape.getSelectedAnchor()==EAnchor.MM) {
         		this.selectedShape.setSelected(true);
                 this.selectedShapes.add(this.selectedShape);
@@ -332,8 +361,11 @@ public class GMainPanel extends JPanel {
         		this.selectedShape.setSelected(true);
         		this.transformer = new GResizer(this.selectedShape);
         	}
-        }
-        else {
+        }else {
+            if (this.toolshape != null && mainFrame.getColorPanel() != null) {
+                GColorDialog2.ColorProperties colorProps = mainFrame.getColorPanel().getCurrentColorProperties();
+                this.toolshape.setColorProperties(colorProps.fillColor, colorProps.strokeColor, colorProps.strokeWidth, colorProps.fillEnabled, colorProps.strokeEnabled);
+            }
         	this.transformer = new GDrawer(this.toolshape);
         }
         this.transformer.start((Graphics2D)getGraphics(), x, y);
@@ -357,8 +389,6 @@ public class GMainPanel extends JPanel {
     	this.transformer.finish((Graphics2D) getGraphics(), x, y);
     	this.selectShape(this.toolshape);
     	if(this.eShapeTool==EShapeTool.eSelect) {
-            System.out.println("Selected shape: "+this.selectedShape);
-            System.out.println("Selected shapes: "+this.shapes);
             this.shapes.removeLast();
     		for(GShape shape:this.shapes) {
     			if(this.selectedShape.contains(shape)) {

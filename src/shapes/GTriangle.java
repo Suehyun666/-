@@ -4,7 +4,6 @@ import java.awt.geom.Path2D;
 public class GTriangle extends GShape{
 	private static final long serialVersionUID = 1L;
 	private Path2D.Float triangle;
-	private int startX, startY;
 	private int[] xPoints;
 	private int[] yPoints;
 
@@ -30,8 +29,6 @@ public class GTriangle extends GShape{
 		updateTrianglePath();
 		this.transform = new java.awt.geom.AffineTransform();
 	}
-
-
 	@Override
 	public void dragPoint(int x, int y) {
 		xPoints[0] = startX;
@@ -55,12 +52,17 @@ public class GTriangle extends GShape{
 
 	@Override
 	public void addPoint(int x, int y) {}
-	@Override
-	public void resize(double sx, double sy, int anchorX, int anchorY) {
 
-	}
 	@Override
-	public void moveBy(int dx, int dy) {
-
+	public GTriangle clone() {
+		GTriangle cloned = (GTriangle) super.clone();
+		cloned.triangle = new Path2D.Float();
+		cloned.xPoints = this.xPoints.clone();
+		cloned.yPoints = this.yPoints.clone();
+		cloned.startX = this.startX;
+		cloned.startY = this.startY;
+		cloned.updateTrianglePath();
+		cloned.shape = cloned.triangle;
+		return cloned;
 	}
 }

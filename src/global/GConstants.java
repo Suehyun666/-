@@ -51,7 +51,10 @@ public class GConstants {
 		eTriangle("triangle", EPoints.e2P, GTriangle.class),
 		eEllipse("ellipse", EPoints.e2P, GEllipse.class),
 		eLine("line", EPoints.e2P,GLine.class),
-		ePolygon("polygon",EPoints.enP,GPolygon.class);
+		ePolygon("polygon",EPoints.enP,GPolygon.class),
+		ePen("Pen", EPoints.enP,GPen.class),
+		eBrush("Brush", EPoints.enP,GBrush.class),
+		eErase("Erase",EPoints.e2P,GEllipse.class);
 
 		private String name;
 		private EPoints ePoints;
@@ -70,17 +73,11 @@ public class GConstants {
 			return this.ePoints;
 		}
 		public GShape newShape(){
-			try {
-				System.out.println("생성 시도");
-                return (GShape) classShape.getConstructor().newInstance();
+			try {return (GShape) classShape.getConstructor().newInstance();
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				// TODO Auto-generated catch block
-				System.out.println("생성 실패");
-				System.out.println(this.name);
 				e.printStackTrace();
-			}
-			return null;
+			}return null;
 		}
 	}
 
