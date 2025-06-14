@@ -28,16 +28,13 @@ public abstract class GShape implements Serializable, Cloneable{
 	protected Color currentFillColor, currentStrokeColor;
 	protected int currentStrokeWidth;
 
-	public Shape getOriginalShape() {
-		 return originalShape;
-	}
-
 	public enum EPoints{
 		e2P,
 		enP
 	}
 	public GShape(Shape shape) {
 		this.shape=shape;
+		this.originalShape = shape;
 		this.transform =new AffineTransform();
 		this.anchors=new Ellipse2D.Double[EAnchor.values().length-1];
 		for (int i=0; i<this.anchors.length; i++) {
@@ -60,6 +57,7 @@ public abstract class GShape implements Serializable, Cloneable{
 
 	//getters & setters
 	public Shape getShape() {return this.shape;}
+	public Shape getOriginalShape() {		return originalShape;}
 	public EAnchor getSelectedAnchor() {
 		return this.eSelectedAnchor;
 	}
