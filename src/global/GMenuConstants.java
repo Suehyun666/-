@@ -9,8 +9,8 @@ public class GMenuConstants {
 		eClose("Close","close"),
 		closeCurrentTab("Close Tab", "closeCurrentTab"),
 		ePrint("Print","print"),
-		eImport("Import","import"),
-		eExport("Export","export"),
+		eImport("Import","importFile"),
+		eExport("Export","exportFile"),
 		eExit("Exit","exit");
 
 		private String menu;
@@ -31,6 +31,7 @@ public class GMenuConstants {
 	public enum EEditMenuItem {
 		eProperty("Property", "property"),
 		eUndo("Undo", "undo"),
+		eRedo("Redo", "redo"),
 		eForward("Forward", "forward"),
 		eBackward("Backward", "backward"),
 		eFade("Fade", "fade"),
@@ -166,7 +167,6 @@ public class GMenuConstants {
 	public enum EFilterMenuItem {
 		eBlur("Blur", "blur"),
 		eNoise("Noise", "noise");
-
 		private String menu;
 		private String methodname;
 		EFilterMenuItem(String menu, String methodname) {

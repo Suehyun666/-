@@ -85,15 +85,17 @@ public class GMenubar extends JMenuBar {
     public GFileMenu getFileMenu() {
         return this.fileMenu;
     }
-    public GEditMenu getEditMenu() {
-        return this.editMenu;
-    }
+    public GEditMenu getEditMenu() {return this.editMenu;}
+    public GSelectMenu getSelectMenu() {return this.selectmenu;}
+    public GFilterMenu getFilterMenu() {return this.filtermenu;}
+    public GImageMenu getImageMenu() {return this.imagemenu;}
 
     public void associate(GMainPanel mainPanel) {
         this.mainPanel = mainPanel;
-        this.fileMenu.associate(mainPanel);
-        this.imagemenu.associate(mainPanel);
         if(mainPanel!=null) {
+            this.fileMenu.associate(mainPanel);
+            this.imagemenu.associate(mainPanel);
+            this.selectmenu.associate(mainPanel);
             this.editMenu.associate(mainPanel.getFrame());
         }
     }

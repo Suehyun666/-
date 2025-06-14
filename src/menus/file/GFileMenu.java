@@ -26,6 +26,7 @@ import frames.GMainPanel;
 import shapes.GShape;
 
 public class GFileMenu extends JMenu {
+    //attribute
     private static final long serialVersionUID = 1L;
 
     //components
@@ -67,6 +68,12 @@ public class GFileMenu extends JMenu {
         }
 
     }
+    //methods
+    //initialize
+    public void initialize() {
+        initializeFileChooser();
+        currentFile = null;
+    }
     private void initializeFileChooser() {
         fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
@@ -74,13 +81,10 @@ public class GFileMenu extends JMenu {
         fileChooser.setFileFilter(filter);
         fileChooser.setAcceptAllFileFilterUsed(false);
     }
-    //methods
-
-    //initialize
-    public void initialize() {
-        initializeFileChooser();
-        currentFile = null;
+    public void associate(GMainPanel mainpanel) {
+        this.mainpanel=getCurrentPanel();
     }
+    //new
     public void create() {
         GMainFrame mainFrame = (GMainFrame) SwingUtilities.getWindowAncestor(this);
         if (mainFrame != null) {
@@ -89,38 +93,48 @@ public class GFileMenu extends JMenu {
             currentFile = null;
         }
     }
+    //open
     public void open() {
-        System.out.println("open");
-
         int result = fileChooser.showOpenDialog(this.getParent());
 
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            try {
-                FileInputStream file = new FileInputStream(selectedFile);
-                ObjectInputStream stream = new ObjectInputStream(new BufferedInputStream(file));
-                Vector<GShape> shapes = (Vector<GShape>) stream.readObject();
-                this.mainpanel = getCurrentPanel();
-                if (this.mainpanel != null) {
-                    this.mainpanel.setShapes(shapes);
-                    this.mainpanel.repaint();
-                    this.mainpanel.revalidate();
-                    currentFile = selectedFile;
-                    System.out.println("파일 열기 성공: " + selectedFile.getName());
-                }
-                stream.close();
+            GMainFrame mainFrame = (GMainFrame) SwingUtilities.getWindowAncestor(this);
+
+            // duplicated
+            if (mainFrame.isTabOpenWithFile(selectedFile)) {
+                JOptionPane.showMessageDialog(this.getParent(), "File exists. Cant open this file", "중복 열기", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            Vector<GShape> shapes;
+            try (ObjectInputStream stream = new ObjectInputStream(
+                    new BufferedInputStream(new FileInputStream(selectedFile)))) {
+                shapes = (Vector<GShape>) stream.readObject();
+
             } catch(Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this.getParent(),
                         "파일을 열 수 없습니다: " + e.getMessage(),
                         "오류", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+            String rawName = selectedFile.getName().replaceFirst("[.][^.]+$", "");
+            String uniqueTitle = mainFrame.makeUniqueTitle(rawName);
+            mainFrame.createNewTab(uniqueTitle);
+
+            GMainPanel panel = mainFrame.getCurrentPanel();
+            if (panel != null) {
+                panel.setShapes(shapes);
+                panel.repaint();
+                panel.revalidate();
+            }
+            currentFile = selectedFile;
         }
     }
+    //print
     public void print() {
         try {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
-
             printerJob.setPrintable((graphics, pageFormat, pageIndex) -> {
                 if (pageIndex > 0) return Printable.NO_SUCH_PAGE;
 
@@ -150,6 +164,7 @@ public class GFileMenu extends JMenu {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
+    //save
     public void save() {
         System.out.println("save");
         this.mainpanel = getCurrentPanel();
@@ -179,7 +194,6 @@ public class GFileMenu extends JMenu {
             saveToFile(selectedFile);
         }
     }
-
     private void saveToFile(File file) {
         try {
             this.mainpanel=getCurrentPanel();
@@ -211,6 +225,7 @@ public class GFileMenu extends JMenu {
                     "오류", JOptionPane.ERROR_MESSAGE);
         }
     }
+    //close
     public void close() {
         GMainFrame mainFrame = (GMainFrame) SwingUtilities.getWindowAncestor(this);
         if (mainFrame.checkSaveAllTabs()) {
@@ -220,9 +235,17 @@ public class GFileMenu extends JMenu {
     public void closeCurrentTab() {
         GMainFrame mainFrame = (GMainFrame) SwingUtilities.getWindowAncestor(this);
         int currentIndex = mainFrame.getTabbedPane().getSelectedIndex();
-        mainFrame.closeTab(currentIndex);
+        // no tab
+        if (currentIndex == -1) {
+            return;
+        }
+        if (mainFrame.closeTab(currentIndex)) {
+            GMainPanel currentPanel = mainFrame.getCurrentPanel();
+            if (currentPanel != null) {
+                mainFrame.getJMenuBar().repaint();
+            }
+        }
     }
-
     public void exit() {
         this.mainpanel = getCurrentPanel();
         if(mainpanel == null) {
@@ -230,21 +253,22 @@ public class GFileMenu extends JMenu {
         }
     }
 
+    //import & export
     public void importFile(){
-
+        System.out.println("importFile");
     }
     public void exportFile(){
-
+        System.out.println("exportFile");
     }
 
     //getters
     private GMainPanel getCurrentPanel() {
         GMainFrame mainFrame = (GMainFrame) SwingUtilities.getWindowAncestor(this);
-        return mainFrame != null ? mainFrame.getCurrentPanel() : null;
-    }
+        return mainFrame != null ? mainFrame.getCurrentPanel() : null;}
     public File getCurrentFile() {return currentFile;}
     public String getCurrentFileName() {return currentFile != null ? currentFile.getName() : "제목 없음";}
 
+    //action handler
     private class ActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -259,9 +283,5 @@ public class GFileMenu extends JMenu {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
-
-    public void associate(GMainPanel mainpanel) {
-        this.mainpanel=getCurrentPanel();
     }
 }

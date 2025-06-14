@@ -15,30 +15,16 @@ public class GFilterMenu extends JMenu{
 		super(text);
 		ActionHandler actionHandler = new ActionHandler();
 
-		for (GMenuConstants.EEditMenuItem eEditMenuItem : GMenuConstants.EEditMenuItem.values()) {
-			JMenuItem menuItem = new JMenuItem(eEditMenuItem.getText());
-			menuItem.setActionCommand(eEditMenuItem.name());
+		for (GMenuConstants.EFilterMenuItem eFilterMenuItem : GMenuConstants.EFilterMenuItem.values()) {
+			JMenuItem menuItem = new JMenuItem(eFilterMenuItem.getText());
+			menuItem.setActionCommand(eFilterMenuItem.name());
 			menuItem.addActionListener(actionHandler);
-
-			switch (eEditMenuItem) {
-				case eUndo:
-					menuItem.setAccelerator(KeyStroke.getKeyStroke(
-							KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
-					break;
-				case eCut:
-					menuItem.setAccelerator(KeyStroke.getKeyStroke(
-							KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
-					break;
-				default:
-					break;
-			}
 			add(menuItem);
 		}
 	}
 
 	public void initialize() {}
 	public void blur(){}
-	public void unBlur(){}
 	public void noise(){}
 	private class ActionHandler implements ActionListener {
 		@Override
@@ -51,7 +37,6 @@ public class GFilterMenu extends JMenu{
 				case eNoise:
 					noise();
 					break;
-
 				default:
 					break;
 			}

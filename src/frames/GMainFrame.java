@@ -3,18 +3,21 @@ package frames;
 import static java.awt.Color.DARK_GRAY;
 import static java.awt.Color.RED;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Collection;
 import java.util.Vector;
 import javax.swing.*;
 
 import global.GConstants;
+import menus.file.GSaveConfirmDialog;
 import shapes.GShapeToolBar;
 
 public class GMainFrame extends JFrame {
     private static final long serialVersionUID = 1L;
+    private static String base="Untitled";
     //components
     private JTabbedPane tabbedPane;
     private GShapeToolBar shapetoolBar;
@@ -43,7 +46,21 @@ public class GMainFrame extends JFrame {
         this.setJMenuBar(menuBar);
 
         this.tabbedPane = new JTabbedPane();
+        this.canvasPanels = new Vector<>();
+
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        tabbedPane.addChangeListener(e -> {
+            GMainPanel currentPanel = getCurrentPanel();
+            if (currentPanel != null) {
+                this.shapetoolBar.associate(currentPanel);
+                this.menuBar.associateCurrentPanel(currentPanel);
+                this.menuBar.getEditMenu().updateMenuState();
+                SwingUtilities.invokeLater(this::updateCurrentTabContext);
+            } else {
+                this.shapetoolBar.associate(null);
+                this.menuBar.associate(null);
+            }
+        });
 
         this.canvasPanels = new Vector<>();
         JScrollPane scrollPane = new JScrollPane(tabbedPane);
@@ -54,25 +71,23 @@ public class GMainFrame extends JFrame {
 
         this.pictureToolBar=new GPictureToolBar(this);
         add(pictureToolBar, BorderLayout.SOUTH);
-
         setVisible(true);
 
+        //action listner
         tabbedPane.addChangeListener(e -> {
+            System.out.println("GMainFrame: getCurrentPanel() returned null");
             GMainPanel currentPanel = getCurrentPanel();
-            if (currentPanel != null) {
-                this.shapetoolBar.associate(currentPanel);
-                this.menuBar.associateCurrentPanel(currentPanel);
+            if(currentPanel==null) {
+                System.out.println("GMainFrame: getCurrentPanel() returned null");
             }
-        });
-        tabbedPane.addChangeListener(e -> {
-            GMainPanel currentPanel = getCurrentPanel();
             if (currentPanel != null) {
+                System.out.println("액션 리스너 작동");
                 this.shapetoolBar.associate(currentPanel);
                 this.menuBar.associateCurrentPanel(currentPanel);
                 this.menuBar.getEditMenu().updateMenuState();
+                SwingUtilities.invokeLater(this::updateCurrentTabContext);
             }
         });
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
     private void handleWindowClosing() {
         this.menuBar.getFileMenu().close();
@@ -84,39 +99,76 @@ public class GMainFrame extends JFrame {
         this.pictureToolBar.initialize();
         this.menuBar.associate(null);
         this.shapetoolBar.associate(null);
+        updateCurrentTabContext();
     }
-
-    public void createNewTab(String title) {
-        GMainPanel newPanel = new GMainPanel(this);
-        canvasPanels.add(newPanel);
-
-        JScrollPane scrollPane = new JScrollPane(newPanel);
-        tabbedPane.addTab(title, scrollPane);
-        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-
-        this.shapetoolBar.associate(newPanel);
-        this.menuBar.associate(newPanel);
-
-        newPanel.initialize();
-    }
-    //getters & setters
-    public GMainPanel getCurrentPanel() {
-        int selectedIndex = tabbedPane.getSelectedIndex();
-        if (selectedIndex >= 0 && selectedIndex < canvasPanels.size()) {
-            return canvasPanels.get(selectedIndex);
-        }
-        return null;
-    }
-    public GShapeToolBar getToolBar() {
-        return shapetoolBar;
-    }
-    public void setModified(boolean bool) {
+    //update
+    private void updateCurrentTabContext (){
         GMainPanel currentPanel = getCurrentPanel();
         if (currentPanel != null) {
-            currentPanel.setUpdate(bool);
-            updateTabTitle(currentPanel, bool);
+            this.shapetoolBar.associate(currentPanel);
+            GConstants.EShapeTool currentTool = this.shapetoolBar.getSelectedShape();
+            if (currentTool != null) {
+                currentPanel.setEShapeTool(currentTool);
+            }
+            this.menuBar.associateCurrentPanel(currentPanel);
+            this.menuBar.getEditMenu().updateMenuState();
+        } else {
+            this.shapetoolBar.associate(null);
+            this.menuBar.associate(null);
         }
     }
+    //new tab
+    public void createNewTab(String title) {insertTabBeforePlus(makeUniqueTitle(title));}
+    public String makeUniqueTitle(String title) {
+        int count = 1;
+        title = base + "-" + count;
+        while (isTitleExists(title)) {
+            count++;
+            title = base + "-" + count;
+        }
+        return title;
+    }
+    private boolean isTitleExists(String title) {
+        for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+            Component tab = tabbedPane.getTabComponentAt(i);
+            if (tab instanceof GTabComponent) {
+                if (((GTabComponent) tab).getTitle().equals(title)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private void insertTabBeforePlus(String uniqueTitle) {
+        GMainPanel panel = new GMainPanel(this);
+        canvasPanels.add(panel);
+
+        JScrollPane scrollPane = new JScrollPane(panel);
+        int insertIndex = tabbedPane.getTabCount();
+        tabbedPane.insertTab(uniqueTitle, null, scrollPane, null, insertIndex);
+        tabbedPane.setTabComponentAt(insertIndex, new GTabComponent(tabbedPane, uniqueTitle, this));
+
+        SwingUtilities.invokeLater(() -> tabbedPane.setSelectedIndex(insertIndex));
+
+        panel.initialize();
+        updateCurrentTabContext();
+    }
+
+    //open
+    public boolean isTabOpenWithFile(File file) {
+        String rawName = file.getName().replaceFirst("[.][^.]+$", "");
+        for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+            Component tab = tabbedPane.getTabComponentAt(i);
+            if (tab instanceof GTabComponent) {
+                if (((GTabComponent) tab).getTitle().startsWith(rawName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // ?
     private void updateTabTitle(GMainPanel currentPanel, boolean modified) {
         int index = canvasPanels.indexOf(currentPanel);
         if (index >= 0) {
@@ -128,7 +180,24 @@ public class GMainFrame extends JFrame {
             }
         }
     }
-
+    //close
+    public boolean closeTab(int index) {
+        if (index >= 0 && index < canvasPanels.size()) {
+            GMainPanel panel = canvasPanels.get(index);
+            if (panel.getUpdated()) {
+                String tabTitle = tabbedPane.getTitleAt(index).replace("*", "");
+                int reply = GSaveConfirmDialog.showSaveConfirmDialog(this, tabTitle);
+                if (reply == GSaveConfirmDialog.CANCEL_OPTION) {
+                    return false;
+                } else if (reply == GSaveConfirmDialog.SAVE_OPTION) {
+                    this.menuBar.getFileMenu().save();
+                }
+            }
+            canvasPanels.remove(index);
+            tabbedPane.removeTabAt(index);
+            return true;
+        }return false;
+    }
     public boolean checkSaveAllTabs() {
         for (int i = 0; i < canvasPanels.size(); i++) {
             GMainPanel panel = canvasPanels.get(i);
@@ -152,41 +221,21 @@ public class GMainFrame extends JFrame {
         return true;
     }
 
-    public void closeTab(int index) {
-        if (index >= 0 && index < canvasPanels.size()) {
-            GMainPanel panel = canvasPanels.get(index);
-            if (panel.getUpdated()) {
-                String tabTitle = tabbedPane.getTitleAt(index).replace("*", "");
-                int reply = JOptionPane.showConfirmDialog(
-                        this,
-                        tabTitle + "의 변경내용을 저장할까요?",
-                        "저장 확인",
-                        JOptionPane.YES_NO_CANCEL_OPTION
-                );
-
-                if (reply == JOptionPane.CANCEL_OPTION) {
-                    return; // 취소
-                } else if (reply == JOptionPane.YES_OPTION) {
-                    // 저장 로직
-                }
-            }
-
-            canvasPanels.remove(index);
-            tabbedPane.removeTabAt(index);
-
-            // 마지막 탭이면 새 탭 생성
-            if (tabbedPane.getTabCount() == 0) {
-                createNewTab("Untitled-1");
-            }
+    //getter & setters
+    public GMainPanel getCurrentPanel() {
+        int selectedIndex = tabbedPane.getSelectedIndex();
+        if (selectedIndex >= 0 && selectedIndex < canvasPanels.size()) {
+            return canvasPanels.get(selectedIndex);
+        }return null;
+    }
+    public JTabbedPane getTabbedPane() {return tabbedPane;}
+    public Vector<GMainPanel> getCanvasPanels() {return canvasPanels;}
+    public GShapeToolBar getToolBar() {return shapetoolBar;}
+    public void setModified(boolean bool) {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null) {
+            currentPanel.setUpdate(bool);
+            updateTabTitle(currentPanel, bool);
         }
     }
-
-    //getter
-    public JTabbedPane getTabbedPane() {
-        return tabbedPane;
-    }
-    public Vector<GMainPanel> getCanvasPanels() {
-        return canvasPanels;
-    }
-
 }

@@ -34,6 +34,9 @@ public class GEditMenu extends JMenu {
                 case eUndo:
                     menuItem.setAccelerator(KeyStroke.getKeyStroke(
                             KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
+                case eRedo:
+                    menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                            KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK));
                     break;
                 case eCut:
                     menuItem.setAccelerator(KeyStroke.getKeyStroke(
@@ -106,6 +109,14 @@ public class GEditMenu extends JMenu {
             updateMenuState();
         }
     }
+    private void redo() {
+        GMainPanel currentPanel = mainFrame.getCurrentPanel();
+        if (currentPanel != null) {
+            currentPanel.redo();
+            updateMenuState();
+        }
+    }
+
 
     private void forward() {
         if (mainPanel != null) {
@@ -279,6 +290,9 @@ public class GEditMenu extends JMenu {
                     case eUndo:
                         undo();
                         break;
+                    case eRedo:
+                        redo();
+                        break;
                     case eForward:
                         forward();
                         break;
@@ -327,19 +341,13 @@ public class GEditMenu extends JMenu {
 
                 if (command != null) {
                     switch (EEditMenuItem.valueOf(command)) {
-                        case eCut:
-                        case eCopy:
-                        case eClear:
-                        case eFill:
-                        case eProperty:
+                        case eCut, eCopy, eFill, eProperty:
                             item.setEnabled(currentPanel != null && currentPanel.hasSelectedShapes());
                             break;
                         case ePaste:
                             item.setEnabled(currentPanel != null && !clipboard.isEmpty());
                             break;
-                        case eUndo:
-                            item.setEnabled(currentPanel != null);
-                            break;
+                        case eClear, eUndo:
                         default:
                             item.setEnabled(currentPanel != null);
                             break;

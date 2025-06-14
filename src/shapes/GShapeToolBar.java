@@ -71,10 +71,10 @@ public class GShapeToolBar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             String sShapeType = e.getActionCommand();
-            EShapeTool eshapeType=EShapeTool.valueOf(sShapeType);
+            selectedShape=EShapeTool.valueOf(sShapeType);
             GMainPanel currentPanel = mainFrame.getCurrentPanel();
             if (currentPanel != null) {
-                currentPanel.setEShapeTool(eshapeType);
+                currentPanel.setEShapeTool(selectedShape);
             }
         }
 

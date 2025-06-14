@@ -1,6 +1,8 @@
 package menus;
 
+import frames.GMainPanel;
 import global.GMenuConstants.ESelectMenuItem;
+import shapes.GShape;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -10,6 +12,7 @@ import java.awt.event.KeyEvent;
 public class GSelectMenu extends JMenu {
 	//
 	private static final long serialVersionUID = 1L;
+	private GMainPanel mainPanel;
 	//constructor
 	public GSelectMenu(String text) {
 		super(text);
@@ -20,7 +23,6 @@ public class GSelectMenu extends JMenu {
 			menuItem.setActionCommand(eSelectMenuItem.name());
 			menuItem.addActionListener(actionHandler);
 
-			// Set keyboard shortcuts
 			switch (eSelectMenuItem) {
 				case eAll:
 					menuItem.setAccelerator(KeyStroke.getKeyStroke(
@@ -46,9 +48,15 @@ public class GSelectMenu extends JMenu {
 	}
 
 	public void initialize() {}
-	public void selectall(){}
+	public void selectall(){
+		this.mainPanel.selectAll();
+		this.mainPanel.repaint();
+	}
+	public void deselect(){
+		this.mainPanel.deselectAll();
+		this.mainPanel.repaint();
+	}
 	public void alllayer(){}
-	public void deselect(){}
 	public void reselect(){}
 	private class ActionHandler implements ActionListener {
 		@Override
@@ -71,5 +79,8 @@ public class GSelectMenu extends JMenu {
 					break;
 			}
 		}
+	}
+	public void associate(GMainPanel mainPanel){
+		this.mainPanel = mainPanel;
 	}
 }

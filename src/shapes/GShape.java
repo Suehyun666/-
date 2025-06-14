@@ -66,7 +66,9 @@ public abstract class GShape implements Serializable, Cloneable{
 	public boolean isVisible() {return visible;}
 	public Color getFillColor() {return color;}
 
-	public void setVisible(boolean visible) {}
+	public void setVisible(boolean visible) {
+
+	}
 	public void setSelected(boolean input) {
 		this.isSelected=input;
 	}

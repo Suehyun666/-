@@ -64,8 +64,9 @@ public class GMainPanel extends JPanel {
         this.undoStack = new Stack<>();
         this.redoStack = new Stack<>();
     }
-    public void initialize() {
-    	shapes.clear();
+    public void initialize() {//associate을 불러야하나.
+    	System.out.println("Initializing Panel");
+        shapes.clear();
         repaint();
     }
     //getters & setters
@@ -83,6 +84,7 @@ public class GMainPanel extends JPanel {
     public void setEShapeTool(EShapeTool shapetool) {
     	this.eShapeTool=shapetool;
         if(shapetool != EShapeTool.eSelect) {
+            updateMenuState();
             clearSelection();
         }
     }
@@ -101,7 +103,7 @@ public class GMainPanel extends JPanel {
         }
         updateMenuState();
     }
-
+    //update
     private void updateMenuState() {
         if (mainFrame != null && mainFrame.getJMenuBar() instanceof GMenubar) {
             GMenubar menubar = (GMenubar) mainFrame.getJMenuBar();
@@ -112,12 +114,14 @@ public class GMainPanel extends JPanel {
             }
         }
     }
-
+    //add & delete
     public void addShape(GShape shape) {
+        System.out.println("addShape");
         this.shapes.add(shape);
         updateMenuState();
     }
     public void deleteShape(GShape selectedShape) {
+        System.out.println("delete Shape");
         this.shapes.remove(selectedShape);
         this.selectedShapes.remove(selectedShape);
         if (this.selectedShape == selectedShape) {
@@ -126,6 +130,7 @@ public class GMainPanel extends JPanel {
         updateMenuState();
     }
     private void clearSelection() {
+        System.out.println("clear selection");
         for(GShape shape : this.shapes) {
             shape.setSelected(false);
         }
@@ -145,13 +150,17 @@ public class GMainPanel extends JPanel {
     	}
     }
     public void clear() {
+        System.out.println("clear");
 		this.shapes.clear();
 	}
-    public void cutShape(GShape selectedShape) {}
+    public void cutShape(GShape selectedShape) {
+        System.out.println("cut");
+    }
     public void exit() {
         System.exit(0);
     }
     public void undo() {
+        System.out.println("undo");
         if (!undoStack.isEmpty()) {
             Vector<GShape> currentState = getClonedShapes();
             redoStack.push(currentState);
@@ -162,15 +171,34 @@ public class GMainPanel extends JPanel {
         }
     }
     public void redo() {
+        System.out.println("redo");
         if (!redoStack.isEmpty()) {
             Vector<GShape> currentState = getClonedShapes();
             undoStack.push(currentState);
 
             Vector<GShape> nextState = redoStack.pop();
             setShapes(nextState);
+
+            clearSelectionWithoutUpdate();
+
+            setUpdate(true);
+            mainFrame.setModified(true);
+            updateMenuState();
             repaint();
+
+            System.out.println("DEBUG: Redo performed. Undo stack size: " + undoStack.size() +
+                    ", Redo stack size: " + redoStack.size());
         }
     }
+    private void clearSelectionWithoutUpdate() {
+        System.out.println("clearSelectionWithoutUpdate");
+        for(GShape shape : this.shapes) {
+            shape.setSelected(false);
+        }
+        this.selectedShapes.clear();
+        this.selectedShape = null;
+    }
+
     private Vector<GShape> getClonedShapes() {
         Vector<GShape> clonedShapes = new Vector<>();
         for (GShape shape : shapes) {
@@ -190,9 +218,7 @@ public class GMainPanel extends JPanel {
 
     public void cutSelectedShapes() {
         GClipboard clipboard = GClipboard.getInstance();
-
         Vector<GShape> shapesToCut = new Vector<>();
-
         if (selectedShape != null) {
             shapesToCut.add(selectedShape);
             clipboard.cut(selectedShape);
@@ -204,7 +230,6 @@ public class GMainPanel extends JPanel {
         for (GShape shape : shapesToCut) {
             shapes.remove(shape);
         }
-
         clearSelection();
         setUpdate(true);
         mainFrame.setModified(true);
@@ -217,44 +242,26 @@ public class GMainPanel extends JPanel {
         if (clipboard.isEmpty()) {
             return;
         }
-
-        // 상태 저장 (undo를 위해)
         saveStateForUndo();
-
         Vector<GShape> pastedShapes = clipboard.paste();
-
-        // 붙여넣은 도형들을 메인 패널에 추가
         for (GShape shape : pastedShapes) {
             shapes.add(shape);
         }
-
-        // 붙여넣은 도형들을 선택 상태로 만들기
         clearSelection();
         for (GShape shape : pastedShapes) {
             shape.setSelected(true);
             selectedShapes.add(shape);
         }
-
         if (!pastedShapes.isEmpty()) {
             selectedShape = pastedShapes.get(0);
         }
-
         setUpdate(true);
         mainFrame.setModified(true);
         repaint();
     }
 
-
-    public void duplicateSelectedShapes() {
-        if (selectedShape != null || !selectedShapes.isEmpty()) {
-            copySelectedShapes();
-            pasteShapes();
-        }
-    }
-
     public void deleteSelectedShapes() {
         Vector<GShape> shapesToDelete = new Vector<>();
-
         if (selectedShape != null) {
             shapesToDelete.add(selectedShape);
         } else if (!selectedShapes.isEmpty()) {
@@ -275,17 +282,28 @@ public class GMainPanel extends JPanel {
     private void saveStateForUndo() {
         Vector<GShape> currentState = getClonedShapes();
         undoStack.push(currentState);
-        redoStack.clear(); // 새로운 작업 시 redo 스택 클리어
+        redoStack.clear();
     }
-    public boolean hasClipboardContent() {
-        return !GClipboard.getInstance().isEmpty();
+    public void selectAll() {
+        this.selectedShapes.clear();
+        this.selectedShape = null;
+        for (GShape shape : this.shapes) {
+            shape.setSelected(true);
+            this.selectedShapes.add(shape);
+        }if (!this.shapes.isEmpty()) {
+            this.selectedShape = this.shapes.get(0);
+        }updateMenuState();
+        repaint();
     }
-
-    public boolean hasSelectedShapes() {
-        boolean hasSelected = selectedShape != null || !selectedShapes.isEmpty();
-        return hasSelected;
+    public void deselectAll() {
+        for (GShape shape : this.shapes) {
+            shape.setSelected(false);
+        }this.selectedShapes.clear();
+        this.selectedShape = null;
+        updateMenuState();
+        repaint();
     }
-
+    public boolean hasSelectedShapes() {return selectedShape != null || !selectedShapes.isEmpty();}
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -298,11 +316,11 @@ public class GMainPanel extends JPanel {
     private void startTransform(int x, int y) {
     	this.toolshape = this.eShapeTool.newShape();
     	this.shapes.add(this.toolshape);
-
         if(this.eShapeTool==EShapeTool.eSelect){
         	this.selectedShape = onShape(x,y);
         	if(this.selectedShape == null) {
         		this.transformer = new GDrawer(this.toolshape);
+                //this.shapes.add(this.toolshape);
         	}else if(this.selectedShape.getSelectedAnchor()==EAnchor.MM) {
         		this.selectedShape.setSelected(true);
                 this.selectedShapes.add(this.selectedShape);
@@ -339,7 +357,9 @@ public class GMainPanel extends JPanel {
     	this.transformer.finish((Graphics2D) getGraphics(), x, y);
     	this.selectShape(this.toolshape);
     	if(this.eShapeTool==EShapeTool.eSelect) {
-    		this.shapes.removeLast();
+            System.out.println("Selected shape: "+this.selectedShape);
+            System.out.println("Selected shapes: "+this.shapes);
+            this.shapes.removeLast();
     		for(GShape shape:this.shapes) {
     			if(this.selectedShape.contains(shape)) {
     				shape.setSelected(true);
