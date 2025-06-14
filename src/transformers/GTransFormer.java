@@ -7,7 +7,7 @@ import shapes.GShape;
 
 public abstract class GTransFormer {
 	protected GShape shape;
-	protected int startX,startY;
+	protected int prevX,prevY;
 	public GTransFormer(GShape gshape) {
 		this.shape=gshape;
 	}

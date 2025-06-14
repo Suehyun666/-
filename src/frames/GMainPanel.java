@@ -351,9 +351,11 @@ public class GMainPanel extends JPanel {
                 this.toolshape.setSelectMode(true);
         		this.transformer = new GDrawer(this.toolshape);
         	}else if(this.selectedShape.getSelectedAnchor()==EAnchor.MM) {
-        		this.selectedShape.setSelected(true);
-                this.selectedShapes.add(this.selectedShape);
-        		this.transformer = new GMover(this.selectedShapes);
+                this.selectedShape.setSelected(true);
+                if (!this.selectedShapes.contains(this.selectedShape)) {
+                    this.selectedShapes.add(this.selectedShape);
+                }
+                this.transformer = new GMover(this.selectedShapes);
         	}else if(this.selectedShape.getSelectedAnchor()==EAnchor.RR) {
         		this.selectedShape.setSelected(true);
         		this.transformer = new GRotater(this.selectedShape);
@@ -393,7 +395,9 @@ public class GMainPanel extends JPanel {
     		for(GShape shape:this.shapes) {
     			if(this.selectedShape.contains(shape)) {
     				shape.setSelected(true);
-                    this.selectedShapes.add(shape);
+                    if (!this.selectedShapes.contains(shape)) {
+                        this.selectedShapes.add(shape);
+                    }
     			}else {
     				shape.setSelected(false);
                     this.selectedShapes.remove(shape);

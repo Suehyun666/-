@@ -1,89 +1,82 @@
 package transformers;
 
+import global.GConstants.EAnchor;
+import shapes.GShape;
+
 import java.awt.*;
 import java.awt.geom.*;
 
-import global.GConstants.EAnchor;
-import shapes.GBrush;
-import shapes.GPen;
-import shapes.GShape;
-
 public class GResizer extends GTransFormer {
-	private GShape shape;
-	private Rectangle originalBounds;
-	private int fixedX, fixedY;
+	private Point2D fixedPoint;
 	private EAnchor anchor;
 
-	public GResizer(GShape gshape) {
-		super(gshape);
-		this.shape = gshape;
+	public GResizer(GShape shape) {
+		super(shape);
 	}
 
 	@Override
-	public void start(Graphics2D graphics, int x, int y) {
-		this.startX = x;
-		this.startY = y;
-		Rectangle currentBounds = shape.getTransformedShape().getBounds();
-		if (shape.getShape() instanceof Rectangle2D) {
-			Rectangle2D rect = (Rectangle2D) shape.getShape();
-			rect.setFrame(currentBounds);
-		}else if (shape.getShape() instanceof GeneralPath) {
-			// GPen 처리
-		} else if (shape.getShape() instanceof Area) {
-			// GBrush 처리
-		} else if (shape.getShape() instanceof Path2D) {
-			// GTriangle 처리
-		}
-
-		shape.getAffineTransform().setToIdentity();
-		this.originalBounds = currentBounds;
+	public void start(Graphics2D g, int x, int y) {
 		this.anchor = shape.getSelectedAnchor();
+		Rectangle2D bounds = shape.getTransformedShape().getBounds2D();
+		// 회전 포함된 bounds에서 고정점 계산 → 반드시 inverse transform
+		switch (anchor) {
+			case NW -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMaxX(), bounds.getMaxY());
+			case NE -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMinX(), bounds.getMaxY());
+			case SW -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMaxX(), bounds.getMinY());
+			case SE -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMinX(), bounds.getMinY());
+			case EE -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMinX(), bounds.getCenterY());
+			case WW -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMaxX(), bounds.getCenterY());
+			case NN -> fixedPoint = shape.getInverseTransformedPoint(bounds.getCenterX(), bounds.getMaxY());
+			case SS -> fixedPoint = shape.getInverseTransformedPoint(bounds.getCenterX(), bounds.getMinY());
+		}
+	}
+
+	@Override
+	public void drag(Graphics2D g, int x, int y) {
+		if (fixedPoint == null) return;
+
+		Point2D current = shape.getInverseTransformedPoint(x, y);
+		Rectangle2D sourceBounds = shape.getOriginalShape().getBounds2D();
+
+		double origW = sourceBounds.getWidth();
+		double origH = sourceBounds.getHeight();
+		if (origW == 0 || origH == 0) return;
+
+		double scaleX = 1.0, scaleY = 1.0;
 
 		switch (anchor) {
-			case SE: // 우하단 - 좌상단 고정
-				fixedX = originalBounds.x;
-				fixedY = originalBounds.y;
-				break;
-			case NE: // 우상단 - 좌하단 고정
-				fixedX = originalBounds.x;
-				fixedY = originalBounds.y + originalBounds.height;
-				break;
-			case SW: // 좌하단 - 우상단 고정
-				fixedX = originalBounds.x + originalBounds.width;
-				fixedY = originalBounds.y;
-				break;
-			case NW: // 좌상단 - 우하단 고정
-				fixedX = originalBounds.x + originalBounds.width;
-				fixedY = originalBounds.y + originalBounds.height;
-				break;
+			case NW, NE, SW, SE -> {
+				double dx = current.getX() - fixedPoint.getX();
+				double dy = current.getY() - fixedPoint.getY();
+				scaleX = dx / (origW * (anchor == EAnchor.NW || anchor == EAnchor.SW ? -1 : 1));
+				scaleY = dy / (origH * (anchor == EAnchor.NW || anchor == EAnchor.NE ? -1 : 1));
+			}
+			case EE, WW -> {
+				double dx = current.getX() - fixedPoint.getX();
+				scaleX = dx / (origW * (anchor == EAnchor.WW ? -1 : 1));
+			}
+			case NN, SS -> {
+				double dy = current.getY() - fixedPoint.getY();
+				scaleY = dy / (origH * (anchor == EAnchor.NN ? -1 : 1));
+			}
 		}
+
+		if (scaleX < 0.01) scaleX = 0.01;
+		if (scaleY < 0.01) scaleY = 0.01;
+
+		AffineTransform at = new AffineTransform();
+		at.translate(fixedPoint.getX(), fixedPoint.getY());
+		at.scale(scaleX, scaleY);
+		at.translate(-fixedPoint.getX(), -fixedPoint.getY());
+
+		shape.appendTransform(at);
 	}
 
 	@Override
-	public void drag(Graphics2D graphics, int x, int y) {
-		int newX = Math.min(fixedX, x);
-		int newY = Math.min(fixedY, y);
-		int newWidth = Math.abs(x - fixedX);
-		int newHeight = Math.abs(y - fixedY);
-
-		if (newWidth < 5) newWidth = 5;
-		if (newHeight < 5) newHeight = 5;
-
-		if (shape.getShape() instanceof Rectangle2D) {
-			Rectangle2D rect = (Rectangle2D) shape.getShape();
-			rect.setFrame(newX, newY, newWidth, newHeight);
-		}else if (shape.getShape() instanceof Point2D){
-			Point2D point = (Point2D) shape.getShape();
-			point.setLocation(newX, newY);
-		}else if (shape instanceof GPen) {
-			((GPen) shape).moveAllPoints(x, y);
-		} else if (shape instanceof GBrush) {
-			((GBrush) shape).moveAllPoints(x, y);
-		}
+	public void finish(Graphics2D graphics, int x, int y) {
+		fixedPoint = null;
+		//여기서 뭔가 해야할것같지만 다시 원래도형으로 돌아갈 것 같음.
 	}
-
-	@Override
-	public void finish(Graphics2D graphics, int x, int y) {}
 
 	@Override
 	public void addpoint(Graphics2D graphics, int x, int y) {}

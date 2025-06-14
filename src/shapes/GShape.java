@@ -1,8 +1,7 @@
 package shapes;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
+import java.awt.geom.*;
 import java.io.Serializable;
 
 import global.GConstants.EAnchor;
@@ -15,6 +14,7 @@ public abstract class GShape implements Serializable, Cloneable{
 	private Ellipse2D[] anchors;
 
 	protected Shape shape;
+	protected Shape originalShape;
 	protected int startX, startY;//위치
 	protected int px, py; // 이전 위치
 	protected AffineTransform transform;
@@ -27,6 +27,10 @@ public abstract class GShape implements Serializable, Cloneable{
 	protected boolean visible;
 	protected Color currentFillColor, currentStrokeColor;
 	protected int currentStrokeWidth;
+
+	public Shape getOriginalShape() {
+		 return originalShape;
+	}
 
 	public enum EPoints{
 		e2P,
@@ -152,22 +156,23 @@ public abstract class GShape implements Serializable, Cloneable{
 		return false;
 	}
 	public boolean contains(GShape shape) {return getTransformedShape().contains(shape.getTransformedShape().getBounds2D());}
+
 	private Ellipse2D getAnchorShape(EAnchor anchor) {
-		Rectangle bounds = this.transformedShape.getBounds();
-		int cx = 0, cy = 0;
+		Rectangle2D bounds = this.shape.getBounds2D();
+		double cx = 0, cy = 0;
 		switch (anchor) {
-			case SS: cx = bounds.x + bounds.width / 2; cy = bounds.y + bounds.height; break;
-			case SE: cx = bounds.x + bounds.width;     cy = bounds.y + bounds.height; break;
-			case SW: cx = bounds.x;                    cy = bounds.y + bounds.height; break;
-			case NN: cx = bounds.x + bounds.width / 2; cy = bounds.y; break;
-			case NE: cx = bounds.x + bounds.width;     cy = bounds.y; break;
-			case NW: cx = bounds.x;                    cy = bounds.y; break;
-			case EE: cx = bounds.x + bounds.width;     cy = bounds.y + bounds.height / 2; break;
-			case WW: cx = bounds.x;                    cy = bounds.y + bounds.height / 2; break;
-			case RR: cx = bounds.x + bounds.width / 2; cy = bounds.y - 30; break;
-			default: break;
+			case SS -> { cx = bounds.getCenterX(); cy = bounds.getMaxY(); }
+			case SE -> { cx = bounds.getMaxX();    cy = bounds.getMaxY(); }
+			case SW -> { cx = bounds.getMinX();    cy = bounds.getMaxY(); }
+			case NN -> { cx = bounds.getCenterX(); cy = bounds.getMinY(); }
+			case NE -> { cx = bounds.getMaxX();    cy = bounds.getMinY(); }
+			case NW -> { cx = bounds.getMinX();    cy = bounds.getMinY(); }
+			case EE -> { cx = bounds.getMaxX();    cy = bounds.getCenterY(); }
+			case WW -> { cx = bounds.getMinX();    cy = bounds.getCenterY(); }
+			case RR -> { cx = bounds.getCenterX(); cy = bounds.getMinY() - 30; }
 		}
-		return new Ellipse2D.Double(cx - ANCHOR_W/2, cy - ANCHOR_H/2, ANCHOR_W, ANCHOR_H);
+		Point2D transformed = transform.transform(new Point2D.Double(cx, cy), null);
+		return new Ellipse2D.Double(transformed.getX() - ANCHOR_W / 2, transformed.getY() - ANCHOR_H / 2, ANCHOR_W, ANCHOR_H);
 	}
 	public void setMovePoint(int x, int y) {
 		this.px = x;
@@ -199,6 +204,32 @@ public abstract class GShape implements Serializable, Cloneable{
 			return cloned;
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException("Clone not supported", e);
+		}
+	}
+
+	//affign
+	public void applyTransform(AffineTransform at) {
+		this.transform = new AffineTransform();        // 초기화
+		this.transform.concatenate(at);                // 새로 적용
+		updateTransformedShape();
+	}
+	public void appendTransform(AffineTransform at) {
+		this.transform.concatenate(at);                // 누적
+		updateTransformedShape();
+	}
+	public void resetTransform() {
+		this.transform = new AffineTransform();
+		updateTransformedShape();
+	}
+	public void updateTransformedShape() {
+		this.transformedShape = transform.createTransformedShape(this.shape);
+	}
+	public Point2D getInverseTransformedPoint(double x, double y) {
+		try {
+			return transform.createInverse().transform(new Point2D.Double(x, y), null);
+		} catch (NoninvertibleTransformException e) {
+			System.err.println("Inverse transform failed: " + e.getMessage());
+			return new Point2D.Double(x, y); // fallback 처리
 		}
 	}
 }

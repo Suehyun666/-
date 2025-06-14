@@ -1,4 +1,6 @@
 package shapes;
+import global.GConstants;
+
 import java.awt.geom.Path2D;
 
 public class GTriangle extends GShape{
@@ -49,7 +51,6 @@ public class GTriangle extends GShape{
 		triangle.closePath();
 		this.shape = triangle;
 	}
-
 	@Override
 	public void addPoint(int x, int y) {}
 

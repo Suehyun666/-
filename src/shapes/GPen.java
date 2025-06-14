@@ -1,6 +1,8 @@
 // GPen.java - 펜 도구 구현
 package shapes;
 
+import global.GConstants;
+
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
@@ -73,8 +75,5 @@ public class GPen extends GShape {
 
         g2d.setColor(originalColor);
         g2d.setStroke(originalStroke);
-    }
-    public void moveAllPoints(int dx, int dy) {
-
     }
 }
