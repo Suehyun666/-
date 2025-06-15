@@ -1,6 +1,6 @@
 package menus;
 
-import global.GMenuConstants.EHelpMenuItem;
+import menus.GMenuConstants.EHelpMenuItem;
 
 import javax.swing.*;
 import java.awt.*;

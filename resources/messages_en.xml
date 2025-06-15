@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+    <!-- Menu -->
+    <entry key="file.menu">File</entry>
+    <entry key="edit.menu">Edit</entry>
+    <entry key="select.menu">Select</entry>
+    <entry key="graphic.menu">Graphic</entry>
+    <entry key="image.menu">Image</entry>
+    <entry key="layer.menu">Layer</entry>
+    <entry key="filter.menu">Filter</entry>
+    <entry key="window.menu">Window</entry>
+    <entry key="help.menu">Help</entry>
+
+
+
+    <!-- File Menu -->
+    <entry key="file.menu">File</entry>
+    <entry key="file.new">New</entry>
+    <entry key="file.open">Open</entry>
+    <entry key="file.save">Save</entry>
+    <entry key="file.saveas">Save As</entry>
+    <entry key="file.close">Close</entry>
+    <entry key="file.closeTab">Close Tab</entry>
+    <entry key="file.print">Print</entry>
+    <entry key="file.import">Import</entry>
+    <entry key="file.export">Export</entry>
+    <entry key="file.exit">Exit</entry>
+
+    <!-- Edit Menu -->
+    <entry key="edit.menu">Edit</entry>
+    <entry key="edit.undo">Undo</entry>
+    <entry key="edit.redo">Redo</entry>
+    <entry key="edit.cut">Cut</entry>
+    <entry key="edit.copy">Copy</entry>
+    <entry key="edit.paste">Paste</entry>
+    <entry key="edit.clear">Delete</entry>
+    <entry key="edit.selectall">Select All</entry>
+
+    <!-- Tools -->
+    <entry key="tool.select">Select</entry>
+    <entry key="tool.rectangle">Rectangle</entry>
+    <entry key="tool.ellipse">Ellipse</entry>
+    <entry key="tool.line">Line</entry>
+    <entry key="tool.pen">Pen</entry>
+
+    <!-- Messages -->
+    <entry key="message.noSelection">Please select a shape first.</entry>
+    <entry key="message.fileSaved">File saved successfully.</entry>
+    <entry key="message.confirmDelete">Delete selected shape?</entry>
+
+    <!-- Dialog -->
+    <entry key="dialog.newFile">New File</entry>
+    <entry key="dialog.fileName">File Name:</entry>
+    <entry key="dialog.width">Width:</entry>
+    <entry key="dialog.height">Height:</entry>
+    <entry key="dialog.ok">OK</entry>
+    <entry key="dialog.cancel">Cancel</entry>
+
+    <!-- App -->
+    <entry key="app.title">Drawing Application</entry>
+</messages>

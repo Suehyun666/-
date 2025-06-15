@@ -1,6 +1,6 @@
 package menus;
 
-import global.GMenuConstants.EWindowMenuItem;
+import menus.GMenuConstants.EWindowMenuItem;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

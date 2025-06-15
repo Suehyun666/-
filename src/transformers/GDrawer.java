@@ -26,6 +26,5 @@ public class GDrawer extends GTransFormer {
 	}
 	@Override
 	public void finish(Graphics2D graphics, int x, int y) {
-		System.out.println("finish");
 		shape.updateTransformedShape();}
 }

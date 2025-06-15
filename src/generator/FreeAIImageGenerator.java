@@ -33,7 +33,6 @@ public class FreeAIImageGenerator implements ImageGenerator {
 
     @Override
     public void setApiKey(String key) {
-        // 대부분의 무료 서비스는 API 키가 필요 없음
         this.apikey = key;
     }
 
@@ -62,8 +61,6 @@ public class FreeAIImageGenerator implements ImageGenerator {
     @Override
     public File generateImage(String prompt, String apiKey, String outputPath) throws Exception {
         Exception lastException = null;
-
-        // 모든 서비스를 시도
         for (FreeService service : FreeService.values()) {
             try {
                 System.out.println("Attempting with service: " + service.name());
@@ -130,7 +127,6 @@ public class FreeAIImageGenerator implements ImageGenerator {
         connection.setRequestProperty("User-Agent", "Mozilla/5.0");
         connection.setDoOutput(true);
 
-        // Craiyon API 요청 형식
         JSONObject payload = new JSONObject();
         payload.put("prompt", prompt);
 
@@ -169,19 +165,5 @@ public class FreeAIImageGenerator implements ImageGenerator {
 
     private void showGeneratedImageInDialog(File imageFile) {
         new GPictureViewerDialog(frame, "Generated Image", imageFile, frame.getCurrentPanel());
-    }
-
-    // 현재 사용 중인 서비스 반환
-    public String getCurrentService() {
-        return currentService.name();
-    }
-
-    // 서비스 변경
-    public void setService(String serviceName) {
-        try {
-            currentService = FreeService.valueOf(serviceName);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid service name: " + serviceName);
-        }
     }
 }

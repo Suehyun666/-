@@ -6,15 +6,19 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.util.Stack;
 import java.util.Vector;
 
 import javax.swing.*;
 
+import menus.GMenubar;
+import global.CanvasInfo;
+import global.FileData;
 import global.GClipboard;
 import global.GConstants.EAnchor;
 import global.GConstants.EShapeTool;
-import menus.edit.GColorDialog2;
+import dialog.edit.GColorDialog;
 import shapes.GShape;
 import shapes.GShape.EPoints;
 import transformers.GDrawer;
@@ -25,122 +29,228 @@ import transformers.GTransFormer;
 
 public class GMainPanel extends JPanel {
     private static final long serialVersionUID = 1L;
-    public enum EDrawingState{
-    	eidle,
-    	e2P,
-    	enP
+
+    public enum EDrawingState {
+        eidle,
+        e2P,
+        enP
     }
+
+    // Core references
     private GMainFrame mainFrame;
+    private CanvasInfo canvasState;
+    private FileData fileState;
+
+    // Drawing state
     private Graphics2D graphics2d;
     private GTransFormer transformer;
+    private EShapeTool eShapeTool;
+    private EDrawingState eDrawingState;
+
+    // Shape management
     private Vector<GShape> shapes;
     private Vector<GShape> selectedShapes;
     private GShape selectedShape;
     private GShape toolshape;
 
+    // Undo/Redo
     private Stack<Vector<GShape>> undoStack;
     private Stack<Vector<GShape>> redoStack;
 
-    private double zoomLevel = 1.0;
-    private EShapeTool eShapeTool;
-    private EDrawingState eDrawingState;
-    private boolean bUpdated;
-    //constructor
-    public GMainPanel(GMainFrame mainFrame) {
+    // State flags
+    private boolean isUpdated;
+
+    // Constructor
+    public GMainPanel(GMainFrame mainFrame, CanvasInfo canvasInfo, FileData fileData) {
+        this.mainFrame = mainFrame;
+        this.canvasState = canvasInfo;
+        this.fileState = fileData;
+
+        initializePanel();
+        initializeState();
+        setupEventHandlers();
+
+        applyCanvasSettings();
+    }
+
+    private void initializePanel() {
         setBackground(Color.WHITE);
         setLayout(new BorderLayout());
+    }
+
+    private void initializeState() {
+        this.shapes = new Vector<GShape>();
+        this.selectedShapes = new Vector<GShape>();
+        this.selectedShape = null;
+        this.toolshape = null;
+
+        this.eShapeTool = EShapeTool.eSelect;
+        this.eDrawingState = EDrawingState.eidle;
+
+        this.undoStack = new Stack<>();
+        this.redoStack = new Stack<>();
+
+        this.isUpdated = false;
+    }
+
+    private void setupEventHandlers() {
         MouseEventHandler mouseHandler = new MouseEventHandler();
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
         addMouseWheelListener(mouseHandler);
-        this.mainFrame = mainFrame;
-        this.toolshape=null;
-        this.selectedShape=null;
-        this.shapes = new Vector<GShape>();
-        this.selectedShapes = new Vector<GShape>();
-        this.eShapeTool=EShapeTool.eSelect;
-        this.eDrawingState = EDrawingState.eidle;
-        this.bUpdated=false;
-        this.undoStack = new Stack<>();
-        this.redoStack = new Stack<>();
     }
-    //initialize
-    public void initialize() {//associate을 불러야하나.
-    	System.out.println("Initializing Panel");
+    private void applyCanvasSettings() {
+        Dimension canvasSize = new Dimension(fileState.getWidth(), fileState.getHeight());
+        canvasState.setCanvasSize(canvasSize);
+        canvasState.setLimitCanvasSize(true);
+
+        Color bgColor = parseBackgroundColor(fileState.getBackground());
+        setBackground(bgColor);
+
+        updatePanelSizeForZoom();
+        System.out.println("Canvas applied: " + canvasSize + ", Background: " + bgColor);
+    }
+    private Color parseBackgroundColor(String backgroundType) {
+        if (backgroundType == null) return Color.WHITE;
+        switch (backgroundType.toLowerCase()) {
+            case "white": return Color.WHITE;
+            case "black": return Color.BLACK;
+            case "transparent": return Color.WHITE;
+            default: return Color.WHITE;
+        }
+    }
+
+    // initialize
+    public void initialize() {
         shapes.clear();
+        clearSelection();
         repaint();
     }
-    //getters & setters
+
+    // getters setters
     public GMainFrame getFrame() {return this.mainFrame;}
-    public Vector<GShape> getshapes(){
-    	return this.shapes;
-    }
+    public Vector<GShape> getshapes() {return this.shapes;}
     public GShape getSelectedShape() {return this.selectedShape;}
-    public boolean getUpdated() {
-    	return this.bUpdated;
+    public CanvasInfo getCanvasState() {return this.canvasState;}
+    public FileData getFileData() {return fileState;}
+    public String getFileName() {return fileState.getFileName();}
+
+    public void setFileName(String name) {
+        fileState.setFileName(name);
     }
-    public void setShapes(Vector<GShape> shapes) {
-    	this.shapes=shapes;
+
+    public File getCurrentFile() {
+        return fileState.getCurrentFile();
     }
+
+    public void setCurrentFile(File file) {
+        fileState.setCurrentFile(file);
+    }
+
+    public boolean isUpdated() {
+        return fileState.hasUnsavedChanges();
+    }
+
+    public void setUpdated(boolean changed) {
+        fileState.setUnsavedChanges(changed);
+        if (mainFrame != null) {
+            mainFrame.updateTabTitle(this, changed);
+        }
+    }
+
+    // Canvas
+    public void setCanvasSize(int width, int height) {
+        canvasState.setCanvasSize(new Dimension(width, height));
+        updatePanelSizeForZoom();
+    }
+    public Dimension getCanvasSize() {
+        return canvasState.getCanvasSize();
+    }
+
+    public boolean isCanvasSizeLimited() {
+        return canvasState.isCanvasSizeLimited();
+    }
+    public void setCanvasSizeLimited(boolean limitCanvasSize) {
+        canvasState.setLimitCanvasSize(limitCanvasSize);
+        updatePanelSizeForZoom();
+    }
+
+    // Zoom
+    public double getZoomLevel() {
+        return canvasState.getZoomLevel();
+    }
+    public void setZoomLevel(double zoomLevel) {
+        canvasState.setZoomLevel(zoomLevel);
+        updatePanelSizeForZoom();
+    }
+    public void zoomIn() {
+        canvasState.zoomIn();
+        updatePanelSizeForZoom();
+        repaint();
+    }
+    public void zoomOut() {
+        canvasState.zoomOut();
+        updatePanelSizeForZoom();
+        repaint();
+    }
+    public void resetZoom() {
+        canvasState.resetZoom();
+        updatePanelSizeForZoom();
+        repaint();
+    }
+    public void fitToWindow() {
+        canvasState.fitToWindow(getSize());
+        updatePanelSizeForZoom();
+        repaint();
+    }
+
+    // Shape Tool
     public void setEShapeTool(EShapeTool shapetool) {
-    	this.eShapeTool=shapetool;
-        if(shapetool != EShapeTool.eSelect) {
+        this.eShapeTool = shapetool;
+        if (shapetool != EShapeTool.eSelect) {
             updateMenuState();
             clearSelection();
         }
     }
-    public void setUpdate(boolean b) {
-		this.bUpdated=b;
-	}
-    private void selectShape(GShape shape) {
-        for(GShape eachshape : this.shapes) {
-            eachshape.setSelected(false);
-        }
-        this.selectedShape=null;
-        this.selectedShapes.clear();
-        if(shape != null) {
-            shape.setSelected(true);
-            this.selectedShape = shape;
-            if (mainFrame.getColorPanel() != null) {
-                mainFrame.getColorPanel().updateFromShape(shape);
-            }
-        }
-        updateMenuState();
+    public EShapeTool getCurrentShapeTool() {
+        return eShapeTool;
     }
 
-    //update
-    private void updateMenuState() {
-        if (mainFrame != null && mainFrame.getJMenuBar() instanceof GMenubar) {
-            GMenubar menubar = (GMenubar) mainFrame.getJMenuBar();
-            if (menubar.getEditMenu() != null) {
-                SwingUtilities.invokeLater(() -> {
-                    menubar.getEditMenu().updateMenuState();
-                });
-            }
-        }
-    }
-    public void updateSelectedShapeColors(Color fillColor, Color strokeColor, int strokeWidth, boolean fillEnabled, boolean strokeEnabled) {
+    // Color
+
+    public void setForegroundColor(Color color) {
+        // 현재 선택된 도형의 전경색 설정
         if (selectedShape != null) {
-            selectedShape.setColorProperties(fillColor, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
-            repaint();
-            setUpdate(true);
-            mainFrame.setModified(true);
-        }
-        if (!selectedShapes.isEmpty()) {
-            for (GShape shape : selectedShapes) {
-                shape.setColorProperties(fillColor, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
-            }
-            repaint();
-            setUpdate(true);
-            mainFrame.setModified(true);
+            // 구현 필요
         }
     }
-    //add & delete
+
+    public void setBackgroundColor(Color color) {
+        // 현재 선택된 도형의 배경색 설정
+        if (selectedShape != null) {
+            // 구현 필요
+        }
+    }
+
+    public Color getForegroundColor() {
+        return selectedShape != null ? selectedShape.getStrokeColor() : Color.BLACK;
+    }
+
+    public Color getBackgroundColor() {
+        return selectedShape != null ? selectedShape.getFillColor() : Color.WHITE;
+    }
+
+    // Shape
+    public void setShapes(Vector<GShape> shapes) {
+        this.shapes = shapes;
+    }
+
     public void addShape(GShape shape) {
         System.out.println("addShape");
         this.shapes.add(shape);
         updateMenuState();
     }
+
     public void deleteShape(GShape selectedShape) {
         System.out.println("delete Shape");
         this.shapes.remove(selectedShape);
@@ -150,10 +260,28 @@ public class GMainPanel extends JPanel {
         }
         updateMenuState();
     }
-    //select
+
+    // Selection
+
+    private void selectShape(GShape shape) {
+        for (GShape eachshape : this.shapes) {
+            eachshape.setSelected(false);
+        }
+        this.selectedShape = null;
+        this.selectedShapes.clear();
+        if (shape != null) {
+            shape.setSelected(true);
+            this.selectedShape = shape;
+            if (mainFrame.getColorPanel() != null) {
+                mainFrame.getColorPanel().updateFromShape(shape);
+            }
+        }
+        updateMenuState();
+    }
+
     private void clearSelection() {
         System.out.println("clear selection");
-        for(GShape shape : this.shapes) {
+        for (GShape shape : this.shapes) {
             shape.setSelected(false);
         }
         this.selectedShapes.clear();
@@ -162,30 +290,47 @@ public class GMainPanel extends JPanel {
             mainFrame.getColorPanel().initialize();
         }
     }
-    private void changeCursor(int x, int y) {
-    	if(this.eShapeTool==EShapeTool.eSelect) {
-    		this.selectedShape=onShape(x,y);
-        	if(this.selectedShape==null) {
-        		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-        	}
-        	else  {
-        		EAnchor anchor =this.selectedShape.getSelectedAnchor();
-        		this.setCursor(anchor.getCursor());
-        	}
-    	}
+
+    public void selectAll() {
+        this.selectedShapes.clear();
+        this.selectedShape = null;
+        for (GShape shape : this.shapes) {
+            shape.setSelected(true);
+            this.selectedShapes.add(shape);
+        }
+        if (!this.shapes.isEmpty()) {
+            this.selectedShape = this.shapes.get(0);
+        }
+        updateMenuState();
+        repaint();
     }
-    //clear
-    public void clear() {
-        System.out.println("clear");
-		this.shapes.clear();
-	}
-    //cut
-    public void cutShape(GShape selectedShape) {
-        System.out.println("cut");
+
+    public void deselectAll() {
+        for (GShape shape : this.shapes) {
+            shape.setSelected(false);
+        }
+        this.selectedShapes.clear();
+        this.selectedShape = null;
+        updateMenuState();
+        repaint();
     }
-    //
-    public void exit() {
-        System.exit(0);
+
+    public boolean hasSelectedShapes() {
+        return selectedShape != null || !selectedShapes.isEmpty();
+    }
+
+    public boolean hasSelection() {
+        return hasSelectedShapes();
+    }
+
+    // === Undo/Redo Operations ===
+
+    public boolean canUndo() {
+        return !undoStack.isEmpty();
+    }
+
+    public boolean canRedo() {
+        return !redoStack.isEmpty();
     }
 
     public void undo() {
@@ -199,6 +344,7 @@ public class GMainPanel extends JPanel {
             repaint();
         }
     }
+
     public void redo() {
         System.out.println("redo");
         if (!redoStack.isEmpty()) {
@@ -210,18 +356,17 @@ public class GMainPanel extends JPanel {
 
             clearSelectionWithoutUpdate();
 
-            setUpdate(true);
+            setUpdated(true);
             mainFrame.setModified(true);
             updateMenuState();
             repaint();
         }
     }
-    private void clearSelectionWithoutUpdate() {
-        for(GShape shape : this.shapes) {
-            shape.setSelected(false);
-        }
-        this.selectedShapes.clear();
-        this.selectedShape = null;
+
+    private void saveStateForUndo() {
+        Vector<GShape> currentState = getClonedShapes();
+        undoStack.push(currentState);
+        redoStack.clear();
     }
 
     private Vector<GShape> getClonedShapes() {
@@ -230,6 +375,24 @@ public class GMainPanel extends JPanel {
             clonedShapes.add(shape.clone());
         }
         return clonedShapes;
+    }
+
+    // Clipboard
+
+    public boolean canPaste() {
+        return !GClipboard.getInstance().isEmpty();
+    }
+    public void cut() {
+        cutSelectedShapes();
+    }
+    public void copy() {
+        copySelectedShapes();
+    }
+    public void paste() {
+        pasteShapes();
+    }
+    public void deleteSelected() {
+        deleteSelectedShapes();
     }
     public void copySelectedShapes() {
         GClipboard clipboard = GClipboard.getInstance();
@@ -240,7 +403,6 @@ public class GMainPanel extends JPanel {
             clipboard.copy(selectedShapes);
         }
     }
-
     public void cutSelectedShapes() {
         GClipboard clipboard = GClipboard.getInstance();
         Vector<GShape> shapesToCut = new Vector<>();
@@ -256,11 +418,10 @@ public class GMainPanel extends JPanel {
             shapes.remove(shape);
         }
         clearSelection();
-        setUpdate(true);
+        setUpdated(true);
         mainFrame.setModified(true);
         repaint();
     }
-
     public void pasteShapes() {
         GClipboard clipboard = GClipboard.getInstance();
 
@@ -280,7 +441,7 @@ public class GMainPanel extends JPanel {
         if (!pastedShapes.isEmpty()) {
             selectedShape = pastedShapes.get(0);
         }
-        setUpdate(true);
+        setUpdated(true);
         mainFrame.setModified(true);
         repaint();
     }
@@ -298,111 +459,222 @@ public class GMainPanel extends JPanel {
                 shapes.remove(shape);
             }
             clearSelection();
-            setUpdate(true);
+            setUpdated(true);
             mainFrame.setModified(true);
             repaint();
         }
     }
 
-    private void saveStateForUndo() {
-        Vector<GShape> currentState = getClonedShapes();
-        undoStack.push(currentState);
-        redoStack.clear();
+    //Color Properties
+
+    public void updateSelectedShapeColors(Color fillColor, Color strokeColor, int strokeWidth, boolean fillEnabled, boolean strokeEnabled) {
+        if (selectedShape != null) {
+            selectedShape.setColorProperties(fillColor, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
+            repaint();
+            setUpdated(true);
+            mainFrame.setModified(true);
+        }
+        if (!selectedShapes.isEmpty()) {
+            for (GShape shape : selectedShapes) {
+                shape.setColorProperties(fillColor, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
+            }
+            repaint();
+            setUpdated(true);
+            mainFrame.setModified(true);
+        }
     }
-    public void selectAll() {
-        this.selectedShapes.clear();
-        this.selectedShape = null;
-        for (GShape shape : this.shapes) {
-            shape.setSelected(true);
-            this.selectedShapes.add(shape);
-        }if (!this.shapes.isEmpty()) {
-            this.selectedShape = this.shapes.get(0);
-        }updateMenuState();
-        repaint();
+
+    // === Shape Properties (Placeholders) ===
+
+    public void setLineWidth(int width) {
+        // 구현 필요
     }
-    public void deselectAll() {
+
+    public void setFillMode(boolean filled) {
+        // 구현 필요
+    }
+
+    public void setDashPattern(float[] dashPattern) {
+        // 구현 필요
+    }
+
+    // === Helper Methods ===
+
+    private void updateMenuState() {
+        if (mainFrame != null && mainFrame.getJMenuBar() instanceof GMenubar) {
+            GMenubar menubar = (GMenubar) mainFrame.getJMenuBar();
+            if (menubar.getEditMenu() != null) {
+                SwingUtilities.invokeLater(() -> {
+                    menubar.getEditMenu().updateMenuState();
+                });
+            }
+        }
+    }
+
+    private void clearSelectionWithoutUpdate() {
         for (GShape shape : this.shapes) {
             shape.setSelected(false);
-        }this.selectedShapes.clear();
+        }
+        this.selectedShapes.clear();
         this.selectedShape = null;
-        updateMenuState();
-        repaint();
     }
-    public boolean hasSelectedShapes() {return selectedShape != null || !selectedShapes.isEmpty();}
+
+    private void changeCursor(int x, int y) {
+        if (this.eShapeTool == EShapeTool.eSelect) {
+            this.selectedShape = onShape(x, y);
+            if (this.selectedShape == null) {
+                this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            } else {
+                EAnchor anchor = this.selectedShape.getSelectedAnchor();
+                this.setCursor(anchor.getCursor());
+            }
+        }
+    }
+
+    private void updatePanelSizeForZoom() {
+        boolean limitCanvasSize = canvasState.isCanvasSizeLimited();
+        Dimension canvasSize = canvasState.getCanvasSize();
+        double zoomLevel = canvasState.getZoomLevel();
+        if (limitCanvasSize && canvasSize != null) {
+            int scaledWidth = (int) (canvasSize.width * zoomLevel);
+            int scaledHeight = (int) (canvasSize.height * zoomLevel);
+            setPreferredSize(new Dimension(scaledWidth, scaledHeight));
+            revalidate();
+        }
+    }
+
+    private Point toCanvasPoint(Point screenPoint) {
+        boolean limitCanvasSize = canvasState.isCanvasSizeLimited();
+        Dimension canvasSize = canvasState.getCanvasSize();
+        double zoomLevel = canvasState.getZoomLevel();
+        int x = (int) (screenPoint.x / zoomLevel);
+        int y = (int) (screenPoint.y / zoomLevel);
+        if (limitCanvasSize && canvasSize != null) {
+            int scaledCanvasWidth = (int) (canvasSize.width * zoomLevel);
+            int scaledCanvasHeight = (int) (canvasSize.height * zoomLevel);
+            if (screenPoint.x < 0 || screenPoint.y < 0 ||
+                    screenPoint.x > scaledCanvasWidth || screenPoint.y > scaledCanvasHeight) {
+                return null;
+            }
+            if (x < 0 || y < 0 || x > canvasSize.width || y > canvasSize.height) {
+                return null;
+            }
+        }
+        return new Point(x, y);
+    }
+
+    //Draw
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        g2d.scale(zoomLevel, zoomLevel);
-        for(GShape shape: shapes) {
-        	shape.draw(g2d);
+
+        boolean limitCanvasSize = canvasState.isCanvasSizeLimited();
+        Dimension canvasSize = canvasState.getCanvasSize();
+        double zoomLevel = canvasState.getZoomLevel();
+
+        if (limitCanvasSize && canvasSize != null) {
+            int scaledCanvasWidth = (int) (canvasSize.width * zoomLevel);
+            int scaledCanvasHeight = (int) (canvasSize.height * zoomLevel);
+
+            g2d.setColor(Color.LIGHT_GRAY);
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+
+            g2d.setColor(getBackground());
+            g2d.fillRect(0, 0, scaledCanvasWidth, scaledCanvasHeight);
+            g2d.setColor(Color.DARK_GRAY);
+
+            g2d.setStroke(new BasicStroke(1));
+            g2d.drawRect(0, 0, scaledCanvasWidth - 1, scaledCanvasHeight - 1);
+
+            Shape oldClip = g2d.getClip();
+            g2d.setClip(0, 0, scaledCanvasWidth, scaledCanvasHeight);
+            g2d.scale(zoomLevel, zoomLevel);
+
+            for (GShape shape : shapes) {
+                shape.draw(g2d);
+            }
+            g2d.setClip(oldClip);
+        } else {
+            g2d.scale(zoomLevel, zoomLevel);
+            for (GShape shape : shapes) {
+                shape.draw(g2d);
+            }
         }
     }
+
     private void startTransform(int x, int y) {
         this.toolshape = this.eShapeTool.newShape();
-    	this.shapes.add(this.toolshape);
-        if(this.eShapeTool==EShapeTool.eSelect){
-        	this.selectedShape = onShape(x,y);
-        	if(this.selectedShape == null) {
+        this.shapes.add(this.toolshape);
+        if (this.eShapeTool == EShapeTool.eSelect) {
+            this.selectedShape = onShape(x, y);
+            if (this.selectedShape == null) {
                 this.toolshape.setSelectMode(true);
-        		this.transformer = new GDrawer(this.toolshape);
-        	}else if(this.selectedShape.getSelectedAnchor()==EAnchor.MM) {
+                this.transformer = new GDrawer(this.toolshape);
+            } else if (this.selectedShape.getSelectedAnchor() == EAnchor.MM) {
                 this.selectedShape.setSelected(true);
                 if (!this.selectedShapes.contains(this.selectedShape)) {
                     this.selectedShapes.add(this.selectedShape);
                 }
                 this.transformer = new GMover(this.selectedShapes);
-        	}else if(this.selectedShape.getSelectedAnchor()==EAnchor.RR) {
-        		this.selectedShape.setSelected(true);
-        		this.transformer = new GRotater(this.selectedShape);
-        	}else {
-        		this.selectedShape.setSelected(true);
-        		this.transformer = new GResizer(this.selectedShape);
-        	}
-        }else {
+            } else if (this.selectedShape.getSelectedAnchor() == EAnchor.RR) {
+                this.selectedShape.setSelected(true);
+                this.transformer = new GRotater(this.selectedShape);
+            } else {
+                this.selectedShape.setSelected(true);
+                this.transformer = new GResizer(this.selectedShape);
+            }
+        } else {
             if (this.toolshape != null && mainFrame.getColorPanel() != null) {
-                GColorDialog2.ColorProperties colorProps = mainFrame.getColorPanel().getCurrentColorProperties();
+                GColorDialog.ColorProperties colorProps = mainFrame.getColorPanel().getCurrentColorProperties();
                 this.toolshape.setColorProperties(colorProps.fillColor, colorProps.strokeColor, colorProps.strokeWidth, colorProps.fillEnabled, colorProps.strokeEnabled);
             }
-        	this.transformer = new GDrawer(this.toolshape);
+            this.transformer = new GDrawer(this.toolshape);
         }
-        this.transformer.start((Graphics2D)getGraphics(), x, y);
+        this.transformer.start((Graphics2D) getGraphics(), x, y);
     }
+
     private GShape onShape(int x, int y) {
-    	for(GShape shape:this.shapes) {
-    		if(shape.contains(x, y)) {
-    			return shape;
-    		}
-    	}
-		return null;
-	}
-	private void keepTransform(int x, int y) { 
-    	this.transformer.drag(graphics2d, x, y);
-    	this.repaint();
+        for (GShape shape : this.shapes) {
+            if (shape.contains(x, y)) {
+                return shape;
+            }
+        }
+        return null;
     }
+
+    private void keepTransform(int x, int y) {
+        this.transformer.drag(graphics2d, x, y);
+        this.repaint();
+    }
+
     private void addPoint(int x, int y) {
-    	this.transformer.addpoint((Graphics2D) getGraphics(), x, y);
+        this.transformer.addpoint((Graphics2D) getGraphics(), x, y);
     }
+
     private void finishTransform(int x, int y) {
-    	this.transformer.finish((Graphics2D) getGraphics(), x, y);
-    	this.selectShape(this.toolshape);
-    	if(this.eShapeTool==EShapeTool.eSelect) {
+        this.transformer.finish((Graphics2D) getGraphics(), x, y);
+        this.selectShape(this.toolshape);
+        if (this.eShapeTool == EShapeTool.eSelect) {
             this.shapes.removeLast();
-    		for(GShape shape:this.shapes) {
-    			if(this.selectedShape.contains(shape)) {
-    				shape.setSelected(true);
+            for (GShape shape : this.shapes) {
+                if (this.selectedShape.contains(shape)) {
+                    shape.setSelected(true);
                     if (!this.selectedShapes.contains(shape)) {
                         this.selectedShapes.add(shape);
                     }
-    			}else {
-    				shape.setSelected(false);
+                } else {
+                    shape.setSelected(false);
                     this.selectedShapes.remove(shape);
-    			}
-    		}
-    	}
-    	this.bUpdated=true;
-    	this.repaint();
+                }
+            }
+        }
+        this.isUpdated = true;
+        this.repaint();
     }
+
+    // Mouse event
     private class MouseEventHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -412,37 +684,44 @@ public class GMainPanel extends JPanel {
                 this.mouse2Clicked(e);
             }
         }
+
         private void mouse1Clicked(MouseEvent e) {
             Point canvasPoint = toCanvasPoint(e.getPoint());
+            if (canvasPoint == null) return;
             int x = canvasPoint.x;
             int y = canvasPoint.y;
 
-            if(eDrawingState == EDrawingState.eidle) {
-            	//set transformer
-                if(eShapeTool.getEPoints() == EPoints.e2P) {
-                    startTransform(x,y);
+            if (eDrawingState == EDrawingState.eidle) {
+                if (eShapeTool.getEPoints() == EPoints.e2P) {
+                    startTransform(x, y);
                     eDrawingState = EDrawingState.e2P;
-                } else if(eShapeTool.getEPoints() == EPoints.enP) {
-                    startTransform(x,y);
+                } else if (eShapeTool.getEPoints() == EPoints.enP) {
+                    startTransform(x, y);
                     eDrawingState = EDrawingState.enP;
                 }
-            } else if(eDrawingState == EDrawingState.e2P) {
-                finishTransform(x,y);
+            } else if (eDrawingState == EDrawingState.e2P) {
+                finishTransform(x, y);
                 eDrawingState = EDrawingState.eidle;
-            } else if(eDrawingState == EDrawingState.enP) {
-                addPoint(x,y);
+            } else if (eDrawingState == EDrawingState.enP) {
+                addPoint(x, y);
             }
         }
+
         @Override
         public void mouseMoved(MouseEvent e) {
             Point canvasPoint = toCanvasPoint(e.getPoint());
+            if (canvasPoint == null) {
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                return;
+            }
             if (eDrawingState == EDrawingState.e2P || eDrawingState == EDrawingState.enP) {
                 keepTransform(canvasPoint.x, canvasPoint.y);
             }
-            if (eDrawingState==EDrawingState.eidle) {
-            	changeCursor(canvasPoint.x,canvasPoint.y);
+            if (eDrawingState == EDrawingState.eidle) {
+                changeCursor(canvasPoint.x, canvasPoint.y);
             }
         }
+
         private void mouse2Clicked(MouseEvent e) {
             Point canvasPoint = toCanvasPoint(e.getPoint());
             if (eDrawingState == EDrawingState.enP) {
@@ -450,6 +729,7 @@ public class GMainPanel extends JPanel {
                 eDrawingState = EDrawingState.eidle;
             }
         }
+
         @Override
         public void mousePressed(MouseEvent e) {}
         @Override
@@ -463,22 +743,28 @@ public class GMainPanel extends JPanel {
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             if (e.isControlDown()) {
-                int rotation;
-                rotation = e.getWheelRotation();
+                int rotation = e.getWheelRotation();
                 double scaleFactor = 1.1;
+                double currentZoom = canvasState.getZoomLevel();
+
                 if (rotation < 0) {
-                    zoomLevel *= scaleFactor;
+                    currentZoom *= scaleFactor;
                 } else {
-                    zoomLevel /= scaleFactor;
+                    currentZoom /= scaleFactor;
                 }
-                zoomLevel = Math.max(0.1, Math.min(10.0, zoomLevel)); // 제한
+                currentZoom = Math.max(0.1, Math.min(10.0, currentZoom));
+
+                canvasState.setZoomLevel(currentZoom);
+                updatePanelSizeForZoom();
                 repaint();
             }
         }
     }
-    private Point toCanvasPoint(Point screenPoint) {
-        int x = (int)(screenPoint.x / zoomLevel);
-        int y = (int)(screenPoint.y / zoomLevel);
-        return new Point(x, y);
+    public void clear() {
+        System.out.println("clear");
+        this.shapes.clear();
+    }
+    public void exit() {
+        System.exit(0);
     }
 }

@@ -1,8 +1,6 @@
 package transformers;
 
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import shapes.GShape;

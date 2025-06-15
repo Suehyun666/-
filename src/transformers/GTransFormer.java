@@ -2,7 +2,6 @@ package transformers;
 
 import java.awt.Graphics2D;
 
-import shapes.GRectangle;
 import shapes.GShape;
 
 public abstract class GTransFormer {

@@ -2,6 +2,9 @@ package shapes;
 
 import java.awt.*;
 import java.awt.geom.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import global.GConstants.EAnchor;
@@ -24,7 +27,7 @@ public abstract class GShape implements Serializable, Cloneable{
 	protected int startX, startY;//위치
 	protected AffineTransform transform;
 	protected EAnchor eSelectedAnchor;
-	protected Shape transformedShape;
+	protected transient Shape transformedShape;
 	protected boolean isSelected;
 	protected boolean isFillEnabled;
 	protected boolean isStrokeEnabled;
@@ -41,10 +44,8 @@ public abstract class GShape implements Serializable, Cloneable{
 		this.shape=shape;
 		this.originalShape = shape;
 		this.transform =new AffineTransform();
-		this.anchors=new Ellipse2D.Double[EAnchor.values().length-1];
-		for (int i=0; i<this.anchors.length; i++) {
-			this.anchors[i]=new Ellipse2D.Double();
-		}
+		initializeTransientFields();
+
 		this.isSelected=false;
 		this.isSelectMode=false;
 		this.visible=true;
@@ -58,6 +59,12 @@ public abstract class GShape implements Serializable, Cloneable{
 		this.isStrokeEnabled = true;
 		updateTransformedShape();
 	}
+	private void initializeTransientFields() {
+		this.anchors = new Ellipse2D.Double[EAnchor.values().length - 1];
+		for (int i = 0; i < this.anchors.length; i++) {
+			this.anchors[i] = new Ellipse2D.Double();
+		}
+	}
 	//method
 
 	//getters & setters
@@ -67,11 +74,15 @@ public abstract class GShape implements Serializable, Cloneable{
 		return this.eSelectedAnchor;
 	}
 	public Rectangle getSize(){return this.getBounds();}
+	public Double getRotation() {return rotationAngle;}
 	public AffineTransform getAffineTransform() {
 		return this.transform;
 	}
 	public Shape getTransformedShape() {
-		return this.transformedShape;
+		if (transformedShape == null) {
+			updateTransformedShape();
+		}
+		return transformedShape;
 	}
 	public boolean isVisible() {return visible;}
 	public Color getFillColor() {return currentFillColor;}
@@ -89,7 +100,7 @@ public abstract class GShape implements Serializable, Cloneable{
 	}
 	public void setSelectMode(boolean bool){this.isSelectMode = bool;}
 	public void setFillColor(Color fadedColor) {this.currentFillColor = fadedColor;}
-	public void setCurrentStrokeColor(Color savedColor) {this.currentStrokeColor=savedColor;}
+	public void setStrokeColor(Color color) {this.currentStrokeColor = color;}
 	public void setColorProperties(Color fillColor, Color strokeColor, int strokeWidth, boolean fillEnabled, boolean strokeEnabled) {
 		this.currentFillColor = fillColor;
 		this.currentStrokeColor = strokeColor;
@@ -175,9 +186,7 @@ public abstract class GShape implements Serializable, Cloneable{
 		Point2D transformed = transform.transform(new Point2D.Double(cx, cy), null);
 		return new Ellipse2D.Double(transformed.getX() - ANCHOR_W / 2, transformed.getY() - ANCHOR_H / 2, ANCHOR_W, ANCHOR_H);
 	}
-	public Rectangle getBounds() {
-		return getTransformedShape().getBounds();
-	}
+	public Rectangle getBounds() {return getTransformedShape().getBounds();}
 	public abstract void setPoint(int x, int y);
 	public abstract void addPoint(int x, int y);
 	public abstract void dragPoint(int x, int y);
@@ -186,11 +195,7 @@ public abstract class GShape implements Serializable, Cloneable{
 		try {
 			GShape cloned = (GShape) super.clone();
 			cloned.transform = new AffineTransform(this.transform);
-
-			cloned.anchors = new Ellipse2D.Double[this.anchors.length];
-			for (int i = 0; i < this.anchors.length; i++) {
-				cloned.anchors[i] = new Ellipse2D.Double();
-			}
+			cloned.initializeTransientFields();
 
 			cloned.currentFillColor = this.currentFillColor;
 			cloned.currentStrokeColor = this.currentStrokeColor;
@@ -201,6 +206,7 @@ public abstract class GShape implements Serializable, Cloneable{
 			cloned.isSelected = false;
 			cloned.eSelectedAnchor = null;
 			cloned.transformedShape = null;
+			cloned.updateTransformedShape();
 
 			return cloned;
 		} catch (CloneNotSupportedException e) {
@@ -215,6 +221,9 @@ public abstract class GShape implements Serializable, Cloneable{
 	}
 
 	public void updateTransformedShape() {
+		if (originalShape == null || transform == null) {
+			return;
+		}
 		Rectangle2D bounds = originalShape.getBounds2D();
 		double cx = bounds.getCenterX();
 		double cy = bounds.getCenterY();
@@ -236,5 +245,10 @@ public abstract class GShape implements Serializable, Cloneable{
 		} catch (NoninvertibleTransformException e) {
 			return new Point2D.Double(x, y);
 		}
+	}
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+		ois.defaultReadObject();
+		initializeTransientFields();
+		updateTransformedShape();
 	}
 }

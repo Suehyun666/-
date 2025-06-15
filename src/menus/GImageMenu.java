@@ -1,33 +1,39 @@
 package menus;
 
 import controller.AppController;
-import menus.GMenuConstants.ELayerMenuItem;
+import frames.GMainPanel;
+import menus.GMenuConstants.EImageMenuItem;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-public class GLayerMenu extends JMenu{
+public class GImageMenu extends JMenu {
 	private static final long serialVersionUID = 1L;
 	private AppController controller;
 
-	public GLayerMenu(String text) {
+	public GImageMenu(String text) {
 		super(text);
 		ActionHandler actionHandler = new ActionHandler();
 
-		for (ELayerMenuItem eLayerMenuItem : ELayerMenuItem.values()) {
-			JMenuItem menuItem = new JMenuItem(eLayerMenuItem.getText());
-			menuItem.setActionCommand(eLayerMenuItem.name());
+		for (EImageMenuItem eImageMenuItem : EImageMenuItem.values()) {
+			JMenuItem menuItem = new JMenuItem(eImageMenuItem.getText());
+			menuItem.setActionCommand(eImageMenuItem.name());
 			menuItem.addActionListener(actionHandler);
-			switch (eLayerMenuItem) {
-				case eUnGroupLayer:
+
+			switch (eImageMenuItem) {
+				case eImageSize:
 					menuItem.setAccelerator(KeyStroke.getKeyStroke(
-						KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK| KeyEvent.SHIFT_DOWN_MASK));
+							KeyEvent.VK_I, KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK));
 					break;
-				case eMerge:
+				case eCanvasSize:
 					menuItem.setAccelerator(KeyStroke.getKeyStroke(
-							KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+							KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK| KeyEvent.ALT_DOWN_MASK));
+					break;
+				case eGenerateImage:
+					menuItem.setAccelerator(KeyStroke.getKeyStroke(
+							KeyEvent.VK_PLUS, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
 					break;
 				default:
 					break;
@@ -35,7 +41,6 @@ public class GLayerMenu extends JMenu{
 			add(menuItem);
 		}
 	}
-	// initialize
 	public void initialize() {}
 	public void setController(AppController controller) {
 		this.controller = controller;
@@ -43,7 +48,7 @@ public class GLayerMenu extends JMenu{
 	private class ActionHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			GMenuConstants.ELayerMenuItem eMenuItem = GMenuConstants.ELayerMenuItem.valueOf(e.getActionCommand());
+			GMenuConstants.EImageMenuItem eMenuItem = GMenuConstants.EImageMenuItem.valueOf(e.getActionCommand());
 			invokeMethod(eMenuItem.getMethodName());
 		}
 	}

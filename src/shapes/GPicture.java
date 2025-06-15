@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 public class GPicture extends GShape {
     private static final long serialVersionUID = 1L;
@@ -21,8 +23,13 @@ public class GPicture extends GShape {
         loadImage(imageFile);
         this.isFillEnabled=false;
     }
+    public GPicture() {
+        super(new Rectangle2D.Float(0, 0, 100, 100));
+        this.rectangle = (Rectangle2D) this.getShape();
+        this.isFillEnabled = false;
+    }
 
-    private void loadImage(File imageFile) {
+    public void loadImage(File imageFile) {
         try {
             if (!imageFile.exists()) {
                 System.err.println("File does not exist: " + imageFile.getAbsolutePath());
@@ -58,8 +65,8 @@ public class GPicture extends GShape {
     private void updateRectangle(int x, int y) {
         if (imageWidth > 0 && imageHeight > 0) {
             this.rectangle.setFrame(x, y, imageWidth, imageHeight);
-            // 부모 클래스의 shape도 업데이트
             this.shape = new Rectangle2D.Float(x, y, imageWidth, imageHeight);
+            this.originalShape = this.shape;
         }
     }
 
@@ -70,17 +77,14 @@ public class GPicture extends GShape {
         updateRectangle(x, y);
         if (this.transform == null) {
             this.transform = new AffineTransform();
-        }
+        }updateTransformedShape();
     }
 
     @Override
-    public void addPoint(int x, int y) {
-        // 이미지는 addPoint 사용 안함
-    }
+    public void addPoint(int x, int y) {}
 
     @Override
     public void dragPoint(int x, int y) {
-        // 이미지 리사이즈는 별도 구현)
         setPoint(x, y);
     }
 
@@ -88,31 +92,74 @@ public class GPicture extends GShape {
         this.startX = x;
         this.startY = y;
         updateRectangle(x, y);
+        updateTransformedShape();
     }
 
     @Override
     public void draw(Graphics2D g2d) {
         if (this.image != null) {
-            this.transformedShape = this.transform.createTransformedShape(this.shape);
-            Rectangle bounds = transformedShape.getBounds();
-            g2d.drawImage(this.image, bounds.x, bounds.y, bounds.width, bounds.height, null);
+            // 변환된 모양 업데이트
+            updateTransformedShape();
 
+            Graphics2D g = (Graphics2D) g2d.create();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+            // 원본 바운드 정보
+            Rectangle2D originalBounds = this.shape.getBounds2D();
+            double originalCenterX = originalBounds.getCenterX();
+            double originalCenterY = originalBounds.getCenterY();
+
+            // 변환 적용 전 상태 저장
+            AffineTransform oldTransform = g.getTransform();
+
+            // 1. 먼저 평행이동 적용
+            g.translate(translateX, translateY);
+
+            // 2. 중심점 기준으로 회전 적용
+            if (Math.abs(rotationAngle) > 0.001) {
+                g.rotate(rotationAngle, originalCenterX, originalCenterY);
+            }
+
+            // 3. 중심점 기준으로 스케일 적용
+            if (Math.abs(scaleX - 1.0) > 0.001 || Math.abs(scaleY - 1.0) > 0.001) {
+                g.translate(originalCenterX, originalCenterY);
+                g.scale(scaleX, scaleY);
+                g.translate(-originalCenterX, -originalCenterY);
+            }
+
+            // 4. 이미지 그리기
+            g.drawImage(this.image,
+                    (int) originalBounds.getX(),
+                    (int) originalBounds.getY(),
+                    (int) originalBounds.getWidth(),
+                    (int) originalBounds.getHeight(),
+                    null);
+
+            // 변환 복원
+            g.setTransform(oldTransform);
+            g.dispose();
+
+            // 선택 표시
             if (isSelected) {
                 Color prevColor = g2d.getColor();
                 g2d.setColor(Color.BLUE);
-                g2d.draw(transformedShape);
+                g2d.setStroke(new BasicStroke(2));
+                g2d.draw(getTransformedShape());
                 g2d.setColor(prevColor);
                 drawAnchors(g2d);
             }
         } else {
+            // 이미지가 없는 경우
             Shape transformedShape = getTransformedShape();
-            g2d.setColor(Color.LIGHT_GRAY);
-            g2d.fill(transformedShape);
-            g2d.setColor(Color.BLACK);
-            g2d.draw(transformedShape);
-
-            Rectangle bounds = transformedShape.getBounds();
-            g2d.drawString("No Image", bounds.x + 10, bounds.y + 20);
+            if (transformedShape != null) {
+                g2d.setColor(Color.LIGHT_GRAY);
+                g2d.fill(transformedShape);
+                g2d.setColor(Color.BLACK);
+                g2d.draw(transformedShape);
+                Rectangle bounds = transformedShape.getBounds();
+                g2d.drawString("No Image", bounds.x + 10, bounds.y + 20);
+            }
         }
     }
 
@@ -141,8 +188,28 @@ public class GPicture extends GShape {
         cloned.imageWidth = this.imageWidth;
         cloned.imageHeight = this.imageHeight;
         if (this.imagePath != null) {
-            cloned.loadImage(new File(this.imagePath));
+            File imageFile = new File(this.imagePath);
+            if (imageFile.exists()) {
+                cloned.loadImage(imageFile);
+            }
         }
         return cloned;
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+
+        if (imagePath != null) {
+            File imageFile = new File(imagePath);
+            if (imageFile.exists()) {
+                loadImage(imageFile);
+            } else {
+                System.err.println("Image file not found during deserialization: " + imagePath);
+                if (imageWidth > 0 && imageHeight > 0) {
+                    updateRectangle(startX, startY);
+                }
+            }
+        }
+        updateTransformedShape();
     }
 }

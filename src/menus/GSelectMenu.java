@@ -1,8 +1,8 @@
 package menus;
 
+import controller.AppController;
 import frames.GMainPanel;
-import global.GMenuConstants.ESelectMenuItem;
-import shapes.GShape;
+import menus.GMenuConstants.ESelectMenuItem;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -12,7 +12,7 @@ import java.awt.event.KeyEvent;
 public class GSelectMenu extends JMenu {
 	//
 	private static final long serialVersionUID = 1L;
-	private GMainPanel mainPanel;
+	private AppController controller;
 	//constructor
 	public GSelectMenu(String text) {
 		super(text);
@@ -48,39 +48,21 @@ public class GSelectMenu extends JMenu {
 	}
 
 	public void initialize() {}
-	public void selectall(){
-		this.mainPanel.selectAll();
-		this.mainPanel.repaint();
+	public void setController(AppController controller) {
+		this.controller = controller;
 	}
-	public void deselect(){
-		this.mainPanel.deselectAll();
-		this.mainPanel.repaint();
-	}
-	public void alllayer(){}
-	public void reselect(){}
 	private class ActionHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ESelectMenuItem eMenuItem= ESelectMenuItem.valueOf(e.getActionCommand());
-			switch (eMenuItem) {
-				case eAll:
-					selectall();
-					break;
-				case eAllLayer:
-					alllayer();
-					break;
-				case eDeselect:
-					deselect();
-					break;
-				case eReselect:
-					reselect();
-					break;
-				default:
-					break;
-			}
+			ESelectMenuItem eMenuItem = ESelectMenuItem.valueOf(e.getActionCommand());
+			invokeMethod(eMenuItem.getMethodName());
 		}
 	}
-	public void associate(GMainPanel mainPanel){
-		this.mainPanel = mainPanel;
+	private void invokeMethod(String methodName) {
+		try {
+			controller.getClass().getMethod(methodName).invoke(controller);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -1,40 +1,28 @@
 package menus;
 
 import controller.AppController;
-import menus.GMenuConstants.ELayerMenuItem;
+import menus.GMenuConstants.EFilterMenuItem;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 
-public class GLayerMenu extends JMenu{
+public class GFilterMenu extends JMenu{
 	private static final long serialVersionUID = 1L;
 	private AppController controller;
 
-	public GLayerMenu(String text) {
+	public GFilterMenu(String text) {
 		super(text);
 		ActionHandler actionHandler = new ActionHandler();
 
-		for (ELayerMenuItem eLayerMenuItem : ELayerMenuItem.values()) {
-			JMenuItem menuItem = new JMenuItem(eLayerMenuItem.getText());
-			menuItem.setActionCommand(eLayerMenuItem.name());
+		for (GMenuConstants.EFilterMenuItem eFilterMenuItem : GMenuConstants.EFilterMenuItem.values()) {
+			JMenuItem menuItem = new JMenuItem(eFilterMenuItem.getText());
+			menuItem.setActionCommand(eFilterMenuItem.name());
 			menuItem.addActionListener(actionHandler);
-			switch (eLayerMenuItem) {
-				case eUnGroupLayer:
-					menuItem.setAccelerator(KeyStroke.getKeyStroke(
-						KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK| KeyEvent.SHIFT_DOWN_MASK));
-					break;
-				case eMerge:
-					menuItem.setAccelerator(KeyStroke.getKeyStroke(
-							KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
-					break;
-				default:
-					break;
-			}
 			add(menuItem);
 		}
 	}
+
 	// initialize
 	public void initialize() {}
 	public void setController(AppController controller) {
@@ -43,7 +31,7 @@ public class GLayerMenu extends JMenu{
 	private class ActionHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			GMenuConstants.ELayerMenuItem eMenuItem = GMenuConstants.ELayerMenuItem.valueOf(e.getActionCommand());
+			GMenuConstants.EFilterMenuItem eMenuItem = GMenuConstants.EFilterMenuItem.valueOf(e.getActionCommand());
 			invokeMethod(eMenuItem.getMethodName());
 		}
 	}
