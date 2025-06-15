@@ -7,7 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import language.LanguageManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -18,7 +17,7 @@ import shapes.GShape.EPoints;
 public class GConstants {
 	public final class GMainFrame{
 		public final int x= 0;
-		public final static String TITLE=LanguageManager.getInstance().getText("app.title");
+		public final static String TITLE="Drawing Application";
 		public final static int WIDTH=1200;
 		public final static int HEIGHT=1200;
 	}
@@ -46,68 +45,39 @@ public class GConstants {
 	}
 	public final class GMainPanel{}
 
-	public enum EMenuType {
-		eFile("file.menu"),
-		eEdit("edit.menu"),
-		eSelect("select.menu"),
-		eGraphic("graphic.menu"),
-		eImage("image.menu"),
-		eLayer("layer.menu"),
-		eFilter("filter.menu"),
-		eWindow("window.menu"),
-		eHelp("help.menu");
-
-		private String messageKey;
-
-		EMenuType(String messageKey) {
-			this.messageKey = messageKey;
-		}
-
-		public String getText() {
-			return LanguageManager.getInstance().getText(this.messageKey);
-		}
-
-		public String getMessageKey() {
-			return this.messageKey;
-		}
-	}
-
 	public enum EShapeTool {
-		eSelect("tool.select", EPoints.e2P, GRectangle.class),
-		eRectangle("tool.rectangle", EPoints.e2P, GRectangle.class),
-		eTriangle("tool.triangle", EPoints.e2P, GTriangle.class),
-		eEllipse("tool.ellipse", EPoints.e2P, GEllipse.class),
-		eLine("tool.line", EPoints.e2P, GLine.class),
-		ePolygon("tool.polygon", EPoints.enP, GPolygon.class),
-		ePen("tool.pen", EPoints.e2P, GPen.class),
-		eBrush("tool.brush", EPoints.e2P, GBrush.class),
-		eErase("tool.erase", EPoints.e2P, GEraser.class);
+		eSelect("select", EPoints.e2P,GRectangle.class),
+		eRectangle("rectangle", EPoints.e2P,GRectangle.class),
+		eTriangle("triangle", EPoints.e2P, GTriangle.class),
+		eEllipse("ellipse", EPoints.e2P, GEllipse.class),
+		eLine("line", EPoints.e2P,GLine.class),
+		ePolygon("polygon",EPoints.enP,GPolygon.class),
+		ePen("Pen", EPoints.e2P,GPen.class),
+		eBrush("Brush", EPoints.e2P,GBrush.class),
+		eErase("Erase",EPoints.e2P,GEraser.class);
 
-		private String messageKey;
+		private String name;
 		private EPoints ePoints;
 		private Class<?> classShape;
 
-		EShapeTool(String messageKey, EPoints eDrawingType, Class<?> classShape) {
-			this.messageKey = messageKey;
-			this.ePoints = eDrawingType;
-			this.classShape = classShape;
+		EShapeTool(String name, EPoints eDrawingType, Class<?> classShape) {
+			this.name=name;
+			this.ePoints=eDrawingType;
+			this.classShape=classShape;
 		}
 
 		public String getName() {
-			return LanguageManager.getInstance().getText(this.messageKey);
+			return this.name;
 		}
-
 		public EPoints getEPoints() {
 			return this.ePoints;
 		}
-
 		public GShape newShape(){
-			try {
-				return (GShape) classShape.getConstructor().newInstance();
-			} catch (Exception e) {
+			try {return (GShape) classShape.getConstructor().newInstance();
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 				e.printStackTrace();
-			}
-			return null;
+			}return null;
 		}
 	}
 
