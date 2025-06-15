@@ -51,10 +51,10 @@ public class GConstants {
 		eTriangle("triangle", EPoints.e2P, GTriangle.class),
 		eEllipse("ellipse", EPoints.e2P, GEllipse.class),
 		eLine("line", EPoints.e2P,GLine.class),
-		ePolygon("polygon",EPoints.enP,GPolygon.class),
-		ePen("Pen", EPoints.enP,GPen.class),
-		eBrush("Brush", EPoints.enP,GBrush.class),
-		eErase("Erase",EPoints.e2P,GEllipse.class);
+		ePolygon("polygon",EPoints.e2P,GPolygon.class),
+		ePen("Pen", EPoints.e2P,GPen.class),
+		eBrush("Brush", EPoints.e2P,GBrush.class),
+		eErase("Erase",EPoints.e2P,GEraser.class);
 
 		private String name;
 		private EPoints ePoints;

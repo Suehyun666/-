@@ -8,6 +8,10 @@ public class GClipboard {
     private Vector<GShape> copiedShapes;
     private boolean isCutOperation;
 
+    private double cumulativeOffsetX = 0.0;
+    private double cumulativeOffsetY = 0.0;
+    private static final double PASTE_OFFSET = 20.0;
+
     private GClipboard() {
         this.copiedShapes = new Vector<>();
         this.isCutOperation = false;
@@ -26,6 +30,8 @@ public class GClipboard {
             this.copiedShapes.add(shape.clone());
         }
         this.isCutOperation = false;
+
+        resetPasteOffset();
     }
 
     public void copy(GShape shape) {
@@ -34,6 +40,8 @@ public class GClipboard {
             this.copiedShapes.add(shape.clone());
         }
         this.isCutOperation = false;
+
+        resetPasteOffset();
     }
 
     public void cut(Vector<GShape> shapes) {
@@ -48,12 +56,26 @@ public class GClipboard {
 
     public Vector<GShape> paste() {
         Vector<GShape> pastedShapes = new Vector<>();
+
+        cumulativeOffsetX += PASTE_OFFSET;
+        cumulativeOffsetY += PASTE_OFFSET;
+
         for (GShape shape : copiedShapes) {
             GShape clonedShape = shape.clone();
-            clonedShape.getAffineTransform().translate(20, 20);
+
+            clonedShape.translateX += cumulativeOffsetX;
+            clonedShape.translateY += cumulativeOffsetY;
+
+            clonedShape.updateTransformedShape();
+
             pastedShapes.add(clonedShape);
         }
         return pastedShapes;
+    }
+
+    private void resetPasteOffset() {
+        cumulativeOffsetX = 0.0;
+        cumulativeOffsetY = 0.0;
     }
 
     public boolean isEmpty() {
@@ -67,9 +89,14 @@ public class GClipboard {
     public void clear() {
         copiedShapes.clear();
         isCutOperation = false;
+        resetPasteOffset();
     }
 
     public int getShapeCount() {
         return copiedShapes.size();
+    }
+
+    public int getPasteCount() {
+        return (int)(cumulativeOffsetX / PASTE_OFFSET);
     }
 }

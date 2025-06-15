@@ -17,7 +17,6 @@ public class GBrush extends GShape {
         this.brushArea = (Area) super.shape;
         this.points = new ArrayList<>();
 
-        // 브러시는 기본적으로 fill만 사용, stroke 없음
         this.isFillEnabled = true;
         this.isStrokeEnabled = false;
     }
@@ -47,11 +46,35 @@ public class GBrush extends GShape {
     }
 
     private void addBrushStroke(int x, int y) {
+        // 현재 점에 원형 브러시 추가
         Ellipse2D brushStroke = new Ellipse2D.Double(
                 x - brushSize/2, y - brushSize/2,
                 brushSize, brushSize
         );
         this.brushArea.add(new Area(brushStroke));
+
+        // 이전 점과 현재 점 사이를 연결
+        if (points.size() > 1) {
+            Point prevPoint = points.get(points.size() - 2);
+            connectPoints(prevPoint.x, prevPoint.y, x, y);
+        }
+    }
+
+    private void connectPoints(int x1, int y1, int x2, int y2) {
+        double distance = Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+        if (distance <= brushSize/2) return;
+        int steps = (int)(distance / (brushSize/3)); // 겹치도록
+        for (int i = 1; i < steps; i++) {
+            double t = (double)i / steps;
+            int mx = (int)(x1 + t * (x2 - x1));
+            int my = (int)(y1 + t * (y2 - y1));
+
+            Ellipse2D midStroke = new Ellipse2D.Double(
+                    mx - brushSize/2, my - brushSize/2,
+                    brushSize, brushSize
+            );
+            this.brushArea.add(new Area(midStroke));
+        }
     }
 
     private void reconstructBrushArea() {
@@ -96,12 +119,7 @@ public class GBrush extends GShape {
     public void setBrushSize(int size) {
         this.brushSize = Math.max(1, size);
     }
-
     public int getBrushSize() {
         return this.brushSize;
-    }
-
-    public void moveAllPoints(int dx, int dy) {
-
     }
 }

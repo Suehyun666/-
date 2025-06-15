@@ -2,13 +2,16 @@ package transformers;
 
 import global.GConstants.EAnchor;
 import shapes.GShape;
-
 import java.awt.*;
 import java.awt.geom.*;
 
 public class GResizer extends GTransFormer {
+	private Point2D startMouse;
 	private Point2D fixedPoint;
 	private EAnchor anchor;
+	private double startScaleX, startScaleY;
+	private double startTransX, startTransY;
+	private static final double MIN_SIZE = 20.0;
 
 	public GResizer(GShape shape) {
 		super(shape);
@@ -17,67 +20,123 @@ public class GResizer extends GTransFormer {
 	@Override
 	public void start(Graphics2D g, int x, int y) {
 		this.anchor = shape.getSelectedAnchor();
-		Rectangle2D bounds = shape.getTransformedShape().getBounds2D();
-		// 회전 포함된 bounds에서 고정점 계산 → 반드시 inverse transform
+		this.startMouse = new Point2D.Double(x, y);
+		this.startScaleX = shape.scaleX;
+		this.startScaleY = shape.scaleY;
+		this.startTransX = shape.translateX;
+		this.startTransY = shape.translateY;
+		setFixedPoint();
+	}
+	private void setFixedPoint() {
+		Rectangle2D bounds = shape.getOriginalShape().getBounds2D();
 		switch (anchor) {
-			case NW -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMaxX(), bounds.getMaxY());
-			case NE -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMinX(), bounds.getMaxY());
-			case SW -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMaxX(), bounds.getMinY());
-			case SE -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMinX(), bounds.getMinY());
-			case EE -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMinX(), bounds.getCenterY());
-			case WW -> fixedPoint = shape.getInverseTransformedPoint(bounds.getMaxX(), bounds.getCenterY());
-			case NN -> fixedPoint = shape.getInverseTransformedPoint(bounds.getCenterX(), bounds.getMaxY());
-			case SS -> fixedPoint = shape.getInverseTransformedPoint(bounds.getCenterX(), bounds.getMinY());
+			case NW -> fixedPoint = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY()); // SE 고정
+			case NE -> fixedPoint = new Point2D.Double(bounds.getMinX(), bounds.getMaxY()); // SW 고정
+			case SW -> fixedPoint = new Point2D.Double(bounds.getMaxX(), bounds.getMinY()); // NE 고정
+			case SE -> fixedPoint = new Point2D.Double(bounds.getMinX(), bounds.getMinY()); // NW 고정
+			case NN -> fixedPoint = new Point2D.Double(bounds.getCenterX(), bounds.getMaxY()); // S 고정
+			case SS -> fixedPoint = new Point2D.Double(bounds.getCenterX(), bounds.getMinY()); // N 고정
+			case EE -> fixedPoint = new Point2D.Double(bounds.getMinX(), bounds.getCenterY()); // W 고정
+			case WW -> fixedPoint = new Point2D.Double(bounds.getMaxX(), bounds.getCenterY()); // E 고정
 		}
+		fixedPoint = shape.getAffineTransform().transform(fixedPoint, null);
 	}
 
 	@Override
 	public void drag(Graphics2D g, int x, int y) {
-		if (fixedPoint == null) return;
-
-		Point2D current = shape.getInverseTransformedPoint(x, y);
-		Rectangle2D sourceBounds = shape.getOriginalShape().getBounds2D();
-
-		double origW = sourceBounds.getWidth();
-		double origH = sourceBounds.getHeight();
-		if (origW == 0 || origH == 0) return;
-
-		double scaleX = 1.0, scaleY = 1.0;
-
+		Point2D currentMouse = new Point2D.Double(x, y);
+		double newScaleX = startScaleX;
+		double newScaleY = startScaleY;
 		switch (anchor) {
 			case NW, NE, SW, SE -> {
-				double dx = current.getX() - fixedPoint.getX();
-				double dy = current.getY() - fixedPoint.getY();
-				scaleX = dx / (origW * (anchor == EAnchor.NW || anchor == EAnchor.SW ? -1 : 1));
-				scaleY = dy / (origH * (anchor == EAnchor.NW || anchor == EAnchor.NE ? -1 : 1));
+				newScaleX = calculateScaleForDirection(currentMouse, true);
+				newScaleY = calculateScaleForDirection(currentMouse, false);
 			}
 			case EE, WW -> {
-				double dx = current.getX() - fixedPoint.getX();
-				scaleX = dx / (origW * (anchor == EAnchor.WW ? -1 : 1));
+				newScaleX = calculateScaleForDirection(currentMouse, true);
 			}
 			case NN, SS -> {
-				double dy = current.getY() - fixedPoint.getY();
-				scaleY = dy / (origH * (anchor == EAnchor.NN ? -1 : 1));
+				newScaleY = calculateScaleForDirection(currentMouse, false);
 			}
 		}
+		Rectangle2D originalBounds = shape.getOriginalShape().getBounds2D();
+		double minScaleX = MIN_SIZE / originalBounds.getWidth();
+		double minScaleY = MIN_SIZE / originalBounds.getHeight();
 
-		if (scaleX < 0.01) scaleX = 0.01;
-		if (scaleY < 0.01) scaleY = 0.01;
+		newScaleX = Math.max(minScaleX, newScaleX);
+		newScaleY = Math.max(minScaleY, newScaleY);
 
-		AffineTransform at = new AffineTransform();
-		at.translate(fixedPoint.getX(), fixedPoint.getY());
-		at.scale(scaleX, scaleY);
-		at.translate(-fixedPoint.getX(), -fixedPoint.getY());
+		double[] offsets = calculateOffsets(newScaleX, newScaleY);
 
-		shape.appendTransform(at);
+		shape.scaleX = newScaleX;
+		shape.scaleY = newScaleY;
+		shape.translateX = startTransX + offsets[0];
+		shape.translateY = startTransY + offsets[1];
+
+		shape.updateTransformedShape();
+	}
+	private double[] calculateOffsets(double newScaleX, double newScaleY) {
+		Rectangle2D originalBounds = shape.getOriginalShape().getBounds2D();
+		Point2D originalCenter = new Point2D.Double(originalBounds.getCenterX(), originalBounds.getCenterY());
+		Point2D fixedInOriginal = getFixedPointInOriginal();
+		double offsetX = (originalCenter.getX() - fixedInOriginal.getX()) * (newScaleX - startScaleX);
+		double offsetY = (originalCenter.getY() - fixedInOriginal.getY()) * (newScaleY - startScaleY);
+		if (shape.rotationAngle != 0) {
+			double cos = Math.cos(shape.rotationAngle);
+			double sin = Math.sin(shape.rotationAngle);
+			double rotatedOffsetX = offsetX * cos - offsetY * sin;
+			double rotatedOffsetY = offsetX * sin + offsetY * cos;
+
+			return new double[]{rotatedOffsetX, rotatedOffsetY};
+		}
+		return new double[]{offsetX, offsetY};
+	}
+	private Point2D getFixedPointInOriginal() {
+		Rectangle2D bounds = shape.getOriginalShape().getBounds2D();
+		return switch (anchor) {
+			case NW -> new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
+			case NE -> new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
+			case SW -> new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
+			case SE -> new Point2D.Double(bounds.getMinX(), bounds.getMinY());
+			case NN -> new Point2D.Double(bounds.getCenterX(), bounds.getMaxY());
+			case SS -> new Point2D.Double(bounds.getCenterX(), bounds.getMinY());
+			case EE -> new Point2D.Double(bounds.getMinX(), bounds.getCenterY());
+			case WW -> new Point2D.Double(bounds.getMaxX(), bounds.getCenterY());
+			default -> new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
+		};
+	}
+	private double calculateScaleForDirection(Point2D currentMouse, boolean isX) {
+		double startDist, currentDist;
+		if (isX) {
+			startDist = Math.abs(startMouse.getX() - fixedPoint.getX());
+			currentDist = Math.abs(currentMouse.getX() - fixedPoint.getX());
+		} else {
+			startDist = Math.abs(startMouse.getY() - fixedPoint.getY());
+			currentDist = Math.abs(currentMouse.getY() - fixedPoint.getY());
+		}
+		if (startDist < 1.0) return isX ? startScaleX : startScaleY;
+		boolean shouldScale = false;
+		if (isX) {
+			shouldScale = (anchor == EAnchor.EE || anchor == EAnchor.WW ||
+					anchor == EAnchor.NE || anchor == EAnchor.NW ||
+					anchor == EAnchor.SE || anchor == EAnchor.SW);
+		} else {
+			shouldScale = (anchor == EAnchor.NN || anchor == EAnchor.SS ||
+					anchor == EAnchor.NE || anchor == EAnchor.NW ||
+					anchor == EAnchor.SE || anchor == EAnchor.SW);
+		}
+		if (!shouldScale) {
+			return isX ? startScaleX : startScaleY;
+		}
+		double scaleRatio = currentDist / startDist;
+		return (isX ? startScaleX : startScaleY) * scaleRatio;
 	}
 
 	@Override
 	public void finish(Graphics2D graphics, int x, int y) {
+		startMouse = null;
 		fixedPoint = null;
-		//여기서 뭔가 해야할것같지만 다시 원래도형으로 돌아갈 것 같음.
 	}
-
 	@Override
 	public void addpoint(Graphics2D graphics, int x, int y) {}
 }

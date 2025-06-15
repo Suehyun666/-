@@ -25,7 +25,6 @@ import transformers.GTransFormer;
 
 public class GMainPanel extends JPanel {
     private static final long serialVersionUID = 1L;
-
     public enum EDrawingState{
     	eidle,
     	e2P,
@@ -188,6 +187,7 @@ public class GMainPanel extends JPanel {
     public void exit() {
         System.exit(0);
     }
+
     public void undo() {
         System.out.println("undo");
         if (!undoStack.isEmpty()) {
@@ -214,13 +214,9 @@ public class GMainPanel extends JPanel {
             mainFrame.setModified(true);
             updateMenuState();
             repaint();
-
-            System.out.println("DEBUG: Redo performed. Undo stack size: " + undoStack.size() +
-                    ", Redo stack size: " + redoStack.size());
         }
     }
     private void clearSelectionWithoutUpdate() {
-        System.out.println("clearSelectionWithoutUpdate");
         for(GShape shape : this.shapes) {
             shape.setSelected(false);
         }

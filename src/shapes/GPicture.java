@@ -140,7 +140,6 @@ public class GPicture extends GShape {
         cloned.imagePath = this.imagePath;
         cloned.imageWidth = this.imageWidth;
         cloned.imageHeight = this.imageHeight;
-        // 이미지는 다시 로드해야 함 (transient)
         if (this.imagePath != null) {
             cloned.loadImage(new File(this.imagePath));
         }

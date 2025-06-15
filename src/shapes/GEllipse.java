@@ -1,23 +1,29 @@
 package shapes;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
 public class GEllipse extends GShape {
     private static final long serialVersionUID = 1L;
-    private Ellipse2D ellipse;
+    private Ellipse2D.Float ellipse;
+
     public GEllipse() {
         super(new Ellipse2D.Float(0, 0, 0, 0));
-        this.ellipse = (Ellipse2D) this.getShape();
+        this.ellipse = (Ellipse2D.Float) super.originalShape;
+        this.updateTransformedShape();
     }
 
     @Override
     public void setPoint(int x, int y) {
         this.startX = x;
         this.startY = y;
-        this.shape = new Ellipse2D.Float(x, y, 0, 0);
-        this.transform = new AffineTransform();
+        if (this.ellipse == null) {
+            this.ellipse = new Ellipse2D.Float(x, y, 0, 0);
+        } else {
+            this.ellipse.setFrame(x, y, 0, 0);
+        }
+        this.originalShape = this.ellipse;
+        this.updateTransformedShape();
     }
 
     @Override
@@ -26,12 +32,15 @@ public class GEllipse extends GShape {
         int drawY = Math.min(startY, y);
         int width = Math.abs(x - startX);
         int height = Math.abs(y - startY);
-        if (this.shape instanceof Ellipse2D.Float ellipse) {
-            ellipse.setFrame(drawX, drawY, width, height);
-        } else {
-            // fallback: 새로운 객체 생성
-            this.shape = new Ellipse2D.Float(drawX, drawY, width, height);
-        }
+        this.ellipse.setFrame(drawX, drawY, width, height);
+        this.shape = this.ellipse;
+        this.updateTransformedShape();
+    }
+
+    public void updateSize(double x, double y, double w, double h) {
+        this.ellipse.setFrame(x, y, w, h);
+        this.shape = this.ellipse;
+        this.updateTransformedShape();
     }
 
     @Override
@@ -40,30 +49,21 @@ public class GEllipse extends GShape {
     @Override
     public GEllipse clone() {
         GEllipse cloned = (GEllipse) super.clone();
-        if (this.shape instanceof Ellipse2D.Float ellipse) {
-            cloned.shape = new Ellipse2D.Float(
-                    (float) ellipse.getX(),
-                    (float) ellipse.getY(),
-                    (float) ellipse.getWidth(),
-                    (float) ellipse.getHeight()
-            );
-        }
-        cloned.ellipse = (Ellipse2D) cloned.shape;
+        cloned.ellipse = new Ellipse2D.Float(
+                (float) ellipse.getX(),
+                (float) ellipse.getY(),
+                (float) ellipse.getWidth(),
+                (float) ellipse.getHeight());
+        cloned.originalShape = cloned.ellipse;
+        cloned.updateTransformedShape();
         return cloned;
     }
+
     @Override
     public void drawSelectMode(Graphics2D g2d) {
-        Color originalColor = g2d.getColor();
-        Stroke originalStroke = g2d.getStroke();
-
         g2d.setColor(new Color(0, 100, 255, 150));
         g2d.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT,
                 BasicStroke.JOIN_MITER, 10, new float[]{5, 5}, 0));
-
-        Shape transformedShape = this.transform.createTransformedShape(this.shape);
-        g2d.draw(transformedShape);
-
-        g2d.setColor(originalColor);
-        g2d.setStroke(originalStroke);
+        g2d.draw(this.transformedShape);
     }
 }

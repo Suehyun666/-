@@ -1,7 +1,6 @@
 package transformers;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import shapes.GShape;
@@ -9,6 +8,9 @@ import shapes.GShape;
 public class GRotater extends GTransFormer {
 	private double centerX, centerY;
 	private double startAngle;
+	private double initialScaleX, initialScaleY;
+	private double initialRotation;
+	private double initialTranslateX, initialTranslateY;
 
 	public GRotater(GShape shape) {
 		super(shape);
@@ -16,6 +18,13 @@ public class GRotater extends GTransFormer {
 
 	@Override
 	public void start(Graphics2D g, int x, int y) {
+		// 현재 파라미터 저장
+		this.initialScaleX = shape.scaleX;
+		this.initialScaleY = shape.scaleY;
+		this.initialRotation = shape.rotationAngle;
+		this.initialTranslateX = shape.translateX;
+		this.initialTranslateY = shape.translateY;
+
 		Rectangle2D bounds = shape.getTransformedShape().getBounds2D();
 		centerX = bounds.getCenterX();
 		centerY = bounds.getCenterY();
@@ -37,9 +46,15 @@ public class GRotater extends GTransFormer {
 				localMouse.getX() - localCenter.getX()
 		);
 		double angleDelta = currentAngle - startAngle;
-		AffineTransform rotate = new AffineTransform();
-		rotate.rotate(angleDelta, localCenter.getX(), localCenter.getY());
-		shape.appendTransform(rotate);
+
+		// 파라미터 직접 업데이트 (누적 없이)
+		shape.scaleX = initialScaleX;
+		shape.scaleY = initialScaleY;
+		shape.rotationAngle = initialRotation + angleDelta;
+		shape.translateX = initialTranslateX;
+		shape.translateY = initialTranslateY;
+
+		shape.updateTransformedShape();
 	}
 
 	@Override
@@ -47,5 +62,4 @@ public class GRotater extends GTransFormer {
 
 	@Override
 	public void addpoint(Graphics2D graphics, int x, int y) {}
-
 }

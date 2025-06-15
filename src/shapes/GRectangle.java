@@ -1,4 +1,5 @@
 package shapes;
+
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
@@ -35,41 +36,16 @@ public class GRectangle extends GShape{
 		this.shape = this.rectangle;
 		this.updateTransformedShape();
 	}
-	public void updateSize(double x, double y, double w, double h) {
-		this.rectangle.setFrame(x, y, w, h);
-		this.shape = this.rectangle;
-		this.updateTransformedShape();
-	}
 
 	@Override
 	public void addPoint(int x, int y) {}
 
 	@Override
-	public GRectangle clone() {
-		GRectangle cloned = (GRectangle) super.clone();
-		cloned.rectangle = new Rectangle2D.Float(
-				(float) rectangle.getX(),
-				(float) rectangle.getY(),
-				(float) rectangle.getWidth(),
-				(float) rectangle.getHeight());
-		cloned.originalShape = cloned.rectangle;
-		cloned.updateTransformedShape();
-		return cloned;
-	}
-	@Override
 	public void drawSelectMode(Graphics2D g2d){
-//		Color originalColor = g2d.getColor();
-//		Stroke originalStroke = g2d.getStroke();
-//		g2d.setColor(new Color(0, 100, 255, 150));
-//		g2d.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT,
-//				BasicStroke.JOIN_MITER, 10, new float[]{5, 5}, 0));
-//		g2d.draw(this.rectangle);
-//		g2d.setColor(originalColor);
-//		g2d.setStroke(originalStroke);
-
 		g2d.setColor(new Color(0, 100, 255, 150));
 		g2d.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT,
 				BasicStroke.JOIN_MITER, 10, new float[]{5, 5}, 0));
 		g2d.draw(this.transformedShape);
 	}
+
 }

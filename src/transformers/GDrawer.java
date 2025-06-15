@@ -18,11 +18,14 @@ public class GDrawer extends GTransFormer {
 	@Override
 	public void drag(Graphics2D graphics, int x, int y) {
 		this.shape.dragPoint(x, y);
+		shape.updateTransformedShape();
 	}
 	@Override
 	public void addpoint(Graphics2D graphics, int x, int y) {
-		this.shape.setPoint(x, y);	
+		shape.setPoint(x, y);
 	}
 	@Override
-	public void finish(Graphics2D graphics, int x, int y) {}
+	public void finish(Graphics2D graphics, int x, int y) {
+		System.out.println("finish");
+		shape.updateTransformedShape();}
 }

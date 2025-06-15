@@ -11,12 +11,17 @@ public abstract class GShape implements Serializable, Cloneable{
 	private final static int ANCHOR_W=10;
 	private final static int ANCHOR_H=10;
 
+	public double scaleX = 1.0;
+	public double scaleY = 1.0;
+	public double rotationAngle = 0.0;
+	public double translateX = 0.0;
+	public double translateY = 0.0;
+
 	private Ellipse2D[] anchors;
 
 	protected Shape shape;
 	protected Shape originalShape;
 	protected int startX, startY;//위치
-	protected int px, py; // 이전 위치
 	protected AffineTransform transform;
 	protected EAnchor eSelectedAnchor;
 	protected Shape transformedShape;
@@ -45,19 +50,19 @@ public abstract class GShape implements Serializable, Cloneable{
 		this.visible=true;
 		this.eSelectedAnchor=null;
 		this.transformedShape=null;
-
 		// default color
 		this.currentFillColor = Color.BLACK;
 		this.currentStrokeColor = Color.BLACK;
 		this.currentStrokeWidth = 1;
 		this.isFillEnabled = true;
 		this.isStrokeEnabled = true;
+		updateTransformedShape();
 	}
 	//method
 
 	//getters & setters
 	public Shape getShape() {return this.shape;}
-	public Shape getOriginalShape() {		return originalShape;}
+	public Shape getOriginalShape() {return originalShape;}
 	public EAnchor getSelectedAnchor() {
 		return this.eSelectedAnchor;
 	}
@@ -66,7 +71,7 @@ public abstract class GShape implements Serializable, Cloneable{
 		return this.transform;
 	}
 	public Shape getTransformedShape() {
-		return this.transform.createTransformedShape(this.shape);
+		return this.transformedShape;
 	}
 	public boolean isVisible() {return visible;}
 	public Color getFillColor() {return currentFillColor;}
@@ -99,7 +104,6 @@ public abstract class GShape implements Serializable, Cloneable{
 			drawSelectMode(g2d);
 			return;
 		}
-		this.transformedShape = this.transform.createTransformedShape(this.shape);
 		Color originalColor = g2d.getColor();
 		Stroke originalStroke = g2d.getStroke();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -137,7 +141,6 @@ public abstract class GShape implements Serializable, Cloneable{
 		}
 	}
 	public boolean contains(int x, int y) {
-		this.transformedShape = this.transform.createTransformedShape(this.shape);
 		if (isSelected) {
 			for (int i = 0; i < EAnchor.values().length - 1; i++) {
 				Ellipse2D anchor = getAnchorShape(EAnchor.values()[i]);
@@ -156,7 +159,7 @@ public abstract class GShape implements Serializable, Cloneable{
 	public boolean contains(GShape shape) {return getTransformedShape().contains(shape.getTransformedShape().getBounds2D());}
 
 	private Ellipse2D getAnchorShape(EAnchor anchor) {
-		Rectangle2D bounds = this.shape.getBounds2D();
+		Rectangle2D bounds = this.originalShape.getBounds2D();
 		double cx = 0, cy = 0;
 		switch (anchor) {
 			case SS -> { cx = bounds.getCenterX(); cy = bounds.getMaxY(); }
@@ -172,62 +175,66 @@ public abstract class GShape implements Serializable, Cloneable{
 		Point2D transformed = transform.transform(new Point2D.Double(cx, cy), null);
 		return new Ellipse2D.Double(transformed.getX() - ANCHOR_W / 2, transformed.getY() - ANCHOR_H / 2, ANCHOR_W, ANCHOR_H);
 	}
-	public void setMovePoint(int x, int y) {
-		this.px = x;
-		this.py = y;
-	}
-	public void movePoint(int x, int y) {
-		int dx = x - px;
-		int dy = y - py;
-		transform.translate(dx, dy);
-		px = x;
-		py = y;
-	}
 	public Rectangle getBounds() {
 		return getTransformedShape().getBounds();
 	}
 	public abstract void setPoint(int x, int y);
 	public abstract void addPoint(int x, int y);
 	public abstract void dragPoint(int x, int y);
-	public GShape clone(){
+	@Override
+	public GShape clone() {
 		try {
 			GShape cloned = (GShape) super.clone();
 			cloned.transform = new AffineTransform(this.transform);
+
 			cloned.anchors = new Ellipse2D.Double[this.anchors.length];
 			for (int i = 0; i < this.anchors.length; i++) {
 				cloned.anchors[i] = new Ellipse2D.Double();
 			}
+
+			cloned.currentFillColor = this.currentFillColor;
+			cloned.currentStrokeColor = this.currentStrokeColor;
+			cloned.currentStrokeWidth = this.currentStrokeWidth;
+			cloned.isFillEnabled = this.isFillEnabled;
+			cloned.isStrokeEnabled = this.isStrokeEnabled;
+
 			cloned.isSelected = false;
 			cloned.eSelectedAnchor = null;
+			cloned.transformedShape = null;
+
 			return cloned;
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException("Clone not supported", e);
 		}
 	}
 
-	//affign
-	public void applyTransform(AffineTransform at) {
-		this.transform = new AffineTransform();        // 초기화
-		this.transform.concatenate(at);                // 새로 적용
-		updateTransformedShape();
-	}
+	@Deprecated
 	public void appendTransform(AffineTransform at) {
-		this.transform.concatenate(at);                // 누적
+		this.transform.concatenate(at);
 		updateTransformedShape();
 	}
-	public void resetTransform() {
-		this.transform = new AffineTransform();
-		updateTransformedShape();
-	}
+
 	public void updateTransformedShape() {
-		this.transformedShape = transform.createTransformedShape(this.shape);
+		Rectangle2D bounds = originalShape.getBounds2D();
+		double cx = bounds.getCenterX();
+		double cy = bounds.getCenterY();
+
+		AffineTransform t = new AffineTransform();
+		t.translate(translateX, translateY);
+		t.rotate(rotationAngle, cx, cy);
+		t.translate(cx, cy);
+		t.scale(scaleX, scaleY);
+		t.translate(-cx, -cy);
+
+		this.transform = t;
+		this.transformedShape = t.createTransformedShape(originalShape);
 	}
+
 	public Point2D getInverseTransformedPoint(double x, double y) {
 		try {
 			return transform.createInverse().transform(new Point2D.Double(x, y), null);
 		} catch (NoninvertibleTransformException e) {
-			System.err.println("Inverse transform failed: " + e.getMessage());
-			return new Point2D.Double(x, y); // fallback 처리
+			return new Point2D.Double(x, y);
 		}
 	}
 }
