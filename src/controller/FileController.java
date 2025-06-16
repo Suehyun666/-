@@ -1,7 +1,10 @@
 package controller;
 
+import dialog.edit.GColorSettingsDialog;
+import dialog.edit.GPropertyDialog;
 import global.CanvasInfo;
 import frames.GTabManager;
+import global.ColorData;
 import global.FileData;
 import dialog.DialogManager;
 import dialog.DialogResult;
@@ -10,6 +13,7 @@ import shapes.GPicture;
 import shapes.GShape;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
@@ -332,6 +336,300 @@ public class FileController {
 
         } catch (Exception e) {
             throw new Exception("Fail to Export: " + e.getMessage());
+        }
+    }
+    public void handleColorSetting() {
+        try {
+            Frame parentFrame = null;
+            if (tabManager != null && tabManager.getMainFrame() instanceof Frame) {
+                parentFrame = (Frame) tabManager.getMainFrame();
+            }
+
+            GColorSettingsDialog dialog = new GColorSettingsDialog(parentFrame);
+
+            if (dialog.showDialog()) {
+                var settings = dialog.getSettings();
+                System.out.println("Color settings applied:");
+                for (var entry : settings.entrySet()) {
+                    System.out.println("  " + entry.getKey() + ": " + entry.getValue());
+                }
+
+                applyColorSettings(settings);
+
+                DialogManager.info("색상 설정이 적용되었습니다.", "색상 설정");
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error opening color settings dialog: " + e.getMessage());
+            e.printStackTrace();
+            DialogManager.error("색상 설정 대화상자를 열 수 없습니다: " + e.getMessage(), "오류");
+        }
+    }
+
+    private void applyColorSettings(java.util.Map<String, String> settings) {
+        // 색상 설정을 현재 작업 환경에 적용
+        GMainPanel currentPanel = tabManager.getCurrentPanel();
+        if (currentPanel != null) {
+            // RGB 워킹 스페이스 설정
+            String rgbSpace = settings.get("rgb");
+            if (rgbSpace != null) {
+                System.out.println("RGB working space set to: " + rgbSpace);
+                // TODO: 실제 RGB 프로파일 적용
+            }
+
+            // CMYK 워킹 스페이스 설정
+            String cmykSpace = settings.get("cmyk");
+            if (cmykSpace != null) {
+                System.out.println("CMYK working space set to: " + cmykSpace);
+                // TODO: 실제 CMYK 프로파일 적용
+            }
+
+            // 그레이스케일 설정
+            String graySpace = settings.get("gray");
+            if (graySpace != null) {
+                System.out.println("Gray working space set to: " + graySpace);
+                // TODO: 실제 그레이 프로파일 적용
+            }
+
+            // 스팟 컬러 설정
+            String spotSpace = settings.get("spot");
+            if (spotSpace != null) {
+                System.out.println("Spot working space set to: " + spotSpace);
+                // TODO: 실제 스팟 컬러 프로파일 적용
+            }
+
+            // 화면 갱신
+            currentPanel.repaint();
+        }
+    }
+
+    public void bringForward() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                Vector<GShape> shapes = currentPanel.getshapes();
+                int currentIndex = shapes.indexOf(selectedShape);
+                if (currentIndex < shapes.size() - 1) {
+                    System.out.println("Bringing forward");
+                    shapes.remove(currentIndex);
+                    shapes.add(currentIndex + 1, selectedShape);
+                    currentPanel.repaint();
+                    currentPanel.setUpdated(true);
+                }
+            }
+        }
+    }
+
+    public void sendBackward() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                Vector<GShape> shapes = currentPanel.getshapes();
+                int currentIndex = shapes.indexOf(selectedShape);
+
+                if (currentIndex > 0) {
+                    // 한 단계 뒤로
+                    shapes.remove(currentIndex);
+                    shapes.add(currentIndex - 1, selectedShape);
+                    currentPanel.repaint();
+                    currentPanel.setUpdated(true);
+                }
+            }
+        }
+    }
+
+    public void bringToFront() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                Vector<GShape> shapes = currentPanel.getshapes();
+                shapes.remove(selectedShape);
+                shapes.add(selectedShape);
+                currentPanel.repaint();
+                currentPanel.setUpdated(true);
+            }
+        }
+    }
+
+    public void sendToBack() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                Vector<GShape> shapes = currentPanel.getshapes();
+                shapes.remove(selectedShape);
+                shapes.add(0, selectedShape); // 맨 앞으로 (처음에 그려짐 = 맨 뒤)
+                currentPanel.repaint();
+                currentPanel.setUpdated(true);
+            }
+        }
+    }
+
+    // Shape Color Properties
+    public void setSelectedShapesFillColor(Color color) {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                Color strokeColor = selectedShape.getStrokeColor();
+                int strokeWidth = selectedShape.getStrokeWidth();
+                boolean fillEnabled = true;
+                boolean strokeEnabled = selectedShape.isStrokeEnabled();
+
+                currentPanel.updateSelectedShapeColors(color, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
+            }
+        }
+    }
+
+    public void setSelectedShapesStrokeColor(Color color) {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                Color fillColor = selectedShape.getFillColor();
+                int strokeWidth = selectedShape.getStrokeWidth();
+                boolean fillEnabled = selectedShape.isFillEnabled();
+                boolean strokeEnabled = true;
+
+                currentPanel.updateSelectedShapeColors(fillColor, color, strokeWidth, fillEnabled, strokeEnabled);
+            }
+        }
+    }
+
+    public void setSelectedShapesOpacity(int opacity) {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                Color fillColor = selectedShape.getFillColor();
+                Color strokeColor = selectedShape.getStrokeColor();
+
+                if (fillColor != null) {
+                    int alpha = (int) (opacity * 2.55); // 0-100을 0-255로 변환
+                    Color newFillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), alpha);
+
+                    int strokeWidth = selectedShape.getStrokeWidth();
+                    boolean fillEnabled = selectedShape.isFillEnabled();
+                    boolean strokeEnabled = selectedShape.isStrokeEnabled();
+
+                    currentPanel.updateSelectedShapeColors(newFillColor, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
+                }
+            }
+        }
+    }
+
+    public Color getCurrentShapeFillColor() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                return selectedShape.getFillColor();
+            }
+        }
+        return Color.BLACK; // 기본값
+    }
+
+    // Image Menu Methods
+    public void mode() {
+        System.out.println("Image mode change - To be implemented");
+    }
+
+    public void imageSize() {
+        showImageSizeDialog();
+    }
+
+    public void canvasSize() {
+        showCanvasSizeDialog();
+    }
+
+    public void rotateImage() {
+    }
+
+    public void crop() {
+        // TODO: 이미지 자르기
+        System.out.println("Crop - To be implemented");
+    }
+
+    public void trim() {
+        // TODO: 여백 제거
+        System.out.println("Trim - To be implemented");
+    }
+
+    public void duplicate() {
+    }
+
+    public void generateImage() {
+        // TODO: AI 이미지 생성 (이미 구현된 GPictureToolBar 활용)
+        System.out.println("Generate Image - Use Picture Toolbar");
+    }
+
+    private void showImageSizeDialog() {
+        String widthStr = JOptionPane.showInputDialog("Enter new width:");
+        String heightStr = JOptionPane.showInputDialog("Enter new height:");
+
+        try {
+            int width = Integer.parseInt(widthStr);
+            int height = Integer.parseInt(heightStr);
+
+            // TODO: 선택된 이미지의 크기 변경
+            System.out.println("Image size changed to: " + width + "x" + height);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid size values", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void showCanvasSizeDialog() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null) {
+            String widthStr = JOptionPane.showInputDialog("Enter new canvas width:",
+                    currentPanel.getCanvasSize().width);
+            String heightStr = JOptionPane.showInputDialog("Enter new canvas height:",
+                    currentPanel.getCanvasSize().height);
+
+            try {
+                int width = Integer.parseInt(widthStr);
+                int height = Integer.parseInt(heightStr);
+
+                currentPanel.setCanvasSize(width, height);
+                currentPanel.setUpdated(true);
+
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Invalid size values", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    private GMainPanel getCurrentPanel() {
+        return tabController.getCurrentPanel();
+    }
+
+    public void handlefill() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape selectedShape = currentPanel.getSelectedShape();
+            if (selectedShape != null) {
+                Color currentColor = selectedShape.getFillColor();
+                if (currentColor == null) currentColor = Color.BLACK;
+
+                Color newColor = JColorChooser.showDialog(
+                        null,
+                        "Choose Fill Color",
+                        currentColor
+                );
+
+                if (newColor != null) {
+                    Color strokeColor = selectedShape.getStrokeColor();
+                    int strokeWidth = selectedShape.getStrokeWidth();
+                    boolean fillEnabled = true;
+                    boolean strokeEnabled = selectedShape.isStrokeEnabled();
+
+                    currentPanel.updateSelectedShapeColors(newColor, strokeColor, strokeWidth, fillEnabled, strokeEnabled);
+                    currentPanel.setUpdated(true);
+                }
+            }
         }
     }
 }

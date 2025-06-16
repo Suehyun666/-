@@ -1,5 +1,7 @@
 package menus;
 
+import language.LanguageManager;
+import language.LanguageSupport;
 import menus.GMenuConstants.EHelpMenuItem;
 
 import javax.swing.*;
@@ -14,8 +16,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-public class GHelpMenu extends JMenu {
+public class GHelpMenu extends JMenu implements LanguageSupport {
     // attributes
     private static final long serialVersionUID = 1L;
 
@@ -42,8 +43,32 @@ public class GHelpMenu extends JMenu {
             }
             this.add(menuItem);
         }
+
+        // 언어 변경 리스너 등록
+        LanguageManager.getInstance().addLanguageChangeListener(() -> updateLanguage());
     }
 
+    @Override
+    public void updateLanguage() {
+        // 메뉴 제목 업데이트
+        setText(LanguageManager.getInstance().getText("help.menu"));
+
+        // 각 메뉴 아이템 텍스트 업데이트
+        for (int i = 0; i < getItemCount(); i++) {
+            JMenuItem item = getItem(i);
+            if (item != null) {
+                String command = item.getActionCommand();
+                if (command != null) {
+                    try {
+                        EHelpMenuItem menuItem = EHelpMenuItem.valueOf(command);
+                        item.setText(menuItem.getText());
+                    } catch (IllegalArgumentException e) {
+                        // 무시 - 유효하지 않은 명령어
+                    }
+                }
+            }
+        }
+    }
     // method
     public void initialize() {}
 

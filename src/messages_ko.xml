@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages>
-    <!-- 파일 메뉴 -->
+    <!-- 메뉴 이름 -->
     <entry key="file.menu">파일</entry>
+    <entry key="edit.menu">편집</entry>
+    <entry key="select.menu">선택</entry>
+    <entry key="graphic.menu">그래픽</entry>
+    <entry key="image.menu">이미지</entry>
+    <entry key="layer.menu">레이어</entry>
+    <entry key="filter.menu">필터</entry>
+    <entry key="window.menu">창</entry>
+    <entry key="help.menu">도움말</entry>
+
+    <!-- 파일 메뉴 -->
     <entry key="file.new">새로 만들기</entry>
     <entry key="file.open">열기</entry>
     <entry key="file.save">저장</entry>
@@ -11,10 +21,11 @@
     <entry key="file.print">인쇄</entry>
     <entry key="file.import">가져오기</entry>
     <entry key="file.export">내보내기</entry>
+    <entry key="edit.toBackward">맨 뒤로</entry>
+    <entry key="edit.toForward">맨 앞으로</entry>
     <entry key="file.exit">끝내기</entry>
 
     <!-- 편집 메뉴 -->
-    <entry key="edit.menu">편집</entry>
     <entry key="edit.property">속성</entry>
     <entry key="edit.undo">실행 취소</entry>
     <entry key="edit.redo">다시 실행</entry>
@@ -25,15 +36,63 @@
     <entry key="edit.copy">복사</entry>
     <entry key="edit.paste">붙여넣기</entry>
     <entry key="edit.clear">삭제</entry>
+    <entry key="edit.selectall">모두 선택</entry>
     <entry key="edit.fill">채우기</entry>
     <entry key="edit.colorSetting">색상 설정</entry>
 
     <!-- 선택 메뉴 -->
-    <entry key="select.menu">선택</entry>
     <entry key="select.all">모두 선택</entry>
     <entry key="select.deselect">선택 취소</entry>
     <entry key="select.reselect">다시 선택</entry>
     <entry key="select.allLayer">모든 레이어</entry>
+
+    <!-- 그래픽 메뉴 -->
+    <entry key="graphic.lineThickness">선 두께</entry>
+    <entry key="graphic.lineStyle">선 스타일</entry>
+    <entry key="graphic.fontStyle">폰트 스타일</entry>
+    <entry key="graphic.fontSize">폰트 크기</entry>
+
+    <!-- 이미지 메뉴 -->
+    <entry key="image.mode">모드</entry>
+    <entry key="image.imageSize">이미지 크기</entry>
+    <entry key="image.canvasSize">캔버스 크기</entry>
+    <entry key="image.rotate">이미지 회전</entry>
+    <entry key="image.crop">자르기</entry>
+    <entry key="image.trim">다듬기</entry>
+    <entry key="image.duplicate">복제</entry>
+    <entry key="image.generate">이미지 생성</entry>
+
+    <!-- 레이어 메뉴 -->
+    <entry key="layer.new">새 레이어</entry>
+    <entry key="layer.duplicate">레이어 복제</entry>
+    <entry key="layer.delete">레이어 삭제</entry>
+    <entry key="layer.rename">레이어 이름 바꾸기</entry>
+    <entry key="layer.lock">레이어 잠금</entry>
+    <entry key="layer.group">레이어 그룹화</entry>
+    <entry key="layer.ungroup">레이어 그룹 해제</entry>
+    <entry key="layer.merge">레이어 병합</entry>
+    <entry key="layer.hide">레이어 숨기기</entry>
+
+    <!-- 필터 메뉴 -->
+    <entry key="filter.blur">흐리게</entry>
+    <entry key="filter.noise">노이즈</entry>
+    <entry key="filter.sharpen">선명하게</entry>
+    <entry key="filter.emboss">양각</entry>
+
+    <!-- 창 메뉴 -->
+    <entry key="window.workspace">작업 영역</entry>
+    <entry key="window.extension">확장 기능</entry>
+    <entry key="window.option">옵션</entry>
+    <entry key="window.tool">도구</entry>
+    <entry key="window.history">히스토리</entry>
+    <entry key="window.preference">환경 설정</entry>
+    <entry key="window.language">언어</entry>
+
+    <!-- 도움말 메뉴 -->
+    <entry key="help.systemInfo">시스템 정보</entry>
+    <entry key="help.about">정보</entry>
+    <entry key="help.online">온라인 도움말</entry>
+    <entry key="help.manual">사용자 설명서</entry>
 
     <!-- 도구 -->
     <entry key="tool.select">선택</entry>

@@ -1,6 +1,7 @@
 package dialog;
 
 import dialog.edit.GColorDialog;
+import dialog.edit.GPropertyDialog;
 import dialog.file.*;
 import global.ColorData;
 import global.FileData;
@@ -79,6 +80,7 @@ public class DialogManager {
         }
         return DialogResult.cancelled();
     }
+
 
     // Confirm
 

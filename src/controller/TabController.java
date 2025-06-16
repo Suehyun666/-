@@ -1,12 +1,15 @@
 package controller;
 
+import dialog.DialogManager;
+import dialog.edit.GPropertyDialog;
 import frames.GTabManager;
 import global.CanvasInfo;
 import global.FileData;
 import frames.GMainPanel;
+import shapes.GShape;
 
+import java.awt.*;
 import java.io.File;
-import java.awt.Color;
 
 public class TabController {
     private final GTabManager tabManager;
@@ -112,6 +115,34 @@ public class TabController {
             currentPanel.selectAll();
         }
     }
+    public void handledeSelect() {
+        GMainPanel currentPanel = tabManager.getCurrentPanel();
+        if (currentPanel != null) {
+            currentPanel.deselectAll();
+        }
+    }
+    public void getCanvasSize() {
+        GMainPanel currentPanel = tabManager.getCurrentPanel();
+        if (currentPanel != null) {
+            currentPanel.getCanvasSize();
+        }
+    }
+    public void getCanvasInfo() {
+        GMainPanel currentPanel = tabManager.getCurrentPanel();
+        if (currentPanel != null) {
+            //currentPanel.set
+        }
+    }
+    public void handleReselect() {
+        System.out.println("Reselect - To be implemented");
+    }
+
+    public void handleSelectAllLayer() {
+        handleSelectAll();
+        System.out.println("Select All Layers");
+    }
+
+
 
     public void handleDeleteSelected() {
         GMainPanel currentPanel = tabManager.getCurrentPanel();
@@ -185,5 +216,49 @@ public class TabController {
             currentPanel.setBackground(backgroundColor);
             tabManager.setModified(true);
         }
+    }
+
+    public GMainPanel getCurrentPanel() {
+        return tabManager.getCurrentPanel();
+    }
+
+    public void showProperties() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null && currentPanel.hasSelection()) {
+            GShape targetShape = currentPanel.getSelectedShape();
+            if (targetShape != null) {
+                try {
+                    Frame parentFrame = (Frame) tabManager.getMainFrame();
+                    GPropertyDialog propertyDialog = new GPropertyDialog(parentFrame, targetShape);
+                    propertyDialog.setVisible(true);
+                } catch (Exception e) {
+                    System.err.println("Error showing properties: " + e.getMessage());
+                }
+            } else {
+                DialogManager.warning("속성을 표시할 도형이 선택되지 않았습니다.", "경고");
+            }
+        }
+    }
+
+    public void hide() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel != null) {
+            currentPanel.hide();
+        }
+    }
+
+    public void showHistory() {
+        GMainPanel currentPanel = getCurrentPanel();
+        if (currentPanel == null) {
+            javax.swing.JOptionPane.showMessageDialog(null, "No active canvas", "History", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        StringBuilder history = new StringBuilder();
+        history.append("Undo Stack: ").append(currentPanel.canUndo() ? "Available" : "Empty").append("\n");
+        history.append("Redo Stack: ").append(currentPanel.canRedo() ? "Available" : "Empty").append("\n");
+        history.append("Total Shapes: ").append(currentPanel.getshapes().size()).append("\n");
+        history.append("Selected Shapes: ").append(currentPanel.hasSelection() ? "Yes" : "No");
+
+        javax.swing.JOptionPane.showMessageDialog(null, history.toString(), "History", javax.swing.JOptionPane.INFORMATION_MESSAGE);
     }
 }

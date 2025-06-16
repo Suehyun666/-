@@ -97,6 +97,9 @@ public class GPicture extends GShape {
 
     @Override
     public void draw(Graphics2D g2d) {
+        if (!visible) {
+            return;
+        }
         if (this.image != null) {
             // 변환된 모양 업데이트
             updateTransformedShape();

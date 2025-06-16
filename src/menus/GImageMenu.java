@@ -2,6 +2,8 @@ package menus;
 
 import controller.AppController;
 import frames.GMainPanel;
+import language.LanguageManager;
+import language.LanguageSupport;
 import menus.GMenuConstants.EImageMenuItem;
 
 import javax.swing.*;
@@ -9,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-public class GImageMenu extends JMenu {
+public class GImageMenu extends JMenu implements LanguageSupport {
 	private static final long serialVersionUID = 1L;
 	private AppController controller;
 
@@ -39,6 +41,27 @@ public class GImageMenu extends JMenu {
 					break;
 			}
 			add(menuItem);
+		}LanguageManager.getInstance().addLanguageChangeListener(() -> updateLanguage());
+	}
+	@Override
+	public void updateLanguage() {
+		// 메뉴 제목 업데이트
+		setText(LanguageManager.getInstance().getText("image.menu"));
+
+		// 각 메뉴 아이템 텍스트 업데이트
+		for (int i = 0; i < getItemCount(); i++) {
+			JMenuItem item = getItem(i);
+			if (item != null) {
+				String command = item.getActionCommand();
+				if (command != null) {
+					try {
+						EImageMenuItem menuItem = EImageMenuItem.valueOf(command);
+						item.setText(menuItem.getText());
+					} catch (IllegalArgumentException e) {
+						// 무시 - 유효하지 않은 명령어
+					}
+				}
+			}
 		}
 	}
 	public void initialize() {}

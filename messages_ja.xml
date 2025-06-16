@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+    <!-- メニュー名 -->
+    <entry key="file.menu">ファイル</entry>
+    <entry key="edit.menu">編集</entry>
+    <entry key="select.menu">選択</entry>
+    <entry key="graphic.menu">グラフィック</entry>
+    <entry key="image.menu">画像</entry>
+    <entry key="layer.menu">レイヤー</entry>
+    <entry key="filter.menu">フィルター</entry>
+    <entry key="window.menu">ウィンドウ</entry>
+    <entry key="help.menu">ヘルプ</entry>
+
+    <!-- ファイル メニュー -->
+    <entry key="file.new">新規作成</entry>
+    <entry key="file.open">開く</entry>
+    <entry key="file.save">保存</entry>
+    <entry key="file.saveas">名前を付けて保存</entry>
+    <entry key="file.close">閉じる</entry>
+    <entry key="file.closeTab">タブを閉じる</entry>
+    <entry key="file.print">印刷</entry>
+    <entry key="file.import">インポート</entry>
+    <entry key="file.export">エクスポート</entry>
+    <entry key="file.exit">終了</entry>
+
+    <!-- 編集 メニュー -->
+    <entry key="edit.property">プロパティ</entry>
+    <entry key="edit.undo">元に戻す</entry>
+    <entry key="edit.redo">やり直し</entry>
+    <entry key="edit.forward">前面へ</entry>
+    <entry key="edit.backward">背面へ</entry>
+    <entry key="edit.fade">フェード</entry>
+    <entry key="edit.cut">切り取り</entry>
+    <entry key="edit.copy">コピー</entry>
+    <entry key="edit.paste">貼り付け</entry>
+    <entry key="edit.clear">削除</entry>
+    <entry key="edit.selectall">すべて選択</entry>
+    <entry key="edit.fill">塗りつぶし</entry>
+    <entry key="edit.colorSetting">色設定</entry>
+
+    <!-- 選択 メニュー -->
+    <entry key="select.all">すべて選択</entry>
+    <entry key="select.deselect">選択解除</entry>
+    <entry key="select.reselect">再選択</entry>
+    <entry key="select.allLayer">すべてのレイヤー</entry>
+
+    <!-- グラフィック メニュー -->
+    <entry key="graphic.lineThickness">線の太さ</entry>
+    <entry key="graphic.lineStyle">線のスタイル</entry>
+    <entry key="graphic.fontStyle">フォントスタイル</entry>
+    <entry key="graphic.fontSize">フォントサイズ</entry>
+
+    <!-- 画像 メニュー -->
+    <entry key="image.mode">モード</entry>
+    <entry key="image.imageSize">画像サイズ</entry>
+    <entry key="image.canvasSize">キャンバスサイズ</entry>
+    <entry key="image.rotate">画像の回転</entry>
+    <entry key="image.crop">切り抜き</entry>
+    <entry key="image.trim">トリミング</entry>
+    <entry key="image.duplicate">複製</entry>
+    <entry key="image.generate">画像生成</entry>
+
+    <!-- レイヤー メニュー -->
+    <entry key="layer.new">新規レイヤー</entry>
+    <entry key="layer.duplicate">レイヤーの複製</entry>
+    <entry key="layer.delete">レイヤーの削除</entry>
+    <entry key="layer.rename">レイヤー名の変更</entry>
+    <entry key="layer.lock">レイヤーロック</entry>
+    <entry key="layer.group">レイヤーのグループ化</entry>
+    <entry key="layer.ungroup">レイヤーのグループ解除</entry>
+    <entry key="layer.merge">レイヤーの結合</entry>
+    <entry key="layer.hide">レイヤーを非表示</entry>
+
+    <!-- フィルター メニュー -->
+    <entry key="filter.blur">ぼかし</entry>
+    <entry key="filter.noise">ノイズ</entry>
+    <entry key="filter.sharpen">シャープ</entry>
+    <entry key="filter.emboss">エンボス</entry>
+
+    <!-- ウィンドウ メニュー -->
+    <entry key="window.workspace">ワークスペース</entry>
+    <entry key="window.extension">拡張機能</entry>
+    <entry key="window.option">オプション</entry>
+    <entry key="window.tool">ツール</entry>
+    <entry key="window.history">履歴</entry>
+    <entry key="window.preference">環境設定</entry>
+    <entry key="window.language">言語</entry>
+
+    <!-- ヘルプ メニュー -->
+    <entry key="help.systemInfo">システム情報</entry>
+    <entry key="help.about">アプリケーションについて</entry>
+    <entry key="help.online">オンラインヘルプ</entry>
+    <entry key="help.manual">ユーザーマニュアル</entry>
+
+    <!-- ツール -->
+    <entry key="tool.select">選択</entry>
+    <entry key="tool.rectangle">長方形</entry>
+    <entry key="tool.triangle">三角形</entry>
+    <entry key="tool.ellipse">楕円</entry>
+    <entry key="tool.line">直線</entry>
+    <entry key="tool.polygon">多角形</entry>
+
+</messages>

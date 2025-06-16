@@ -1,6 +1,8 @@
 package menus;
 
 import controller.AppController;
+import language.LanguageManager;
+import language.LanguageSupport;
 import menus.GMenuConstants.EEditMenuItem;
 
 import javax.swing.*;
@@ -8,12 +10,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-public class GEditMenu extends JMenu {
-    // attributes
+public class GEditMenu extends JMenu implements LanguageSupport {
     private static final long serialVersionUID = 1L;
     private AppController appController;
 
-    // constructor
     public GEditMenu(String label) {
         super(label);
         ActionHandler actionHandler = new ActionHandler();
@@ -30,49 +30,68 @@ public class GEditMenu extends JMenu {
                 this.addSeparator();
             }
         }
+
+        // 언어 변경 리스너 등록
+        LanguageManager.getInstance().addLanguageChangeListener(() -> updateLanguage());
+    }
+
+    @Override
+    public void updateLanguage() {
+        setText(LanguageManager.getInstance().getText("edit.menu"));
+
+        for (int i = 0; i < getItemCount(); i++) {
+            JMenuItem item = getItem(i);
+            if (item != null) {
+                String command = item.getActionCommand();
+                if (command != null) {
+                    try {
+                        EEditMenuItem menuItem = EEditMenuItem.valueOf(command);
+                        item.setText(menuItem.getText());
+                    } catch (IllegalArgumentException e) {
+                    }
+                }
+            }
+        }
     }
 
     private void setAccelerator(JMenuItem menuItem, EEditMenuItem eEditMenuItem) {
         switch (eEditMenuItem) {
             case eUndo:
-                menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                        KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
                 break;
             case eRedo:
-                menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                        KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK));
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK));
                 break;
             case eCut:
-                menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                        KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
                 break;
             case eCopy:
-                menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                        KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
                 break;
             case ePaste:
-                menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                        KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
                 break;
             case eClear:
-                menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                        KeyEvent.VK_DELETE, 0));
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
                 break;
             case eFill:
-                menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                        KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+                break;
+            case eForward:
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_CLOSE_BRACKET, KeyEvent.CTRL_DOWN_MASK));
+                break;
+            case eBackward:
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_OPEN_BRACKET, KeyEvent.CTRL_DOWN_MASK));
                 break;
             default:
                 break;
         }
     }
 
-    // Controller
     public void setController(AppController controller) {
         this.appController = controller;
     }
 
-    // method
     public void initialize() {
         updateMenuState();
     }
@@ -110,7 +129,6 @@ public class GEditMenu extends JMenu {
                                 item.setEnabled(hasActiveTab && hasSelection);
                                 break;
                             case ePaste:
-                                // 클립보드에 내용이 있는지 확인
                                 item.setEnabled(hasActiveTab);
                                 break;
                             case eColorSetting:
@@ -141,8 +159,7 @@ public class GEditMenu extends JMenu {
 
                 switch (eMenuItem) {
                     case eProperty:
-                        // TODO: 속성 대화상자는 별도 처리 필요
-                        showPropertyDialog();
+                        appController.showProperties();
                         break;
                     case eUndo:
                         appController.undo();
@@ -151,13 +168,19 @@ public class GEditMenu extends JMenu {
                         appController.redo();
                         break;
                     case eForward:
-                        // TODO: 도형 순서 변경 - 향후 구현
+                        appController.bringForward();
                         break;
                     case eBackward:
-                        // TODO: 도형 순서 변경 - 향후 구현
+                        appController.sendBackward();
                         break;
+                    case eToForward:
+                        appController.bringToFront();
+                        break;
+                    case eToBackward:
+                        appController.sendToBack();
+                    break;
                     case eFade:
-                        // TODO: 투명도 조정 - 향후 구현
+                        // 추후 구현
                         break;
                     case eCut:
                         appController.cut();
@@ -172,15 +195,14 @@ public class GEditMenu extends JMenu {
                         appController.deleteSelected();
                         break;
                     case eFill:
-                        // TODO: 색상 선택 대화상자 - 향후 구현
-                        showFillColorDialog();
+                        appController.fill();
                         break;
                     case eColorSetting:
-                        // TODO: 색상 설정 대화상자 - 향후 구현
-                        showColorSettingDialog();
+                        appController.colorSetting();
                         break;
                     default:
-                        System.err.println("Unhandled edit menu item: " + eMenuItem);
+                        // 기존 invoke 메서드를 백업으로 사용
+                        invokeMethod(eMenuItem.getMethodName());
                         break;
                 }
 
@@ -190,29 +212,16 @@ public class GEditMenu extends JMenu {
                 System.err.println("Unknown menu command: " + e.getActionCommand());
             }
         }
+    }
 
-        private void showPropertyDialog() {
-            // TODO: 속성 대화상자 구현
-            JOptionPane.showMessageDialog(GEditMenu.this,
-                    "Property dialog - To be implemented",
-                    "Property",
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        private void showFillColorDialog() {
-            // TODO: 색상 선택 대화상자 구현
-            JOptionPane.showMessageDialog(GEditMenu.this,
-                    "Fill color dialog - To be implemented",
-                    "Fill Color",
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        private void showColorSettingDialog() {
-            // TODO: 색상 설정 대화상자 구현
-            JOptionPane.showMessageDialog(GEditMenu.this,
-                    "Color setting dialog - To be implemented",
-                    "Color Settings",
-                    JOptionPane.INFORMATION_MESSAGE);
+    private void invokeMethod(String methodName) {
+        try {
+            if (appController != null) {
+                appController.getClass().getMethod(methodName).invoke(appController);
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to invoke method: " + methodName);
+            e.printStackTrace();
         }
     }
 }

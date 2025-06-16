@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import language.LanguageManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -21,7 +22,31 @@ public class GConstants {
 		public final static int WIDTH=1200;
 		public final static int HEIGHT=1200;
 	}
+	public enum EMenuType {
+		eFile("file.menu"),
+		eEdit("edit.menu"),
+		eSelect("select.menu"),
+		eGraphic("graphic.menu"),
+		eImage("image.menu"),
+		eLayer("layer.menu"),
+		eFilter("filter.menu"),
+		eWindow("window.menu"),
+		eHelp("help.menu");
 
+		private String messageKey;
+
+		EMenuType(String messageKey) {
+			this.messageKey = messageKey;
+		}
+
+		public String getText() {
+			return LanguageManager.getInstance().getText(this.messageKey);
+		}
+
+		public String getMessageKey() {
+			return this.messageKey;
+		}
+	}
 
 	public enum EMainFrame {
 		eX(0),

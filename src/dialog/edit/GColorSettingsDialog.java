@@ -13,6 +13,12 @@ public class GColorSettingsDialog extends JDialog {
     private JComboBox<String> spotCombo;
     private JComboBox<String> engineCombo;
     private JComboBox<String> intentCombo;
+
+    // Policy combos
+    private JComboBox<String> rgbPolicyCombo;
+    private JComboBox<String> cmykPolicyCombo;
+    private JComboBox<String> grayPolicyCombo;
+
     private JCheckBox profileMismatchesCheck;
     private JCheckBox missingProfilesCheck;
     private JCheckBox useBlackPointCheck;
@@ -55,15 +61,49 @@ public class GColorSettingsDialog extends JDialog {
                 "Emulate Photoshop 4"
         };
         settingsCombo = new JComboBox<>(settings);
+        settingsCombo.addActionListener(e -> updateDescription());
         mainPanel.add(settingsCombo, gbc);
 
         // Working Spaces
-        JPanel workingSpacesPanel = new JPanel(new GridBagLayout());
-        workingSpacesPanel.setBorder(BorderFactory.createTitledBorder("Working Spaces"));
+        JPanel workingSpacesPanel = createWorkingSpacesPanel();
+        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 3;
+        mainPanel.add(workingSpacesPanel, gbc);
 
-        gbc.gridwidth = 1;
+        // Color Management Policies
+        JPanel policiesPanel = createPoliciesPanel();
+        gbc.gridy = 2;
+        mainPanel.add(policiesPanel, gbc);
+
+        // Conversion Options
+        JPanel conversionPanel = createConversionPanel();
+        gbc.gridy = 3;
+        mainPanel.add(conversionPanel, gbc);
+
+        // Description area
+        JPanel descriptionPanel = createDescriptionPanel();
+        gbc.gridy = 4;
+        mainPanel.add(descriptionPanel, gbc);
+
+        add(new JScrollPane(mainPanel), BorderLayout.CENTER);
+
+        // Button panel
+        JPanel buttonPanel = createButtonPanel();
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Set default values
+        setDefaultValues();
+    }
+
+    private JPanel createWorkingSpacesPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Working Spaces"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(3, 3, 3, 3);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // RGB
         gbc.gridx = 0; gbc.gridy = 0;
-        workingSpacesPanel.add(new JLabel("RGB:"), gbc);
+        panel.add(new JLabel("RGB:"), gbc);
         gbc.gridx = 1;
         String[] rgbOptions = {
                 "sRGB IEC61966-2.1",
@@ -73,10 +113,11 @@ public class GColorSettingsDialog extends JDialog {
                 "ProPhoto RGB"
         };
         rgbCombo = new JComboBox<>(rgbOptions);
-        workingSpacesPanel.add(rgbCombo, gbc);
+        panel.add(rgbCombo, gbc);
 
+        // CMYK
         gbc.gridx = 0; gbc.gridy = 1;
-        workingSpacesPanel.add(new JLabel("CMYK:"), gbc);
+        panel.add(new JLabel("CMYK:"), gbc);
         gbc.gridx = 1;
         String[] cmykOptions = {
                 "U.S. Web Coated (SWOP) v2",
@@ -86,10 +127,11 @@ public class GColorSettingsDialog extends JDialog {
                 "Europe ISO Coated FOGRA27"
         };
         cmykCombo = new JComboBox<>(cmykOptions);
-        workingSpacesPanel.add(cmykCombo, gbc);
+        panel.add(cmykCombo, gbc);
 
+        // Gray
         gbc.gridx = 0; gbc.gridy = 2;
-        workingSpacesPanel.add(new JLabel("Gray:"), gbc);
+        panel.add(new JLabel("Gray:"), gbc);
         gbc.gridx = 1;
         String[] grayOptions = {
                 "Gray Gamma 2.2",
@@ -99,10 +141,11 @@ public class GColorSettingsDialog extends JDialog {
                 "Dot Gain 20%"
         };
         grayCombo = new JComboBox<>(grayOptions);
-        workingSpacesPanel.add(grayCombo, gbc);
+        panel.add(grayCombo, gbc);
 
+        // Spot
         gbc.gridx = 0; gbc.gridy = 3;
-        workingSpacesPanel.add(new JLabel("Spot:"), gbc);
+        panel.add(new JLabel("Spot:"), gbc);
         gbc.gridx = 1;
         String[] spotOptions = {
                 "Dot Gain 10%",
@@ -112,102 +155,104 @@ public class GColorSettingsDialog extends JDialog {
                 "Dot Gain 30%"
         };
         spotCombo = new JComboBox<>(spotOptions);
-        workingSpacesPanel.add(spotCombo, gbc);
+        panel.add(spotCombo, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 3;
-        mainPanel.add(workingSpacesPanel, gbc);
+        return panel;
+    }
 
-        // Color Management Policies
-        JPanel policiesPanel = new JPanel(new GridBagLayout());
-        policiesPanel.setBorder(BorderFactory.createTitledBorder("Color Management Policies"));
+    private JPanel createPoliciesPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Color Management Policies"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(3, 3, 3, 3);
+        gbc.anchor = GridBagConstraints.WEST;
 
         String[] policyOptions = {"Off", "Preserve Embedded Profiles", "Convert to Working"};
 
-        gbc.gridwidth = 1;
+        // RGB Policy
         gbc.gridx = 0; gbc.gridy = 0;
-        policiesPanel.add(new JLabel("RGB:"), gbc);
+        panel.add(new JLabel("RGB:"), gbc);
         gbc.gridx = 1;
-        JComboBox<String> rgbPolicyCombo = new JComboBox<>(policyOptions);
-        policiesPanel.add(rgbPolicyCombo, gbc);
+        rgbPolicyCombo = new JComboBox<>(policyOptions);
+        panel.add(rgbPolicyCombo, gbc);
 
+        // CMYK Policy
         gbc.gridx = 0; gbc.gridy = 1;
-        policiesPanel.add(new JLabel("CMYK:"), gbc);
+        panel.add(new JLabel("CMYK:"), gbc);
         gbc.gridx = 1;
-        JComboBox<String> cmykPolicyCombo = new JComboBox<>(policyOptions);
-        policiesPanel.add(cmykPolicyCombo, gbc);
+        cmykPolicyCombo = new JComboBox<>(policyOptions);
+        panel.add(cmykPolicyCombo, gbc);
 
+        // Gray Policy
         gbc.gridx = 0; gbc.gridy = 2;
-        policiesPanel.add(new JLabel("Gray:"), gbc);
+        panel.add(new JLabel("Gray:"), gbc);
         gbc.gridx = 1;
-        JComboBox<String> grayPolicyCombo = new JComboBox<>(policyOptions);
-        policiesPanel.add(grayPolicyCombo, gbc);
+        grayPolicyCombo = new JComboBox<>(policyOptions);
+        panel.add(grayPolicyCombo, gbc);
 
+        // Checkboxes
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
         profileMismatchesCheck = new JCheckBox("Profile Mismatches: Ask When Opening");
-        policiesPanel.add(profileMismatchesCheck, gbc);
+        panel.add(profileMismatchesCheck, gbc);
 
         gbc.gridy = 4;
         missingProfilesCheck = new JCheckBox("Missing Profiles: Ask When Opening");
-        policiesPanel.add(missingProfilesCheck, gbc);
+        panel.add(missingProfilesCheck, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 3;
-        mainPanel.add(policiesPanel, gbc);
+        return panel;
+    }
 
-        // Conversion Options
-        JPanel conversionPanel = new JPanel(new GridBagLayout());
-        conversionPanel.setBorder(BorderFactory.createTitledBorder("Conversion Options"));
+    private JPanel createConversionPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Conversion Options"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(3, 3, 3, 3);
+        gbc.anchor = GridBagConstraints.WEST;
 
-        gbc.gridwidth = 1;
+        // Engine
         gbc.gridx = 0; gbc.gridy = 0;
-        conversionPanel.add(new JLabel("Engine:"), gbc);
+        panel.add(new JLabel("Engine:"), gbc);
         gbc.gridx = 1;
-        String[] engineOptions = {
-                "Adobe (ACE)",
-                "Microsoft ICM",
-                "Apple CMM"
-        };
+        String[] engineOptions = {"Adobe (ACE)", "Microsoft ICM", "Apple CMM"};
         engineCombo = new JComboBox<>(engineOptions);
-        conversionPanel.add(engineCombo, gbc);
+        panel.add(engineCombo, gbc);
 
+        // Intent
         gbc.gridx = 0; gbc.gridy = 1;
-        conversionPanel.add(new JLabel("Intent:"), gbc);
+        panel.add(new JLabel("Intent:"), gbc);
         gbc.gridx = 1;
-        String[] intentOptions = {
-                "Perceptual",
-                "Saturation",
-                "Relative Colorimetric",
-                "Absolute Colorimetric"
-        };
+        String[] intentOptions = {"Perceptual", "Saturation", "Relative Colorimetric", "Absolute Colorimetric"};
         intentCombo = new JComboBox<>(intentOptions);
-        conversionPanel.add(intentCombo, gbc);
+        panel.add(intentCombo, gbc);
 
+        // Checkboxes
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
         useBlackPointCheck = new JCheckBox("Use Black Point Compensation");
-        conversionPanel.add(useBlackPointCheck, gbc);
+        panel.add(useBlackPointCheck, gbc);
 
         gbc.gridy = 3;
         useDitherCheck = new JCheckBox("Use Dither (8-bit/channel images)");
-        conversionPanel.add(useDitherCheck, gbc);
+        panel.add(useDitherCheck, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 3;
-        mainPanel.add(conversionPanel, gbc);
+        return panel;
+    }
 
-        // Description area
-        gbc.gridy = 4;
-        JPanel descriptionPanel = new JPanel(new BorderLayout());
-        descriptionPanel.setBorder(BorderFactory.createTitledBorder("Description"));
+    private JPanel createDescriptionPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Description"));
+
         descriptionArea = new JTextArea(5, 50);
         descriptionArea.setEditable(false);
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setText("The current color settings file is recommended for general-purpose desktop printing in North America.");
-        descriptionPanel.add(new JScrollPane(descriptionArea), BorderLayout.CENTER);
-        mainPanel.add(descriptionPanel, gbc);
 
-        add(new JScrollPane(mainPanel), BorderLayout.CENTER);
+        panel.add(new JScrollPane(descriptionArea), BorderLayout.CENTER);
+        return panel;
+    }
 
-        // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private JPanel createButtonPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         JButton moreOptionsButton = new JButton("More Options");
         JButton loadButton = new JButton("Load...");
@@ -226,24 +271,22 @@ public class GColorSettingsDialog extends JDialog {
         loadButton.addActionListener(e -> loadSettings());
         saveButton.addActionListener(e -> saveSettingsToFile());
 
-        buttonPanel.add(moreOptionsButton);
-        buttonPanel.add(loadButton);
-        buttonPanel.add(saveButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(okButton);
-        buttonPanel.add(cancelButton);
+        panel.add(moreOptionsButton);
+        panel.add(loadButton);
+        panel.add(saveButton);
+        panel.add(Box.createHorizontalStrut(20));
+        panel.add(okButton);
+        panel.add(cancelButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        return panel;
+    }
 
-        // Add action listeners
-        settingsCombo.addActionListener(e -> updateDescription());
+    private void setDefaultValues() {
         rgbPolicyCombo.setSelectedIndex(1);
         cmykPolicyCombo.setSelectedIndex(1);
         grayPolicyCombo.setSelectedIndex(1);
         useBlackPointCheck.setSelected(true);
         useDitherCheck.setSelected(true);
-
-        getRootPane().setDefaultButton(okButton);
     }
 
     private void updateDescription() {
@@ -273,13 +316,21 @@ public class GColorSettingsDialog extends JDialog {
         savedSettings.put("cmyk", (String) cmykCombo.getSelectedItem());
         savedSettings.put("gray", (String) grayCombo.getSelectedItem());
         savedSettings.put("spot", (String) spotCombo.getSelectedItem());
+        savedSettings.put("engine", (String) engineCombo.getSelectedItem());
+        savedSettings.put("intent", (String) intentCombo.getSelectedItem());
+        savedSettings.put("rgbPolicy", (String) rgbPolicyCombo.getSelectedItem());
+        savedSettings.put("cmykPolicy", (String) cmykPolicyCombo.getSelectedItem());
+        savedSettings.put("grayPolicy", (String) grayPolicyCombo.getSelectedItem());
+        savedSettings.put("profileMismatches", String.valueOf(profileMismatchesCheck.isSelected()));
+        savedSettings.put("missingProfiles", String.valueOf(missingProfilesCheck.isSelected()));
+        savedSettings.put("useBlackPoint", String.valueOf(useBlackPointCheck.isSelected()));
+        savedSettings.put("useDither", String.valueOf(useDitherCheck.isSelected()));
     }
 
     private void loadSettings() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Load Color Settings");
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            // Load settings implementation
             JOptionPane.showMessageDialog(this, "Settings loaded successfully!");
         }
     }
@@ -288,7 +339,6 @@ public class GColorSettingsDialog extends JDialog {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save Color Settings");
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            // Save settings implementation
             JOptionPane.showMessageDialog(this, "Settings saved successfully!");
         }
     }
@@ -299,14 +349,6 @@ public class GColorSettingsDialog extends JDialog {
     }
 
     public Map<String, String> getSettings() {
-        return savedSettings;
+        return new HashMap<>(savedSettings);
     }
-
-//    public static void main(String[] args) {
-//        JFrame frame = new JFrame();
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        GColorSettingsDialog dialog= new GColorSettingsDialog(frame);
-//        dialog.setVisible(true);
-//        dialog.initializeDialog();
-//    }
 }

@@ -218,12 +218,7 @@ public class GMainPanel extends JPanel {
 
     // Color
 
-    public void setForegroundColor(Color color) {
-        // 현재 선택된 도형의 전경색 설정
-        if (selectedShape != null) {
-            // 구현 필요
-        }
-    }
+    public void setForegroundColor(Color color) {}
 
     public void setBackgroundColor(Color color) {
         // 현재 선택된 도형의 배경색 설정
@@ -272,6 +267,7 @@ public class GMainPanel extends JPanel {
         if (shape != null) {
             shape.setSelected(true);
             this.selectedShape = shape;
+            this.selectedShapes.add(shape);
             if (mainFrame.getColorPanel() != null) {
                 mainFrame.getColorPanel().updateFromShape(shape);
             }
@@ -521,11 +517,11 @@ public class GMainPanel extends JPanel {
 
     private void changeCursor(int x, int y) {
         if (this.eShapeTool == EShapeTool.eSelect) {
-            this.selectedShape = onShape(x, y);
-            if (this.selectedShape == null) {
+            GShape hoverShape = onShape(x, y);
+            if (hoverShape  == null) {
                 this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             } else {
-                EAnchor anchor = this.selectedShape.getSelectedAnchor();
+                EAnchor anchor = hoverShape.getSelectedAnchor();
                 this.setCursor(anchor.getCursor());
             }
         }
@@ -607,23 +603,32 @@ public class GMainPanel extends JPanel {
     private void startTransform(int x, int y) {
         this.toolshape = this.eShapeTool.newShape();
         this.shapes.add(this.toolshape);
+
         if (this.eShapeTool == EShapeTool.eSelect) {
-            this.selectedShape = onShape(x, y);
-            if (this.selectedShape == null) {
+            GShape clickedShape = onShape(x, y);
+            if (clickedShape == null) {
+                System.out.println("영역 모드");
+                clearSelection();
                 this.toolshape.setSelectMode(true);
                 this.transformer = new GDrawer(this.toolshape);
-            } else if (this.selectedShape.getSelectedAnchor() == EAnchor.MM) {
-                this.selectedShape.setSelected(true);
-                if (!this.selectedShapes.contains(this.selectedShape)) {
-                    this.selectedShapes.add(this.selectedShape);
-                }
-                this.transformer = new GMover(this.selectedShapes);
-            } else if (this.selectedShape.getSelectedAnchor() == EAnchor.RR) {
-                this.selectedShape.setSelected(true);
-                this.transformer = new GRotater(this.selectedShape);
             } else {
-                this.selectedShape.setSelected(true);
-                this.transformer = new GResizer(this.selectedShape);
+                System.out.println("도형 선택: " + clickedShape.getClass().getSimpleName());
+                selectShape(clickedShape);
+                this.selectedShape = clickedShape;
+
+                if (this.selectedShape.getSelectedAnchor() == EAnchor.MM) {
+                    this.selectedShape.setSelected(true);
+                    if (!this.selectedShapes.contains(this.selectedShape)) {
+                        this.selectedShapes.add(this.selectedShape);
+                    }
+                    this.transformer = new GMover(this.selectedShapes);
+                } else if (this.selectedShape.getSelectedAnchor() == EAnchor.RR) {
+                    this.selectedShape.setSelected(true);
+                    this.transformer = new GRotater(this.selectedShape);
+                } else {
+                    this.selectedShape.setSelected(true);
+                    this.transformer = new GResizer(this.selectedShape);
+                }
             }
         } else {
             if (this.toolshape != null && mainFrame.getColorPanel() != null) {
@@ -632,11 +637,13 @@ public class GMainPanel extends JPanel {
             }
             this.transformer = new GDrawer(this.toolshape);
         }
+
         this.transformer.start((Graphics2D) getGraphics(), x, y);
     }
 
     private GShape onShape(int x, int y) {
-        for (GShape shape : this.shapes) {
+        for (int i = this.shapes.size() - 1; i >= 0; i--) {
+            GShape shape = this.shapes.get(i);
             if (shape.contains(x, y)) {
                 return shape;
             }
@@ -655,22 +662,32 @@ public class GMainPanel extends JPanel {
 
     private void finishTransform(int x, int y) {
         this.transformer.finish((Graphics2D) getGraphics(), x, y);
-        this.selectShape(this.toolshape);
+
         if (this.eShapeTool == EShapeTool.eSelect) {
-            this.shapes.removeLast();
-            for (GShape shape : this.shapes) {
-                if (this.selectedShape.contains(shape)) {
-                    shape.setSelected(true);
-                    if (!this.selectedShapes.contains(shape)) {
-                        this.selectedShapes.add(shape);
+            this.shapes.remove(this.toolshape);
+
+            if (this.toolshape.isSelectMode()) {
+                clearSelection();
+                for (GShape shape : this.shapes) {
+                    if (this.toolshape.contains(shape)) {
+                        shape.setSelected(true);
+                        if (!this.selectedShapes.contains(shape)) {
+                            shape.setSelected(true);
+                            this.selectedShape=shape;
+                            System.out.println("선택되었습니다.");
+                            this.selectedShapes.add(shape);
+                        }
+                    } else {
+                        shape.setSelected(false);
+                        this.selectedShapes.remove(shape);
                     }
-                } else {
-                    shape.setSelected(false);
-                    this.selectedShapes.remove(shape);
                 }
             }
+        } else {
+            this.selectShape(this.toolshape);
         }
-        this.isUpdated = true;
+
+        this.setUpdated(true);
         this.repaint();
     }
 
@@ -766,5 +783,44 @@ public class GMainPanel extends JPanel {
     }
     public void exit() {
         System.exit(0);
+    }
+
+    public void hide() {
+        System.out.println("hide");
+        if(this.selectedShape==null) return;
+        this.selectedShape.setVisible(false);
+    }
+
+    public int getUndoStackSize() {
+        return undoStack.size();
+    }
+
+    public int getRedoStackSize() {
+        return redoStack.size();
+    }
+
+    public String getCanvasInfo() {
+        StringBuilder info = new StringBuilder();
+        info.append("Shapes: ").append(shapes.size());
+        info.append(", Selected: ").append(hasSelection() ? "Yes" : "No");
+        info.append(", Undo: ").append(canUndo() ? undoStack.size() : 0);
+        info.append(", Redo: ").append(canRedo() ? redoStack.size() : 0);
+        return info.toString();
+    }
+
+    public Vector<String> getShapesList() {
+        Vector<String> shapeNames = new Vector<>();
+        for (int i = 0; i < shapes.size(); i++) {
+            GShape shape = shapes.get(i);
+            String name = shape.getClass().getSimpleName() + " " + (i + 1);
+            if (shape == selectedShape) {
+                name += " (Selected)";
+            }
+            if (!shape.isVisible()) {
+                name += " (Hidden)";
+            }
+            shapeNames.add(name);
+        }
+        return shapeNames;
     }
 }

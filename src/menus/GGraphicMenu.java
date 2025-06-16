@@ -1,56 +1,98 @@
 package menus;
 
 import controller.AppController;
+import language.LanguageManager;
+import language.LanguageSupport;
+import menus.GMenuConstants.EGraphicMenuItem;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class GGraphicMenu extends JMenu {
-    // attributes
+public class GGraphicMenu extends JMenu implements LanguageSupport {
     private static final long serialVersionUID = 1L;
-    private AppController controller;
-    private JMenuItem lineThicknessItem;
-    private JMenuItem lineStyleItem;
-    private JMenuItem fontStyleItem;
-    private JMenuItem fontSizeItem;
-    
-    // constructor
-    public GGraphicMenu(String label) {
-        super(label);
-        
-        this.lineThicknessItem = new JMenuItem("Line Thickness");
-        this.add(lineThicknessItem);
-        
-        this.lineStyleItem = new JMenuItem("Line Style");
-        this.add(lineStyleItem);
-        
-        this.addSeparator();
-        
-        this.fontStyleItem = new JMenuItem("Font Style");
-        this.add(fontStyleItem);
-        
-        this.fontSizeItem = new JMenuItem("Font Size");
-        this.add(fontSizeItem);
+    private AppController appController;
+
+    public GGraphicMenu(String text) {
+        super(text);
+        ActionHandler actionHandler = new ActionHandler();
+
+        for (EGraphicMenuItem eGraphicMenuItem : EGraphicMenuItem.values()) {
+            JMenuItem menuItem = new JMenuItem(eGraphicMenuItem.getText());
+            menuItem.setActionCommand(eGraphicMenuItem.name());
+            menuItem.addActionListener(actionHandler);
+            this.add(menuItem);
+        }
+
+        // 언어 변경 리스너 등록
+        LanguageManager.getInstance().addLanguageChangeListener(() -> updateLanguage());
     }
 
-    //initialize
-    public void initialize() {}
-    public void setController(AppController controller) {
-        this.controller = controller;
+    @Override
+    public void updateLanguage() {
+        setText(LanguageManager.getInstance().getText("graphic.menu"));
+
+        for (int i = 0; i < getItemCount(); i++) {
+            JMenuItem item = getItem(i);
+            if (item != null) {
+                String command = item.getActionCommand();
+                if (command != null) {
+                    try {
+                        EGraphicMenuItem menuItem = EGraphicMenuItem.valueOf(command);
+                        item.setText(menuItem.getText());
+                    } catch (IllegalArgumentException e) {
+                        // 무시
+                    }
+                }
+            }
+        }
     }
+
+    public void setController(AppController controller) {
+        this.appController = controller;
+    }
+
+    public void initialize() {
+        updateMenuState();
+    }
+
+    public void updateMenuState() {
+        if (appController == null) return;
+
+        boolean hasActiveTab = appController.hasActiveTab();
+        for (int i = 0; i < getItemCount(); i++) {
+            JMenuItem item = getItem(i);
+            if (item != null) {
+                item.setEnabled(hasActiveTab);
+            }
+        }
+    }
+
     private class ActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            GMenuConstants.EImageMenuItem eMenuItem = GMenuConstants.EImageMenuItem.valueOf(e.getActionCommand());
-            invokeMethod(eMenuItem.getMethodName());
+            if (appController == null) {
+                System.err.println("AppController not set!");
+                return;
+            }
+
+            try {
+                EGraphicMenuItem eMenuItem = EGraphicMenuItem.valueOf(e.getActionCommand());
+                invokeMethod(eMenuItem.getMethodName());
+                updateMenuState();
+            } catch (IllegalArgumentException ex) {
+                System.err.println("Unknown menu command: " + e.getActionCommand());
+            }
         }
     }
+
     private void invokeMethod(String methodName) {
         try {
-            controller.getClass().getMethod(methodName).invoke(controller);
+            if (appController != null) {
+                appController.getClass().getMethod(methodName).invoke(appController);
+            }
         } catch (Exception e) {
-            //JOptionPane.showMessageDialog("아직 메뉴기능 구현 전입니다.");
+            System.err.println("Failed to invoke method: " + methodName);
             e.printStackTrace();
         }
     }

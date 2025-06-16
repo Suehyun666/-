@@ -1,13 +1,15 @@
 package menus;
 
 import controller.AppController;
+import language.LanguageManager;
+import language.LanguageSupport;
 import menus.GMenuConstants.EFilterMenuItem;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class GFilterMenu extends JMenu{
+public class GFilterMenu extends JMenu implements LanguageSupport {
 	private static final long serialVersionUID = 1L;
 	private AppController controller;
 
@@ -21,8 +23,32 @@ public class GFilterMenu extends JMenu{
 			menuItem.addActionListener(actionHandler);
 			add(menuItem);
 		}
+
+		// 언어 변경 리스너 등록
+		LanguageManager.getInstance().addLanguageChangeListener(() -> updateLanguage());
 	}
 
+	@Override
+	public void updateLanguage() {
+		// 메뉴 제목 업데이트
+		setText(LanguageManager.getInstance().getText("filter.menu"));
+
+		// 각 메뉴 아이템 텍스트 업데이트
+		for (int i = 0; i < getItemCount(); i++) {
+			JMenuItem item = getItem(i);
+			if (item != null) {
+				String command = item.getActionCommand();
+				if (command != null) {
+					try {
+						EFilterMenuItem menuItem = EFilterMenuItem.valueOf(command);
+						item.setText(menuItem.getText());
+					} catch (IllegalArgumentException e) {
+						// 무시 - 유효하지 않은 명령어
+					}
+				}
+			}
+		}
+	}
 	// initialize
 	public void initialize() {}
 	public void setController(AppController controller) {

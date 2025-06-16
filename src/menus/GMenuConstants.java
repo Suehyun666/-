@@ -38,6 +38,8 @@ public class GMenuConstants {
 		eRedo("edit.redo", "redo"),
 		eForward("edit.forward", "forward"),
 		eBackward("edit.backward", "backward"),
+		eToBackward("edit.toBackward", "toBackward"),
+		eToForward("edit.toForward", "toForward"),
 		eFade("edit.fade", "fade"),
 		eCut("edit.cut", "cut"),
 		eCopy("edit.copy", "copy"),
@@ -152,7 +154,7 @@ public class GMenuConstants {
 	}
 
 	public enum ESelectMenuItem {
-		eAll("select.all", "all"),
+		eAll("select.all", "selectall"),
 		eDeselect("select.deselect", "deselect"),
 		eReselect("select.reselect", "reselect"),
 		eAllLayer("select.allLayer", "allLayer");
@@ -191,33 +193,14 @@ public class GMenuConstants {
 		}
 	}
 
-	public enum ETypeMenuItem {
-		ePanel("Panel", "panel"),
-		eLanguage("Language", "language"),
-		eForward("Forward", "forward");
-
-		private String menu;
-		private String methodname;
-		ETypeMenuItem(String menu, String methodname) {
-			this.menu = menu;
-			this.methodname = methodname;
-		}
-		public String getText() {
-			return this.menu;
-		}
-		public String getMethodName() {
-			return this.methodname;
-		}
-	}
-
 	public enum EWindowMenuItem {
 		eProperty("Workspace", "workspace"),
 		eExtension("Extension", "extension"),
 		eOption("Option", "option"),
 		eTool("Tool", "tool"),
 		eHistory("History", "history"),
-		ePreFerence("Preference", "preference");
-
+		ePreFerence("Preference", "preference"),
+		eLanguage("Language", "language");
 		private String menu;
 		private String methodname;
 		EWindowMenuItem(String menu, String methodname) {

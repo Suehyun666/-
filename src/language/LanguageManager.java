@@ -75,24 +75,44 @@ public class LanguageManager {
     private void loadFallbackMessages() {
         fallbackMessages = new HashMap<>();
 
-        try {
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("messages_en.xml");
-            if (inputStream != null) {
-                parseXMLMessages(inputStream, fallbackMessages);
+        String[] possiblePaths = {
+                "messages_en.xml",
+                "resources/messages_en.xml",
+                "/messages_en.xml"
+        };
+
+        boolean loaded = false;
+
+        for (String path : possiblePaths) {
+            try {
                 if (debugMode) {
-                    System.out.println("Loaded " + fallbackMessages.size() + " fallback messages from XML");
+                    System.out.println("Trying to load from: " + path);
                 }
-            } else {
-                loadHardcodedEnglish();
+
+                InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
+                if (inputStream != null) {
+                    parseXMLMessages(inputStream, fallbackMessages);
+                    if (debugMode) {
+                        System.out.println("✓ Loaded " + fallbackMessages.size() + " fallback messages from: " + path);
+                    }
+                    loaded = true;
+                    break;
+                } else {
+                    if (debugMode) {
+                        System.out.println("✗ Not found: " + path);
+                    }
+                }
+            } catch (Exception e) {
                 if (debugMode) {
-                    System.out.println("Using hardcoded English fallback messages");
+                    System.out.println("✗ Error loading " + path + ": " + e.getMessage());
                 }
             }
-        } catch (Exception e) {
+        }
+
+        if (!loaded) {
             if (debugMode) {
-                System.out.println("Error loading English fallback, using hardcoded: " + e.getMessage());
+                System.out.println("Using hardcoded English fallback messages");
             }
-            loadHardcodedEnglish();
         }
     }
 
@@ -133,7 +153,6 @@ public class LanguageManager {
 
         if (!xmlLoaded) {
             // XML 로드 실패 시
-            loadHardcodedMessages();
             if (debugMode) {
                 System.out.println("Using hardcoded messages for " + currentLanguage);
             }
@@ -189,56 +208,6 @@ public class LanguageManager {
         }
 
         inputStream.close();
-    }
-
-    private void loadHardcodedEnglish() {
-        fallbackMessages.put("file.menu", "File");
-        fallbackMessages.put("edit.menu", "Edit");
-        fallbackMessages.put("select.menu", "Select");
-        fallbackMessages.put("graphic.menu", "Graphic");
-        fallbackMessages.put("image.menu", "Image");
-        fallbackMessages.put("layer.menu", "Layer");
-        fallbackMessages.put("filter.menu", "Filter");
-        fallbackMessages.put("window.menu", "Window");
-        fallbackMessages.put("help.menu", "Help");
-
-        fallbackMessages.put("tool.select", "Select");
-        fallbackMessages.put("tool.rectangle", "Rectangle");
-        fallbackMessages.put("tool.triangle", "Triangle");
-        fallbackMessages.put("tool.ellipse", "Ellipse");
-        fallbackMessages.put("tool.line", "Line");
-        fallbackMessages.put("tool.polygon", "Polygon");
-        fallbackMessages.put("tool.pen", "Pen");
-        fallbackMessages.put("tool.brush", "Brush");
-        fallbackMessages.put("tool.erase", "Eraser");
-
-        fallbackMessages.put("app.title", "Drawing Application");
-    }
-
-    private void loadHardcodedMessages() {
-        if ("ko".equals(currentLanguage)) {
-            messages.put("file.menu", "파일");
-            messages.put("edit.menu", "편집");
-            messages.put("select.menu", "선택");
-            messages.put("graphic.menu", "그래픽");
-            messages.put("image.menu", "이미지");
-            messages.put("layer.menu", "레이어");
-            messages.put("filter.menu", "필터");
-            messages.put("window.menu", "창");
-            messages.put("help.menu", "도움말");
-
-            messages.put("tool.select", "선택");
-            messages.put("tool.rectangle", "사각형");
-            messages.put("tool.triangle", "삼각형");
-            messages.put("tool.ellipse", "타원");
-            messages.put("tool.line", "선");
-            messages.put("tool.polygon", "다각형");
-            messages.put("tool.pen", "펜");
-            messages.put("tool.brush", "브러시");
-            messages.put("tool.erase", "지우개");
-
-            messages.put("app.title", "그림판 애플리케이션");
-        }
     }
 
     // 디버깅 메서드들

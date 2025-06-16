@@ -31,10 +31,14 @@ public abstract class GShape implements Serializable, Cloneable{
 	protected boolean isSelected;
 	protected boolean isFillEnabled;
 	protected boolean isStrokeEnabled;
-	protected boolean isSelectMode;
+	public boolean isSelectMode;
 	protected boolean visible;
 	protected Color currentFillColor, currentStrokeColor;
 	protected int currentStrokeWidth;
+
+	public void setLocked(boolean locked) {
+		this.isSelected = locked;
+	}
 
 	public enum EPoints{
 		e2P,
@@ -90,7 +94,26 @@ public abstract class GShape implements Serializable, Cloneable{
 	public int getStrokeWidth(){return currentStrokeWidth;}
 	public boolean isFillEnabled(){return isFillEnabled;}
 	public boolean isStrokeEnabled(){return isStrokeEnabled;}
+	public boolean isSelectMode() {
+		return isSelectMode;
+	}
 
+	public void setLocation(int i, int i1) {
+		this.startX = i;
+		this.startY = i1;
+	}
+
+	public void setSize(int width, int height) {
+		Rectangle2D bounds = originalShape.getBounds2D();
+		this.scaleX = width / bounds.getWidth();
+		this.scaleY = height / bounds.getHeight();
+		updateTransformedShape();
+	}
+
+	public void setRotation(double v) {
+		this.rotationAngle = v;
+		updateTransformedShape();
+	}
 	public void setVisible(boolean visible) {this.visible = visible;}
 	public void setSelected(boolean input) {
 		this.isSelected=input;
@@ -111,6 +134,10 @@ public abstract class GShape implements Serializable, Cloneable{
 
 	public void draw(Graphics2D g2d) {
 		//select
+		if (!visible) {
+			return;
+		}
+
 		if (isSelectMode) {
 			drawSelectMode(g2d);
 			return;
@@ -251,4 +278,31 @@ public abstract class GShape implements Serializable, Cloneable{
 		initializeTransientFields();
 		updateTransformedShape();
 	}
+
+
+
+	public void fadeColor(float alpha) {
+		if (currentFillColor != null) {
+			int red = currentFillColor.getRed();
+			int green = currentFillColor.getGreen();
+			int blue = currentFillColor.getBlue();
+			int newAlpha = (int) (alpha * 255);
+			currentFillColor = new Color(red, green, blue, newAlpha);
+		}
+	}
+
+	public void brighten(float factor) {
+		if (currentFillColor != null) {
+			int red = Math.min(255, (int) (currentFillColor.getRed() * factor));
+			int green = Math.min(255, (int) (currentFillColor.getGreen() * factor));
+			int blue = Math.min(255, (int) (currentFillColor.getBlue() * factor));
+			currentFillColor = new Color(red, green, blue, currentFillColor.getAlpha());
+		}
+	}
+
+	public void darken(float factor) {
+		brighten(1.0f - factor);
+	}
+
+
 }

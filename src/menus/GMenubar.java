@@ -1,12 +1,11 @@
 package menus;
 
-import global.GConstants;
+import global.GConstants.EMenuType;
 import language.LanguageSupport;
 
 import javax.swing.JMenuBar;
 
 import static java.awt.Color.GRAY;
-import global.GConstants.EMenuType;
 public class GMenubar extends JMenuBar implements LanguageSupport {
     // attributes
     private static final long serialVersionUID = 1L;

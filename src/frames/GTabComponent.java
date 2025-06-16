@@ -152,7 +152,7 @@ public class GTabComponent extends JPanel {
                     GMainPanel panel = tabManager.getPanelAt(tabIndex);
                     if (panel != null) {
                         if (tabManager.setTabTitle(panel, trimmedName)) {
-                            panel.setCurrentFile(null); // 새 이름이므로 파일 연결 해제
+                            panel.setCurrentFile(null);
                         }
                     }
                 }

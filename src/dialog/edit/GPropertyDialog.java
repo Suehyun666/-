@@ -17,12 +17,17 @@ public class GPropertyDialog extends JDialog {
     private boolean confirmed = false;
     private GShape shape;
 
-    public GPropertyDialog(Frame parent, GShape shape) {
+    public GPropertyDialog(Frame parent, GShape targetShape) {
         super(parent, "Shape Properties", true);
-        this.shape = shape;
+        if (shape == null) {
+            shape = targetShape;
+        }
+        if (this.shape == null) {
+            throw new IllegalArgumentException("Target shape cannot be null");
+        }
         initializeDialog();
-    }
 
+    }
     private void initializeDialog() {
         setLayout(new BorderLayout());
         setSize(400, 500);
@@ -146,10 +151,10 @@ public class GPropertyDialog extends JDialog {
 
     private boolean validateInput() {
         try {
-            Integer.parseInt(xField.getText());
-            Integer.parseInt(yField.getText());
-            Integer.parseInt(widthField.getText());
-            Integer.parseInt(heightField.getText());
+            parseDoubleToInt(xField.getText());
+            parseDoubleToInt(yField.getText());
+            parseDoubleToInt(widthField.getText());
+            parseDoubleToInt(heightField.getText());
             Double.parseDouble(rotationField.getText());
             return true;
         } catch (NumberFormatException e) {
@@ -161,25 +166,40 @@ public class GPropertyDialog extends JDialog {
         }
     }
 
+    private int parseDoubleToInt(String text) throws NumberFormatException {
+        // 빈 문자열 체크
+        if (text == null || text.trim().isEmpty()) {
+            throw new NumberFormatException("Empty input");
+        }
+
+        // 소수점이 있는 경우 double로 파싱 후 int로 변환
+        double value = Double.parseDouble(text.trim());
+        return (int) Math.round(value); // 반올림하여 정수로 변환
+    }
+
+
     private void applyChanges() {
-//        shape.setLocation(Integer.parseInt(xField.getText()),
-//                Integer.parseInt(yField.getText()));
-//        shape.setSize(Integer.parseInt(widthField.getText()),
-//                Integer.parseInt(heightField.getText()));
-//        shape.setRotation(Double.parseDouble(rotationField.getText()));
-//
-//        // Set opacity
-//        Color currentFill = shape.getFillColor();
-//        if (currentFill != null) {
-//            int alpha = (int) (opacitySlider.getValue() * 2.55);
-//            shape.setFillColor(new Color(currentFill.getRed(),
-//                    currentFill.getGreen(),
-//                    currentFill.getBlue(),
-//                    alpha));
-//        }
-//
-//        shape.setVisible(visibleCheck.isSelected());
-//        shape.setLocked(lockedCheck.isSelected());
+        int x = parseDoubleToInt(xField.getText());
+        int y = parseDoubleToInt(yField.getText());
+        int width = parseDoubleToInt(widthField.getText());
+        int height = parseDoubleToInt(heightField.getText());
+        double rotation = Double.parseDouble(rotationField.getText().trim());
+
+        shape.setLocation(x, y);
+        shape.setSize(width, height);
+        shape.setRotation(rotation);
+        // Set opacity
+        Color currentFill = shape.getFillColor();
+        if (currentFill != null) {
+            int alpha = (int) (opacitySlider.getValue() * 2.55);
+            shape.setFillColor(new Color(currentFill.getRed(),
+                    currentFill.getGreen(),
+                    currentFill.getBlue(),
+                    alpha));
+        }
+
+        shape.setVisible(visibleCheck.isSelected());
+        shape.setLocked(lockedCheck.isSelected());
     }
 
     public boolean showDialog() {
