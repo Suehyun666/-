@@ -43,6 +43,12 @@ public class GMainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLayout(new BorderLayout());
         setBackground(DARK_GRAY);
+        try {
+            Image icon = Toolkit.getDefaultToolkit().getImage("src/resources/icon.png");
+            this.setIconImage(icon);
+        } catch (Exception e) {
+            System.err.println("Icon Load Failed " + e.getMessage());
+        }
     }
 
     private void createComponents() {
@@ -50,7 +56,6 @@ public class GMainFrame extends JFrame {
         setJMenuBar(menuBar);
 
         this.tabManager = new GTabManager(this);
-
         this.shapeToolBar = new GShapeToolBar();
         this.colorPanel = new GColorPanel();
         this.pictureToolBar = new GPictureToolBar(this);

@@ -3,7 +3,7 @@ package menus;
 import global.GConstants.EMenuType;
 import language.LanguageSupport;
 
-import javax.swing.JMenuBar;
+import javax.swing.*;
 
 import static java.awt.Color.GRAY;
 public class GMenubar extends JMenuBar implements LanguageSupport {
@@ -25,6 +25,7 @@ public class GMenubar extends JMenuBar implements LanguageSupport {
     // constructor
     public GMenubar() {
         this.setBackground(GRAY);
+        this.setForeground(GRAY);
         createMenus();
     }
     private void createMenus() {
@@ -62,7 +63,6 @@ public class GMenubar extends JMenuBar implements LanguageSupport {
         editMenu.initialize();
         graphicMenu.initialize();
         imagemenu.initialize();
-        graphicMenu.initialize();
         layermenu.initialize();
         selectmenu.initialize();
         filtermenu.initialize();

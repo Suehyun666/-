@@ -8,10 +8,7 @@ public class DrawingApplication {
 
     public static void main(String[] args) {
         setSystemLookAndFeel();
-
-        SwingUtilities.invokeLater(() -> {
-            showLanguageSelectionAndStart();
-        });
+        SwingUtilities.invokeLater(() -> {showLanguageSelectionAndStart();});
     }
 
     private static void setSystemLookAndFeel() {
@@ -23,8 +20,7 @@ public class DrawingApplication {
     }
 
     private static void showLanguageSelectionAndStart() {
-        String selectedLanguage = SimpleLanguageDialog.showDialog(null);
-
+        String selectedLanguage = SimpleLanguageDialog.showDialog();
         if (selectedLanguage != null) {
             LanguageManager.getInstance().setLanguage(selectedLanguage);
             startApplication();

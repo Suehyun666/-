@@ -18,10 +18,11 @@ import shapes.GShape.EPoints;
 public class GConstants {
 	public final class GMainFrame{
 		public final int x= 0;
-		public final static String TITLE="Drawing Application";
+		public final static String TITLE=LanguageManager.getInstance().getText("app.title");;
 		public final static int WIDTH=1200;
 		public final static int HEIGHT=1200;
 	}
+
 	public enum EMenuType {
 		eFile("file.menu"),
 		eEdit("edit.menu"),
@@ -38,37 +39,11 @@ public class GConstants {
 		EMenuType(String messageKey) {
 			this.messageKey = messageKey;
 		}
-
-		public String getText() {
-			return LanguageManager.getInstance().getText(this.messageKey);
-		}
-
+		public String getText() {return LanguageManager.getInstance().getText(this.messageKey);}
 		public String getMessageKey() {
 			return this.messageKey;
 		}
 	}
-
-	public enum EMainFrame {
-		eX(0),
-		eY(0),
-		eW(0),
-		eH(0);
-		private int value;
-		private EMainFrame(int value) {
-			this.value=value;
-		}
-		private int getvalue() {
-			return this.value;
-		}
-		public static void setValue(Node node) {
-			for(EMainFrame eMainFrame :EMainFrame.values()) {
-				Node attribute = (Node) node.getChildNodes();
-				eMainFrame.value =Integer.parseInt(attribute.getNodeValue());
-			}
-
-		}
-	}
-	public final class GMainPanel{}
 
 	public enum EShapeTool {
 		eSelect("select", EPoints.e2P,GRectangle.class),
@@ -99,10 +74,7 @@ public class GConstants {
 		}
 		public GShape newShape(){
 			try {return (GShape) classShape.getConstructor().newInstance();
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				e.printStackTrace();
-			}return null;
+			} catch (Exception e) {e.printStackTrace();}return null;
 		}
 	}
 
@@ -124,21 +96,6 @@ public class GConstants {
 		}
 		public Cursor getCursor() {
 			return this.cursor;
-		}
-	}
-
-
-
-	public void readFromFile(String fileName) {
-		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			File file = new File(fileName);
-			Document document =builder.parse(file);
-			NodeList nodeList=document.getDocumentElement().getChildNodes();
-
-		}catch (Exception e){
-			e.printStackTrace();
 		}
 	}
 }

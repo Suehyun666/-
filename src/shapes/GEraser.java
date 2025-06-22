@@ -82,7 +82,9 @@ public class GEraser extends GShape {
         g2d.setColor(originalColor);
     }
     @Override
-    public GEraser clone() {return null;}
+    public GEraser clone() {
+        throw new UnsupportedOperationException("GEraser는 clone()을 지원하지 않습니다.");
+    }
     @Override
     public void setSelected(boolean input) {this.isSelected = false;}
     @Override
