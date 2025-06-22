@@ -1,0 +1,50 @@
+name: 🔄 Refactoring
+description: Code improvement without changing functionality
+title: "[Refactor]: "
+labels: ["refactoring", "tech-debt"]
+body:
+  - type: textarea
+    id: current-state
+    attributes:
+      label: Current State
+      description: What code needs to be refactored?
+      placeholder: Describe the current implementation...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-changes
+    attributes:
+      label: Proposed Changes
+      description: How should it be improved?
+      placeholder: |
+        - Extract components
+        - Improve naming
+        - Reduce complexity
+        - Add type safety
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Benefits
+      description: Why is this refactoring needed?
+      placeholder: |
+        - Better maintainability
+        - Improved performance
+        - Easier testing
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      description: What areas will be affected?
+      options:
+        - label: UI Components
+        - label: Business Logic
+        - label: API Layer
+        - label: State Management
+        - label: Utilities

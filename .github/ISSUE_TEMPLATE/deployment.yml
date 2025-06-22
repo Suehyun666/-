@@ -1,0 +1,57 @@
+name: 🚀 Deployment
+description: Production deployment task
+title: "[Deploy]: "
+labels: ["deployment", "release"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version are we deploying?
+      placeholder: "v1.2.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Where are we deploying?
+      options:
+        - Development
+        - Staging
+        - Production
+    validations:
+      required: true
+
+  - type: textarea
+    id: changes
+    attributes:
+      label: Changes in This Release
+      description: What's new in this version?
+      placeholder: |
+        - New features
+        - Bug fixes
+        - Breaking changes
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-deployment Checklist
+      description: Complete before deployment
+      options:
+        - label: All tests passing
+        - label: Code review completed
+        - label: Documentation updated
+        - label: Database migrations ready
+        - label: Rollback plan prepared
+
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback Plan
+      description: How to rollback if issues occur?
+    validations:
+      required: true
