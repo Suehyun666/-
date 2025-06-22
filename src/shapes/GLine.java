@@ -25,7 +25,6 @@ public class GLine extends GShape {
         Line2D.Float line = (Line2D.Float) this.shape;
         line.setLine(line.x1, line.y1, x, y);
     }
-
     @Override
     public void addPoint(int x, int y) {}
 

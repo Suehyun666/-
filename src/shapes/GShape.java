@@ -1,8 +1,10 @@
 package shapes;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
+import java.awt.geom.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import global.GConstants.EAnchor;
@@ -12,21 +14,31 @@ public abstract class GShape implements Serializable, Cloneable{
 	private final static int ANCHOR_W=10;
 	private final static int ANCHOR_H=10;
 
+	public double scaleX = 1.0;
+	public double scaleY = 1.0;
+	public double rotationAngle = 0.0;
+	public double translateX = 0.0;
+	public double translateY = 0.0;
+
 	private Ellipse2D[] anchors;
 
 	protected Shape shape;
+	protected Shape originalShape;
 	protected int startX, startY;//위치
-	protected int px, py; // 이전 위치
 	protected AffineTransform transform;
 	protected EAnchor eSelectedAnchor;
-	protected Shape transformedShape;
+	protected transient Shape transformedShape;
 	protected boolean isSelected;
 	protected boolean isFillEnabled;
 	protected boolean isStrokeEnabled;
-	protected boolean isSelectMode;
+	public boolean isSelectMode;
 	protected boolean visible;
 	protected Color currentFillColor, currentStrokeColor;
 	protected int currentStrokeWidth;
+
+	public void setLocked(boolean locked) {
+		this.isSelected = locked;
+	}
 
 	public enum EPoints{
 		e2P,
@@ -34,37 +46,47 @@ public abstract class GShape implements Serializable, Cloneable{
 	}
 	public GShape(Shape shape) {
 		this.shape=shape;
+		this.originalShape = shape;
 		this.transform =new AffineTransform();
-		this.anchors=new Ellipse2D.Double[EAnchor.values().length-1];
-		for (int i=0; i<this.anchors.length; i++) {
-			this.anchors[i]=new Ellipse2D.Double();
-		}
+		initializeTransientFields();
+
 		this.isSelected=false;
 		this.isSelectMode=false;
 		this.visible=true;
 		this.eSelectedAnchor=null;
 		this.transformedShape=null;
-
 		// default color
 		this.currentFillColor = Color.BLACK;
 		this.currentStrokeColor = Color.BLACK;
 		this.currentStrokeWidth = 1;
 		this.isFillEnabled = true;
 		this.isStrokeEnabled = true;
+		updateTransformedShape();
+	}
+	private void initializeTransientFields() {
+		this.anchors = new Ellipse2D.Double[EAnchor.values().length - 1];
+		for (int i = 0; i < this.anchors.length; i++) {
+			this.anchors[i] = new Ellipse2D.Double();
+		}
 	}
 	//method
 
 	//getters & setters
 	public Shape getShape() {return this.shape;}
+	public Shape getOriginalShape() {return originalShape;}
 	public EAnchor getSelectedAnchor() {
 		return this.eSelectedAnchor;
 	}
 	public Rectangle getSize(){return this.getBounds();}
+	public Double getRotation() {return rotationAngle;}
 	public AffineTransform getAffineTransform() {
 		return this.transform;
 	}
 	public Shape getTransformedShape() {
-		return this.transform.createTransformedShape(this.shape);
+		if (transformedShape == null) {
+			updateTransformedShape();
+		}
+		return transformedShape;
 	}
 	public boolean isVisible() {return visible;}
 	public Color getFillColor() {return currentFillColor;}
@@ -72,7 +94,26 @@ public abstract class GShape implements Serializable, Cloneable{
 	public int getStrokeWidth(){return currentStrokeWidth;}
 	public boolean isFillEnabled(){return isFillEnabled;}
 	public boolean isStrokeEnabled(){return isStrokeEnabled;}
+	public boolean isSelectMode() {
+		return isSelectMode;
+	}
 
+	public void setLocation(int i, int i1) {
+		this.startX = i;
+		this.startY = i1;
+	}
+
+	public void setSize(int width, int height) {
+		Rectangle2D bounds = originalShape.getBounds2D();
+		this.scaleX = width / bounds.getWidth();
+		this.scaleY = height / bounds.getHeight();
+		updateTransformedShape();
+	}
+
+	public void setRotation(double v) {
+		this.rotationAngle = v;
+		updateTransformedShape();
+	}
 	public void setVisible(boolean visible) {this.visible = visible;}
 	public void setSelected(boolean input) {
 		this.isSelected=input;
@@ -82,7 +123,7 @@ public abstract class GShape implements Serializable, Cloneable{
 	}
 	public void setSelectMode(boolean bool){this.isSelectMode = bool;}
 	public void setFillColor(Color fadedColor) {this.currentFillColor = fadedColor;}
-	public void setCurrentStrokeColor(Color savedColor) {this.currentStrokeColor=savedColor;}
+	public void setStrokeColor(Color color) {this.currentStrokeColor = color;}
 	public void setColorProperties(Color fillColor, Color strokeColor, int strokeWidth, boolean fillEnabled, boolean strokeEnabled) {
 		this.currentFillColor = fillColor;
 		this.currentStrokeColor = strokeColor;
@@ -93,11 +134,14 @@ public abstract class GShape implements Serializable, Cloneable{
 
 	public void draw(Graphics2D g2d) {
 		//select
+		if (!visible) {
+			return;
+		}
+
 		if (isSelectMode) {
 			drawSelectMode(g2d);
 			return;
 		}
-		this.transformedShape = this.transform.createTransformedShape(this.shape);
 		Color originalColor = g2d.getColor();
 		Stroke originalStroke = g2d.getStroke();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -135,7 +179,6 @@ public abstract class GShape implements Serializable, Cloneable{
 		}
 	}
 	public boolean contains(int x, int y) {
-		this.transformedShape = this.transform.createTransformedShape(this.shape);
 		if (isSelected) {
 			for (int i = 0; i < EAnchor.values().length - 1; i++) {
 				Ellipse2D anchor = getAnchorShape(EAnchor.values()[i]);
@@ -152,53 +195,114 @@ public abstract class GShape implements Serializable, Cloneable{
 		return false;
 	}
 	public boolean contains(GShape shape) {return getTransformedShape().contains(shape.getTransformedShape().getBounds2D());}
+
 	private Ellipse2D getAnchorShape(EAnchor anchor) {
-		Rectangle bounds = this.transformedShape.getBounds();
-		int cx = 0, cy = 0;
+		Rectangle2D bounds = this.originalShape.getBounds2D();
+		double cx = 0, cy = 0;
 		switch (anchor) {
-			case SS: cx = bounds.x + bounds.width / 2; cy = bounds.y + bounds.height; break;
-			case SE: cx = bounds.x + bounds.width;     cy = bounds.y + bounds.height; break;
-			case SW: cx = bounds.x;                    cy = bounds.y + bounds.height; break;
-			case NN: cx = bounds.x + bounds.width / 2; cy = bounds.y; break;
-			case NE: cx = bounds.x + bounds.width;     cy = bounds.y; break;
-			case NW: cx = bounds.x;                    cy = bounds.y; break;
-			case EE: cx = bounds.x + bounds.width;     cy = bounds.y + bounds.height / 2; break;
-			case WW: cx = bounds.x;                    cy = bounds.y + bounds.height / 2; break;
-			case RR: cx = bounds.x + bounds.width / 2; cy = bounds.y - 30; break;
-			default: break;
+			case SS -> { cx = bounds.getCenterX(); cy = bounds.getMaxY(); }
+			case SE -> { cx = bounds.getMaxX();    cy = bounds.getMaxY(); }
+			case SW -> { cx = bounds.getMinX();    cy = bounds.getMaxY(); }
+			case NN -> { cx = bounds.getCenterX(); cy = bounds.getMinY(); }
+			case NE -> { cx = bounds.getMaxX();    cy = bounds.getMinY(); }
+			case NW -> { cx = bounds.getMinX();    cy = bounds.getMinY(); }
+			case EE -> { cx = bounds.getMaxX();    cy = bounds.getCenterY(); }
+			case WW -> { cx = bounds.getMinX();    cy = bounds.getCenterY(); }
+			case RR -> { cx = bounds.getCenterX(); cy = bounds.getMinY() - 30; }
 		}
-		return new Ellipse2D.Double(cx - ANCHOR_W/2, cy - ANCHOR_H/2, ANCHOR_W, ANCHOR_H);
+		Point2D transformed = transform.transform(new Point2D.Double(cx, cy), null);
+		return new Ellipse2D.Double(transformed.getX() - ANCHOR_W / 2, transformed.getY() - ANCHOR_H / 2, ANCHOR_W, ANCHOR_H);
 	}
-	public void setMovePoint(int x, int y) {
-		this.px = x;
-		this.py = y;
-	}
-	public void movePoint(int x, int y) {
-		int dx = x - px;
-		int dy = y - py;
-		transform.translate(dx, dy);
-		px = x;
-		py = y;
-	}
-	public Rectangle getBounds() {
-		return getTransformedShape().getBounds();
-	}
+	public Rectangle getBounds() {return getTransformedShape().getBounds();}
 	public abstract void setPoint(int x, int y);
 	public abstract void addPoint(int x, int y);
 	public abstract void dragPoint(int x, int y);
-	public GShape clone(){
+	@Override
+	public GShape clone() {
 		try {
 			GShape cloned = (GShape) super.clone();
 			cloned.transform = new AffineTransform(this.transform);
-			cloned.anchors = new Ellipse2D.Double[this.anchors.length];
-			for (int i = 0; i < this.anchors.length; i++) {
-				cloned.anchors[i] = new Ellipse2D.Double();
-			}
+			cloned.initializeTransientFields();
+
+			cloned.currentFillColor = this.currentFillColor;
+			cloned.currentStrokeColor = this.currentStrokeColor;
+			cloned.currentStrokeWidth = this.currentStrokeWidth;
+			cloned.isFillEnabled = this.isFillEnabled;
+			cloned.isStrokeEnabled = this.isStrokeEnabled;
+
 			cloned.isSelected = false;
 			cloned.eSelectedAnchor = null;
+			cloned.transformedShape = null;
+			cloned.updateTransformedShape();
+
 			return cloned;
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException("Clone not supported", e);
 		}
 	}
+
+	@Deprecated
+	public void appendTransform(AffineTransform at) {
+		this.transform.concatenate(at);
+		updateTransformedShape();
+	}
+
+	public void updateTransformedShape() {
+		if (originalShape == null || transform == null) {
+			return;
+		}
+		Rectangle2D bounds = originalShape.getBounds2D();
+		double cx = bounds.getCenterX();
+		double cy = bounds.getCenterY();
+
+		AffineTransform t = new AffineTransform();
+		t.translate(translateX, translateY);
+		t.rotate(rotationAngle, cx, cy);
+		t.translate(cx, cy);
+		t.scale(scaleX, scaleY);
+		t.translate(-cx, -cy);
+
+		this.transform = t;
+		this.transformedShape = t.createTransformedShape(originalShape);
+	}
+
+	public Point2D getInverseTransformedPoint(double x, double y) {
+		try {
+			return transform.createInverse().transform(new Point2D.Double(x, y), null);
+		} catch (NoninvertibleTransformException e) {
+			return new Point2D.Double(x, y);
+		}
+	}
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+		ois.defaultReadObject();
+		initializeTransientFields();
+		updateTransformedShape();
+	}
+
+
+
+	public void fadeColor(float alpha) {
+		if (currentFillColor != null) {
+			int red = currentFillColor.getRed();
+			int green = currentFillColor.getGreen();
+			int blue = currentFillColor.getBlue();
+			int newAlpha = (int) (alpha * 255);
+			currentFillColor = new Color(red, green, blue, newAlpha);
+		}
+	}
+
+	public void brighten(float factor) {
+		if (currentFillColor != null) {
+			int red = Math.min(255, (int) (currentFillColor.getRed() * factor));
+			int green = Math.min(255, (int) (currentFillColor.getGreen() * factor));
+			int blue = Math.min(255, (int) (currentFillColor.getBlue() * factor));
+			currentFillColor = new Color(red, green, blue, currentFillColor.getAlpha());
+		}
+	}
+
+	public void darken(float factor) {
+		brighten(1.0f - factor);
+	}
+
+
 }

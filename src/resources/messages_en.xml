@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+    <!-- Menu -->
+    <entry key="file.menu">File</entry>
+    <entry key="edit.menu">Edit</entry>
+    <entry key="select.menu">Select</entry>
+    <entry key="graphic.menu">Graphic</entry>
+    <entry key="image.menu">Image</entry>
+    <entry key="layer.menu">Layer</entry>
+    <entry key="filter.menu">Filter</entry>
+    <entry key="window.menu">Window</entry>
+    <entry key="help.menu">Help</entry>
+
+    <!-- File Menu -->
+    <entry key="file.new">New</entry>
+    <entry key="file.open">Open</entry>
+    <entry key="file.save">Save</entry>
+    <entry key="file.saveas">Save As</entry>
+    <entry key="file.close">Close</entry>
+    <entry key="file.closeTab">Close Tab</entry>
+    <entry key="file.print">Print</entry>
+    <entry key="file.import">Import</entry>
+    <entry key="file.export">Export</entry>
+    <entry key="file.exit">Exit</entry>
+
+    <!-- Edit Menu -->
+    <entry key="edit.property">Properties</entry>
+    <entry key="edit.undo">Undo</entry>
+    <entry key="edit.redo">Redo</entry>
+    <entry key="edit.forward">Bring Forward</entry>
+    <entry key="edit.backward">Send Backward</entry>
+    <entry key="edit.toBackward">Send Last</entry>
+    <entry key="edit.toForward">Bring First</entry>
+    <entry key="edit.fade">Fade</entry>
+    <entry key="edit.cut">Cut</entry>
+    <entry key="edit.copy">Copy</entry>
+    <entry key="edit.paste">Paste</entry>
+    <entry key="edit.clear">Delete</entry>
+    <entry key="edit.selectall">Select All</entry>
+    <entry key="edit.fill">Fill</entry>
+    <entry key="edit.colorSetting">Color Settings</entry>
+
+    <!-- Select Menu -->
+    <entry key="select.all">Select All</entry>
+    <entry key="select.deselect">Deselect</entry>
+    <entry key="select.reselect">Reselect</entry>
+    <entry key="select.allLayer">All Layers</entry>
+
+    <!-- Graphic Menu -->
+    <entry key="graphic.lineThickness">Line Thickness</entry>
+    <entry key="graphic.lineStyle">Line Style</entry>
+    <entry key="graphic.fontStyle">Font Style</entry>
+    <entry key="graphic.fontSize">Font Size</entry>
+
+    <!-- Image Menu -->
+    <entry key="image.mode">Mode</entry>
+    <entry key="image.imageSize">Image Size</entry>
+    <entry key="image.canvasSize">Canvas Size</entry>
+    <entry key="image.rotate">Rotate Image</entry>
+    <entry key="image.crop">Crop</entry>
+    <entry key="image.trim">Trim</entry>
+    <entry key="image.duplicate">Duplicate</entry>
+    <entry key="image.generate">Generate Image</entry>
+
+    <!-- Layer Menu -->
+    <entry key="layer.new">New Layer</entry>
+    <entry key="layer.duplicate">Duplicate Layer</entry>
+    <entry key="layer.delete">Delete Layer</entry>
+    <entry key="layer.rename">Rename Layer</entry>
+    <entry key="layer.lock">Lock Layer</entry>
+    <entry key="layer.group">Group Layers</entry>
+    <entry key="layer.ungroup">Ungroup Layers</entry>
+    <entry key="layer.merge">Merge Layers</entry>
+    <entry key="layer.hide">Hide Layer</entry>
+
+    <!-- Filter Menu -->
+    <entry key="filter.blur">Blur</entry>
+    <entry key="filter.noise">Noise</entry>
+    <entry key="filter.sharpen">Sharpen</entry>
+    <entry key="filter.emboss">Emboss</entry>
+
+    <!-- Window Menu -->
+    <entry key="window.workspace">Workspace</entry>
+    <entry key="window.extension">Extensions</entry>
+    <entry key="window.option">Options</entry>
+    <entry key="window.tool">Tools</entry>
+    <entry key="window.history">History</entry>
+    <entry key="window.preference">Preferences</entry>
+    <entry key="window.language">Language</entry>
+
+    <!-- Help Menu -->
+    <entry key="help.systemInfo">System Information</entry>
+    <entry key="help.about">About</entry>
+    <entry key="help.online">Online Help</entry>
+    <entry key="help.manual">User Manual</entry>
+
+    <!-- Tools -->
+    <entry key="tool.select">Select</entry>
+    <entry key="tool.rectangle">Rectangle</entry>
+    <entry key="tool.triangle">Triangle</entry>
+    <entry key="tool.ellipse">Ellipse</entry>
+    <entry key="tool.line">Line</entry>
+    <entry key="tool.polygon">Polygon</entry>
+    <entry key="tool.pen">Pen</entry>
+    <entry key="tool.brush">Brush</entry>
+    <entry key="tool.erase">Eraser</entry>
+
+    <!-- Messages -->
+    <entry key="message.noSelection">Please select a shape first.</entry>
+    <entry key="message.noSelectionTitle">No Selection</entry>
+    <entry key="message.fileAlreadyOpen">File is already open.</entry>
+    <entry key="message.duplicateTitle">Duplicate</entry>
+    <entry key="message.fileSaved">File saved successfully.</entry>
+    <entry key="message.saveComplete">Save Complete</entry>
+    <entry key="message.confirmDelete">Delete selected shape?</entry>
+    <entry key="message.confirmDeleteTitle">Confirm Delete</entry>
+    <entry key="message.clipboardEmpty">Clipboard is empty. Please copy or cut a shape first.</entry>
+    <entry key="message.noContent">No Content</entry>
+
+    <!-- Dialog -->
+    <entry key="dialog.newFile">New File</entry>
+    <entry key="dialog.fileName">File Name:</entry>
+    <entry key="dialog.width">Width:</entry>
+    <entry key="dialog.height">Height:</entry>
+    <entry key="dialog.background">Background:</entry>
+    <entry key="dialog.white">White</entry>
+    <entry key="dialog.backgroundColor">Background Color</entry>
+    <entry key="dialog.transparent">Transparent</entry>
+    <entry key="dialog.ok">OK</entry>
+    <entry key="dialog.cancel">Cancel</entry>
+
+    <!-- Status Messages -->
+    <entry key="status.ready">Ready</entry>
+    <entry key="status.cutCompleted">Cut completed</entry>
+    <entry key="status.copied">Copied to clipboard</entry>
+    <entry key="status.pasted">%d shapes pasted</entry>
+
+    <!-- Language -->
+    <entry key="language.menu">Language</entry>
+    <entry key="language.korean">한국어</entry>
+    <entry key="language.english">English</entry>
+    <entry key="language.japanese">日本語</entry>
+    <entry key="language.chinese">中文</entry>
+    <entry key="language.selectTitle">Select Language</entry>
+    <entry key="language.selectMessage">Please select a language:</entry>
+    <entry key="language.restartRequired">Please restart the application to fully apply the language change.</entry>
+
+    <!-- Error Messages -->
+    <entry key="error.fileNotFound">File not found.</entry>
+    <entry key="error.cannotSaveFile">Cannot save file: %s</entry>
+    <entry key="error.cannotOpenFile">Cannot open file: %s</entry>
+    <entry key="error.printFailed">Print failed: %s</entry>
+    <entry key="error.title">Error</entry>
+
+    <!-- App -->
+    <entry key="app.title">Drawing Application</entry>
+    <entry key="app.about">About</entry>
+    <entry key="app.version">Version 1.0</entry>
+    <entry key="app.copyright">Copyright (C) 2025 All rights reserved.</entry>
+</messages>

@@ -1,15 +1,19 @@
 package menus;
 
-import global.GMenuConstants.ELayerMenuItem;
+import controller.AppController;
+import language.LanguageManager;
+import language.LanguageSupport;
+import menus.GMenuConstants.ELayerMenuItem;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-public class GLayerMenu extends JMenu{
+public class GLayerMenu extends JMenu implements LanguageSupport {
 	private static final long serialVersionUID = 1L;
-	
+	private AppController controller;
+
 	public GLayerMenu(String text) {
 		super(text);
 		ActionHandler actionHandler = new ActionHandler();
@@ -32,58 +36,43 @@ public class GLayerMenu extends JMenu{
 			}
 			add(menuItem);
 		}
+		LanguageManager.getInstance().addLanguageChangeListener(() -> updateLanguage());
 	}
+	@Override
+	public void updateLanguage() {
+		setText(LanguageManager.getInstance().getText("layer.menu"));
 
+		for (int i = 0; i < getItemCount(); i++) {
+			JMenuItem item = getItem(i);
+			if (item != null) {
+				String command = item.getActionCommand();
+				if (command != null) {
+					try {
+						ELayerMenuItem menuItem = ELayerMenuItem.valueOf(command);
+						item.setText(menuItem.getText());
+					} catch (IllegalArgumentException e) {
+					}
+				}
+			}
+		}
+	}
+	// initialize
 	public void initialize() {}
-	public void hide(){
-		System.out.println("Hide");
+	public void setController(AppController controller) {
+		this.controller = controller;
 	}
-	public void renamelayer(){
-		System.out.println("Rename");
-	}
-	public void deletelayer(){}
-	public void group(){}
-	public void duplicate(){}
-	public void lock(){}
-	public void ungroup(){}
-	public void newlayer(){}
-	public void merge(){}
-
 	private class ActionHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ELayerMenuItem eMenuItem= ELayerMenuItem.valueOf(e.getActionCommand());
-			switch (eMenuItem) {
-				case eHide:
-					hide();
-					break;
-				case eRenameLayer:
-					renamelayer();
-					break;
-				case eDeleteLayer:
-					deletelayer();
-					break;
-				case eGroupLayer:
-					group();
-					break;
-				case eDuplicate:
-					duplicate();
-					break;
-				case eLock:
-					lock();
-					break;
-				case eNewLayer:
-					newlayer();
-					break;
-				case eUnGroupLayer:
-					ungroup();
-					break;
-				case eMerge:
-					merge();
-					break;
-				default:
-					break;
-			}
+			GMenuConstants.ELayerMenuItem eMenuItem = GMenuConstants.ELayerMenuItem.valueOf(e.getActionCommand());
+			invokeMethod(eMenuItem.getMethodName());
+		}
+	}
+	private void invokeMethod(String methodName) {
+		try {
+			controller.getClass().getMethod(methodName).invoke(controller);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

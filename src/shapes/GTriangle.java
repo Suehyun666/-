@@ -1,4 +1,6 @@
 package shapes;
+
+import java.awt.*;
 import java.awt.geom.Path2D;
 
 public class GTriangle extends GShape{
@@ -9,9 +11,10 @@ public class GTriangle extends GShape{
 
 	public GTriangle() {
 		super(new Path2D.Float());
-		this.triangle = (Path2D.Float) this.getShape();
+		this.triangle = (Path2D.Float) super.originalShape;
 		this.xPoints = new int[3];
 		this.yPoints = new int[3];
+		this.updateTransformedShape();
 	}
 
 	@Override
@@ -27,8 +30,9 @@ public class GTriangle extends GShape{
 		this.yPoints[2] = y;
 
 		updateTrianglePath();
-		this.transform = new java.awt.geom.AffineTransform();
+		this.updateTransformedShape();
 	}
+
 	@Override
 	public void dragPoint(int x, int y) {
 		xPoints[0] = startX;
@@ -40,6 +44,7 @@ public class GTriangle extends GShape{
 		xPoints[2] = startX + (x - startX) / 2;
 		yPoints[2] = y;
 		updateTrianglePath();
+		this.updateTransformedShape();
 	}
 	private void updateTrianglePath() {
 		Path2D.Float triangle = new Path2D.Float();
@@ -48,21 +53,17 @@ public class GTriangle extends GShape{
 		triangle.lineTo(xPoints[2], yPoints[2]);
 		triangle.closePath();
 		this.shape = triangle;
+		this.originalShape = triangle;
 	}
 
 	@Override
 	public void addPoint(int x, int y) {}
 
 	@Override
-	public GTriangle clone() {
-		GTriangle cloned = (GTriangle) super.clone();
-		cloned.triangle = new Path2D.Float();
-		cloned.xPoints = this.xPoints.clone();
-		cloned.yPoints = this.yPoints.clone();
-		cloned.startX = this.startX;
-		cloned.startY = this.startY;
-		cloned.updateTrianglePath();
-		cloned.shape = cloned.triangle;
-		return cloned;
+	public void drawSelectMode(Graphics2D g2d){
+		g2d.setColor(new Color(0, 100, 255, 150));
+		g2d.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT,
+				BasicStroke.JOIN_MITER, 10, new float[]{5, 5}, 0));
+		g2d.draw(this.transformedShape);
 	}
 }

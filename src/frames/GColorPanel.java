@@ -1,6 +1,7 @@
 package frames;
 
-import menus.edit.GColorDialog2;
+import controller.AppController;
+import dialog.edit.GColorDialog;
 import shapes.GShape;
 
 import javax.swing.*;
@@ -24,7 +25,8 @@ public class GColorPanel extends JPanel {
     private JLabel fillPreviewLabel;
     private JLabel strokePreviewLabel;
 
-    private GMainFrame mainFrame;
+    private GMainPanel currentPanel;
+    private AppController controller;
 
     // Default Paret
     private static final Color[] BASIC_COLORS = {
@@ -35,16 +37,15 @@ public class GColorPanel extends JPanel {
             new Color(165, 42, 42), new Color(0, 128, 0) // Brown, Dark Green
     };
 
-    public GColorPanel(GMainFrame mainFrame) {
-        this.mainFrame = mainFrame;
+    public GColorPanel() {
+        this.currentPanel=null;
         initializePanel();
     }
-
     private void initializePanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setPreferredSize(new Dimension(180, 400));
-        setBackground(Color.LIGHT_GRAY);
+        setBackground(Color.GRAY);
 
         // Title
         JLabel titleLabel = new JLabel("Color Tool");
@@ -270,45 +271,9 @@ public class GColorPanel extends JPanel {
         applyToSelectedShape();
     }
 
-    private void resetToDefaults() {
-        fillColor = Color.BLACK;
-        strokeColor = Color.BLACK;
-        strokeWidth = 1;
-        fillEnabled = true;
-        strokeEnabled = true;
-
-        fillCheckBox.setSelected(fillEnabled);
-        strokeCheckBox.setSelected(strokeEnabled);
-        fillColorButton.setEnabled(fillEnabled);
-        strokeColorButton.setEnabled(strokeEnabled);
-        strokeWidthSpinner.setValue(strokeWidth);
-        strokeWidthSpinner.setEnabled(strokeEnabled);
-
-        updatePreview();
-        applyToSelectedShape();
-    }
-
-    private void updatePreview() {
-        fillPreviewLabel.setForeground(fillEnabled ? fillColor : Color.LIGHT_GRAY);
-        strokePreviewLabel.setForeground(strokeEnabled ? strokeColor : Color.LIGHT_GRAY);
-        repaint();
-    }
-
-    private void applyToSelectedShape() {
-        if (mainFrame != null) {
-            GMainPanel currentPanel = mainFrame.getCurrentPanel();
-            if (currentPanel != null) {
-                currentPanel.updateSelectedShapeColors(
-                        fillColor, strokeColor, strokeWidth,
-                        fillEnabled, strokeEnabled
-                );
-            }
-        }
-    }
-
     // 새 도형 생성 시 현재 색상 속성
-    public GColorDialog2.ColorProperties getCurrentColorProperties() {
-        return new GColorDialog2.ColorProperties(
+    public GColorDialog.ColorProperties getCurrentColorProperties() {
+        return new GColorDialog.ColorProperties(
                 fillColor, strokeColor, strokeWidth,
                 fillEnabled, strokeEnabled
         );
@@ -334,14 +299,52 @@ public class GColorPanel extends JPanel {
         }
     }
 
-    public void initialize() {
-        resetToDefaults();
-    }
-
     // Getter
     public Color getFillColor() { return fillColor; }
     public Color getStrokeColor() { return strokeColor; }
     public int getStrokeWidth() { return strokeWidth; }
     public boolean isFillEnabled() { return fillEnabled; }
     public boolean isStrokeEnabled() { return strokeEnabled; }
+
+    //initialize
+    public void initialize() {
+        resetToDefaults();
+    }
+    private void resetToDefaults() {
+        fillColor = Color.WHITE;
+        strokeColor = Color.BLACK;
+        strokeWidth = 1;
+        fillEnabled = true;
+        strokeEnabled = true;
+
+        fillCheckBox.setSelected(fillEnabled);
+        strokeCheckBox.setSelected(strokeEnabled);
+        fillColorButton.setEnabled(fillEnabled);
+        strokeColorButton.setEnabled(strokeEnabled);
+        strokeWidthSpinner.setValue(strokeWidth);
+        strokeWidthSpinner.setEnabled(strokeEnabled);
+
+        updatePreview();
+        applyToSelectedShape();
+    }
+    private void updatePreview() {
+        fillPreviewLabel.setForeground(fillEnabled ? fillColor : Color.LIGHT_GRAY);
+        strokePreviewLabel.setForeground(strokeEnabled ? strokeColor : Color.LIGHT_GRAY);
+        repaint();
+    }
+    private void applyToSelectedShape() {
+        if (currentPanel != null) {
+            currentPanel.updateSelectedShapeColors(
+                    fillColor, strokeColor, strokeWidth,
+                    fillEnabled, strokeEnabled
+            );
+        }
+    }
+    public void associate(GMainPanel panel) {
+        this.currentPanel=panel;
+    }
+
+    public void setController(AppController appController) {
+        this.controller =appController;
+    }
 }

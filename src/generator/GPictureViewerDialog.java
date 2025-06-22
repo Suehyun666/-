@@ -2,7 +2,6 @@ package generator;
 
 import frames.GMainPanel;
 import shapes.GPicture;
-import shapes.GShape;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Vector;
 
 public class GPictureViewerDialog extends JDialog {
     private BufferedImage image;
@@ -141,7 +139,7 @@ public class GPictureViewerDialog extends JDialog {
                 picture.setLocation(centerX, centerY);
 
                 mainPanel.addShape(picture);
-                mainPanel.setUpdate(true);
+                mainPanel.setUpdated(true);
 
                 System.out.println("MainPanel shapes after add: " + mainPanel.getshapes().size());
 

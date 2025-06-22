@@ -2,12 +2,11 @@ package transformers;
 
 import java.awt.Graphics2D;
 
-import shapes.GRectangle;
 import shapes.GShape;
 
 public abstract class GTransFormer {
 	protected GShape shape;
-	protected int startX,startY;
+	protected int prevX,prevY;
 	public GTransFormer(GShape gshape) {
 		this.shape=gshape;
 	}

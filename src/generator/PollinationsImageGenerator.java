@@ -50,10 +50,8 @@ public class PollinationsImageGenerator implements ImageGenerator {
     @Override
     public File generateImage(String prompt, String apiKey, String outputPath) throws Exception {
         try {
-            // URL 인코딩
             String encodedPrompt = URLEncoder.encode(prompt, StandardCharsets.UTF_8.toString());
 
-            // 이미지 크기와 품질 파라미터 추가
             String fullUrl = POLLINATIONS_URL + encodedPrompt +
                     "?width=1024&height=1024&nologo=true&nofeed=true";
 
