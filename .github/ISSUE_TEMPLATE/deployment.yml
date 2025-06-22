@@ -1,5 +1,5 @@
 name: 🚀 Deployment
-description: Production deployment task
+description: Application deployment and release management
 title: "[Deploy]: "
 labels: ["deployment", "release"]
 body:
@@ -18,9 +18,9 @@ body:
       label: Environment
       description: Where are we deploying?
       options:
-        - Development
-        - Staging
-        - Production
+        - Local Build
+        - Testing Environment
+        - Production Release
     validations:
       required: true
 
@@ -30,9 +30,10 @@ body:
       label: Changes in This Release
       description: What's new in this version?
       placeholder: |
-        - New features
-        - Bug fixes
-        - Breaking changes
+        - New features (AI integration, layer system)
+        - Bug fixes (shape order, save errors)
+        - UI improvements (icon buttons, dialogs)
+        - Refactoring (controller separation, constants)
     validations:
       required: true
 
@@ -42,16 +43,35 @@ body:
       label: Pre-deployment Checklist
       description: Complete before deployment
       options:
-        - label: All tests passing
-        - label: Code review completed
+        - label: All unit tests passing
+        - label: Manual testing completed
+        - label: JAR file builds successfully
+        - label: Dependencies updated
         - label: Documentation updated
-        - label: Database migrations ready
-        - label: Rollback plan prepared
+        - label: Version number updated in code
+
+  - type: textarea
+    id: build-info
+    attributes:
+      label: Build Information
+      description: Technical build details
+      placeholder: |
+        - Java Version: 21
+        - Build Tool: Maven/Gradle
+        - Main Class: com.paintapp.Main
+        - JAR Size: ~15MB
+        - Required Libraries: Swing, AI API client
+    validations:
+      required: false
 
   - type: textarea
     id: rollback
     attributes:
       label: Rollback Plan
       description: How to rollback if issues occur?
+      placeholder: |
+        - Keep previous JAR version as backup
+        - Revert to previous git tag
+        - Known working configuration
     validations:
       required: true

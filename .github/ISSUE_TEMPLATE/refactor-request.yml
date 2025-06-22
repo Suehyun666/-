@@ -1,27 +1,34 @@
 name: 🔄 Refactoring
-description: Code improvement without changing functionality
+description: Code improvement and architecture enhancement
 title: "[Refactor]: "
 labels: ["refactoring", "tech-debt"]
 body:
   - type: textarea
     id: current-state
     attributes:
-      label: Current State
+      label: Current Code State
       description: What code needs to be refactored?
-      placeholder: Describe the current implementation...
+      placeholder: |
+        Current issues:
+        - ShapeController and TabManager have overlapping responsibilities
+        - Constants scattered across multiple files (gconstants, menuconstants)
+        - Inconsistent error handling in dialogs
+        - No clear separation between UI and business logic
     validations:
       required: true
 
   - type: textarea
     id: proposed-changes
     attributes:
-      label: Proposed Changes
-      description: How should it be improved?
+      label: Proposed Refactoring
+      description: How should the code be improved?
       placeholder: |
-        - Extract components
-        - Improve naming
-        - Reduce complexity
-        - Add type safety
+        Proposed improvements:
+        - Extract common controller interface
+        - Consolidate all constants into single enum structure
+        - Implement uniform error handling pattern
+        - Apply MVC pattern consistently
+        - Create separate service layer for business logic
     validations:
       required: true
 
@@ -31,20 +38,69 @@ body:
       label: Benefits
       description: Why is this refactoring needed?
       placeholder: |
-        - Better maintainability
+        Expected benefits:
+        - Easier to maintain and extend
+        - Reduced code duplication
+        - Better testability
+        - Clearer separation of concerns
         - Improved performance
-        - Easier testing
+        - Easier onboarding for new developers
     validations:
       required: true
 
   - type: checkboxes
     id: scope
     attributes:
-      label: Scope
-      description: What areas will be affected?
+      label: Affected Components
+      description: What areas will be impacted?
       options:
-        - label: UI Components
-        - label: Business Logic
-        - label: API Layer
-        - label: State Management
-        - label: Utilities
+        - label: Menu System (File, Edit, etc.)
+        - label: Controller Layer (Shape, Tab, File controllers)
+        - label: UI Components (Swing panels, dialogs)
+        - label: Data Models (Layer, Shape, Canvas)
+        - label: Constants and Enums
+        - label: Error Handling
+        - label: File I/O Operations
+        - label: AI Integration Layer
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Refactoring Complexity
+      description: How complex is this refactoring?
+      options:
+        - Simple (1-2 classes, few hours)
+        - Medium (Multiple classes, 1-2 days)
+        - Complex (Architecture change, 1+ weeks)
+        - Major (Significant rewrite, multiple weeks)
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation-plan
+    attributes:
+      label: Implementation Plan
+      description: Step-by-step approach
+      placeholder: |
+        Implementation steps:
+        1. Create new interface/abstract classes
+        2. Refactor one controller at a time
+        3. Update unit tests
+        4. Verify functionality unchanged
+        5. Remove deprecated code
+    validations:
+      required: false
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and Considerations
+      description: What could go wrong?
+      placeholder: |
+        Potential risks:
+        - Might break existing functionality
+        - Could introduce new bugs
+        - May affect performance
+        - Might conflict with ongoing features
+    validations:
+      required: false

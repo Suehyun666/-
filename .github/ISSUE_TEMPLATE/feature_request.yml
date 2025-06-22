@@ -1,19 +1,32 @@
 name: ✨ Feature Request
-description: Suggest an idea for this project
+description: Suggest new functionality for the paint application
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a new feature!
+        Thanks for suggesting a new feature for our paint application!
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      description: Describe the feature from user perspective
+      placeholder: "As a user, I want to [feature] so that I can [benefit]"
+    validations:
+      required: true
 
   - type: textarea
     id: problem
     attributes:
       label: Problem Description
       description: What problem does this feature solve?
-      placeholder: I'm always frustrated when...
+      placeholder: |
+        Current workflow issues:
+        - Users have to manually switch between tools
+        - No way to save custom brush settings
+        - Layer management is cumbersome
     validations:
       required: true
 
@@ -21,28 +34,52 @@ body:
     id: solution
     attributes:
       label: Proposed Solution
-      description: What would you like to happen?
-      placeholder: I would like to see...
+      description: How should this feature work?
+      placeholder: |
+        - Add toolbar shortcuts for common actions
+        - Implement brush preset system
+        - Create drag-and-drop layer reordering
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component Area
+      description: Which part of the application?
+      options:
+        - Menu System
+        - Toolbar/Tools
+        - Canvas/Drawing
+        - Layer Management
+        - File Operations
+        - AI Integration
+        - UI/Dialogs
+        - Settings/Preferences
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature?
+      options:
+        - Low (Nice to have)
+        - Medium (Would improve UX)
+        - High (Important for workflow)
+        - Critical (Blocking current work)
     validations:
       required: true
 
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternatives
-      description: Any alternative solutions you've considered?
+      label: Alternative Solutions
+      description: Any other approaches you've considered?
+      placeholder: |
+        - Could use keyboard shortcuts instead
+        - Might be solved by improving existing feature
+        - Similar to how Photoshop/GIMP handles this
     validations:
       required: false
-
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      description: How important is this feature to you?
-      options:
-        - Low
-        - Medium
-        - High
-        - Critical
-    validations:
-      required: true
