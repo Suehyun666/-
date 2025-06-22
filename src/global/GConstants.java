@@ -53,8 +53,7 @@ public class GConstants {
 		eLine("line", EPoints.e2P,GLine.class),
 		ePolygon("polygon",EPoints.enP,GPolygon.class),
 		ePen("Pen", EPoints.e2P,GPen.class),
-		eBrush("Brush", EPoints.e2P,GBrush.class),
-		eErase("Erase",EPoints.e2P,GEraser.class);
+		eBrush("Brush", EPoints.e2P,GBrush.class);
 
 		private String name;
 		private EPoints ePoints;

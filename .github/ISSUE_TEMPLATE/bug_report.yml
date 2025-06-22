@@ -42,7 +42,7 @@ body:
         4. Click delete
         5. Error occurs
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: expected-behavior
